@@ -104,6 +104,7 @@ PROVE YOU ARE DONE
 | [Recipe 27 — Pipeline Orchestration & Scheduling](27-pipeline-orchestration-and-scheduling.md) | Workflow execution, dependencies and scheduling |
 | [Recipe 28 — Pipeline Run Tracking](28-pipeline-run-tracking.md) | Durable execution identity, state and history |
 | [Recipe 29 — Pipeline Logging](29-pipeline-logging.md) | Structured execution evidence and correlation |
+| [Recipe 30 — Pipeline Metrics](30-pipeline-metrics.md) | Measurable pipeline health, performance and data signals |
 
 ## Learning Order
 
@@ -166,7 +167,9 @@ PROVE YOU ARE DONE
    ↓
 29 Pipeline Logging
    ↓
-30+
+30 Pipeline Metrics
+   ↓
+31+
 Future Core Recipes
 ~~~
 
