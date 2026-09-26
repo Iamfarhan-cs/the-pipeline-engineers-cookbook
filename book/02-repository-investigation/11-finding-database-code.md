@@ -1288,7 +1288,7 @@ Before changing database-related code in an unfamiliar repository, ask:
 
 # What You Learned
 
-In this chapter, you learned:
+In this recipe, you learned:
 
 - Database investigation starts by identifying the storage technology.
 - Finding the connection is only the first step.
@@ -1309,11 +1309,3 @@ The main lesson is:
 **Do not stop when you find the database connection. Trace the complete path from pipeline code to query to table to schema, constraints, and tests. That is where the real database behavior lives.**
 
 ---
-
-# Recipe Preview
-
-The next chapter focuses on another important part of repository investigation:
-
-**Chapter 12 — Finding Migrations.**
-
-You will learn how to locate migration files, understand migration order, identify the change that created a table or column, trace schema evolution, and verify whether a database change is safe to deploy.
