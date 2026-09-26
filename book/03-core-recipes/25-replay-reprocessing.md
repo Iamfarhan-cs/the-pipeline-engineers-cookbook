@@ -1761,4 +1761,18 @@ We will cover:
 
 The key question will be:
 
-> When a record cannot safely continue through the normal pipeline, where should it go and how can we recover it later?
+> When a record cannot safely continue through the normal pipeline, where should it go and how can we recover it later?## Production Tools You Should Know
+
+These tools solve or provide production implementations of concepts covered in this recipe. Learn what the tool provides, but understand the underlying problem first.
+
+| Tool | What to know |
+|---|---|
+| **Apache Kafka** | Replayable event retention and offset-based reprocessing. |
+| **Apache Spark** | Batch reprocessing over historical data. |
+| **Apache Flink** | Stateful stream replay and recovery patterns. |
+
+> These are reference tools for recognition and vocabulary, not substitutes for understanding the engineering mechanism.
+
+---
+
+
