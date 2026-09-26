@@ -1,4 +1,4 @@
-# Chapter 19 — Validate Incoming Data
+# Recipe 19 — Validate Incoming Data
 
 Chapter 18 gave us a staging boundary:
 
