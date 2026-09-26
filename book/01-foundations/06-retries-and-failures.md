@@ -1,4 +1,4 @@
-# Chapter 6 — Retries and Failures
+# Recipe 6 — Retries and Failures
 
 Failures are normal in data pipelines.
 
