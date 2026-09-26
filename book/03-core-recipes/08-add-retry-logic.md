@@ -69,7 +69,7 @@ The request fails because the service is temporarily unavailable.
 
 A simple implementation might do this:
 
-~~~text
+```text
 request
    |
    X
@@ -77,13 +77,13 @@ error
    |
    v
 stop
-~~~
+```
 
 The pipeline has no chance to recover automatically.
 
 A different implementation might immediately retry:
 
-~~~text
+```text
 request
    |
    X
@@ -97,7 +97,7 @@ error
    |
    v
 request
-~~~
+```
 
 This can be dangerous.
 
@@ -105,7 +105,7 @@ If the external service is already overloaded, sending requests continuously can
 
 A better design controls:
 
-~~~text
+```text
 failure
    |
    v
@@ -127,7 +127,7 @@ is retryable?
                     |
                     v
                   retry
-~~~
+```
 
 Retry logic is therefore a reliability mechanism, not simply a loop.
 
@@ -181,12 +181,12 @@ Retry logic is usually not useful for errors where the input itself is invalid.
 
 For example:
 
-~~~text
+```text
 missing required field
 invalid currency
 malformed JSON
 unsupported value
-~~~
+```
 
 Retrying the same input will normally produce the same failure.
 
@@ -198,7 +198,7 @@ This is why Recipe 7 classified errors before retry behavior was added.
 
 A basic retry flow looks like this:
 
-~~~text
+```text
                  Process operation
                         |
                         v
@@ -223,7 +223,7 @@ A basic retry flow looks like this:
                 |
                 v
               retry
-~~~
+```
 
 The retry system should make each decision explicit.
 
@@ -260,7 +260,7 @@ A retryable error is a failure where another attempt may succeed without changin
 
 Typical examples:
 
-~~~text
+```text
 network timeout
 temporary connection failure
 HTTP 503
@@ -268,7 +268,7 @@ HTTP 502
 temporary database connection failure
 rate limit
 deadlock
-~~~
+```
 
 These are general examples.
 
@@ -282,14 +282,14 @@ A non-retryable error usually requires some other action.
 
 Examples:
 
-~~~text
+```text
 invalid input
 missing required field
 invalid authentication credentials
 unsupported operation
 malformed request
 business-rule violation
-~~~
+```
 
 The correct response may be:
 
@@ -310,7 +310,7 @@ The retry system should not decide whether an error is retryable based only on t
 
 The flow should be:
 
-~~~text
+```text
 operation
    |
    v
@@ -324,7 +324,7 @@ classify error
    +---- non-retryable
    |
    +---- unknown
-~~~
+```
 
 Unknown errors should be handled deliberately.
 
@@ -345,27 +345,27 @@ Every retry system needs a limit.
 
 For example:
 
-~~~text
+```text
 max_attempts = 4
-~~~
+```
 
 The attempts could be:
 
-~~~text
+```text
 attempt 1 -> initial attempt
 attempt 2 -> retry
 attempt 3 -> retry
 attempt 4 -> final retry
-~~~
+```
 
 After the final attempt fails:
 
-~~~text
+```text
 failed
    |
    v
 quarantine / alert / manual recovery
-~~~
+```
 
 The exact number is a policy decision.
 
@@ -379,11 +379,11 @@ These terms can be confused.
 
 Suppose:
 
-~~~text
+```text
 attempt 1 -> fails
 attempt 2 -> fails
 attempt 3 -> succeeds
-~~~
+```
 
 The operation had:
 
@@ -394,10 +394,10 @@ A system should define its terminology clearly.
 
 For example:
 
-~~~text
+```text
 attempt_count = 3
 retry_count = 2
-~~~
+```
 
 Do not mix these meanings in database fields, logs, and dashboards.
 
@@ -407,7 +407,7 @@ Do not mix these meanings in database fields, logs, and dashboards.
 
 A generic retry implementation might look like:
 
-~~~python
+```python
 for attempt in range(1, max_attempts + 1):
     try:
         process()
@@ -416,7 +416,7 @@ for attempt in range(1, max_attempts + 1):
         if attempt == max_attempts:
             raise
         wait_before_retry(attempt)
-~~~
+```
 
 This is a **generic example**.
 
@@ -439,13 +439,13 @@ Suppose an API is temporarily overloaded.
 
 The pipeline sends:
 
-~~~text
+```text
 request
 request
 request
 request
 request
-~~~
+```
 
 within a very short period.
 
@@ -453,7 +453,7 @@ The service may become even more overloaded.
 
 Immediate retries can create a feedback loop:
 
-~~~text
+```text
 service slows down
       |
       v
@@ -467,7 +467,7 @@ more requests
       |
       v
 service slows down further
-~~~
+```
 
 This is one reason retry delays are important.
 
@@ -479,21 +479,21 @@ The simplest retry strategy uses a fixed delay.
 
 For example:
 
-~~~text
+```text
 attempt 1 -> fail
 wait 5 seconds
 attempt 2 -> fail
 wait 5 seconds
 attempt 3 -> fail
-~~~
+```
 
 The delay remains constant.
 
 Conceptually:
 
-~~~text
+```text
 delay = 5 seconds
-~~~
+```
 
 Advantages:
 
@@ -516,18 +516,18 @@ Exponential backoff increases the delay after each failed attempt.
 
 A common generic formula is:
 
-~~~text
+```text
 delay = base_delay × 2^(attempt - 1)
-~~~
+```
 
 For example, with a base delay of 2 seconds:
 
-~~~text
+```text
 attempt 1 -> 2 seconds
 attempt 2 -> 4 seconds
 attempt 3 -> 8 seconds
 attempt 4 -> 16 seconds
-~~~
+```
 
 The exact formula can vary.
 
@@ -543,18 +543,18 @@ Unbounded exponential growth is usually not desirable.
 
 A maximum delay can be applied:
 
-~~~text
+```text
 delay = min(calculated_delay, maximum_delay)
-~~~
+```
 
 For example:
 
-~~~text
+```text
 calculated delay: 64 seconds
 maximum delay:    30 seconds
 
 actual delay:     30 seconds
-~~~
+```
 
 This prevents a single retry interval from becoming excessively long.
 
@@ -568,13 +568,13 @@ Imagine 1,000 workers all fail at the same time.
 
 They calculate the same retry schedule:
 
-~~~text
+```text
 worker 1 -> retry at 10:00:05
 worker 2 -> retry at 10:00:05
 worker 3 -> retry at 10:00:05
 ...
 worker 1000 -> retry at 10:00:05
-~~~
+```
 
 They all hit the dependency again at the same time.
 
@@ -584,7 +584,7 @@ Jitter adds controlled randomness to the delay.
 
 Conceptually:
 
-~~~text
+```text
 calculated delay
        |
        v
@@ -592,16 +592,16 @@ add jitter
        |
        v
 actual retry delay
-~~~
+```
 
 For example:
 
-~~~text
+```text
 worker A -> 4.2 seconds
 worker B -> 5.1 seconds
 worker C -> 4.7 seconds
 worker D -> 5.6 seconds
-~~~
+```
 
 The exact jitter algorithm depends on the system.
 
@@ -611,7 +611,7 @@ The exact jitter algorithm depends on the system.
 
 A common pattern is:
 
-~~~text
+```text
 failure
   |
   v
@@ -625,7 +625,7 @@ wait
   |
   v
 retry
-~~~
+```
 
 This helps prevent many workers from retrying simultaneously.
 
@@ -641,7 +641,7 @@ For example, an API may return a response indicating that the client should wait
 
 A generic flow is:
 
-~~~text
+```text
 API response
      |
      v
@@ -650,7 +650,7 @@ retry guidance?
      +---- yes ----> use server guidance
      |
      +---- no -----> use client backoff policy
-~~~
+```
 
 The API contract should be followed.
 
@@ -664,7 +664,7 @@ Rate limits are a common reason for retries.
 
 For example:
 
-~~~text
+```text
 request
    |
    v
@@ -678,7 +678,7 @@ wait according to policy
    |
    v
 retry
-~~~
+```
 
 The retry policy should consider:
 
@@ -702,7 +702,7 @@ Retrying the same request immediately will probably not fix it.
 
 For example:
 
-~~~text
+```text
 request
    |
    v
@@ -713,7 +713,7 @@ same credentials
    |
    v
 authentication failure
-~~~
+```
 
 This should normally lead to investigation or credential refresh logic, not an unlimited retry loop.
 
@@ -736,18 +736,18 @@ But database retries must respect transaction boundaries.
 
 For example:
 
-~~~text
+```text
 BEGIN
   operation A
   operation B
 COMMIT
-~~~
+```
 
 If the transaction fails, the retry should normally repeat the appropriate transaction rather than continuing halfway through it.
 
 A useful conceptual pattern is:
 
-~~~text
+```text
 start transaction
       |
       v
@@ -761,7 +761,7 @@ commit   rollback
            |
            v
        retry if safe
-~~~
+```
 
 The exact behavior depends on the database error.
 
@@ -773,7 +773,7 @@ Database deadlocks are a useful example of a potentially retryable error.
 
 Two transactions may wait for each other:
 
-~~~text
+```text
 Transaction A
     |
     +--> locks row 1
@@ -785,7 +785,7 @@ Transaction B
     +--> locks row 2
     |
     +--> waits for row 1
-~~~
+```
 
 The database may abort one transaction.
 
@@ -801,9 +801,9 @@ Retry logic depends heavily on idempotency.
 
 Suppose a worker performs:
 
-~~~text
+```text
 create payment
-~~~
+```
 
 The request reaches the remote service.
 
@@ -813,9 +813,9 @@ The response is lost.
 
 The worker sees:
 
-~~~text
+```text
 timeout
-~~~
+```
 
 It retries.
 
@@ -823,7 +823,7 @@ If the remote operation is not idempotent, the system might create the payment t
 
 The flow becomes:
 
-~~~text
+```text
 worker
   |
   +---- request ----> service
@@ -840,7 +840,7 @@ retry
                         |
                         v
                      duplicate
-~~~
+```
 
 This is why retries and idempotency must be designed together.
 
@@ -854,7 +854,7 @@ A common pattern for external operations is an idempotency key.
 
 Conceptually:
 
-~~~text
+```text
 operation
     |
     v
@@ -862,7 +862,7 @@ stable idempotency key
     |
     v
 external service
-~~~
+```
 
 If the same operation is sent again with the same key, the service can recognize it as the same operation.
 
@@ -878,7 +878,7 @@ The processing status from Recipe 6 should represent retry state clearly.
 
 For example:
 
-~~~text
+```text
 pending
    |
    v
@@ -892,11 +892,11 @@ retry_pending
    |
    v
 processing
-~~~
+```
 
 After the retry limit:
 
-~~~text
+```text
 retry_pending
       |
       v
@@ -904,7 +904,7 @@ attempt limit reached
       |
       v
 failed / quarantined
-~~~
+```
 
 The exact states depend on the pipeline.
 
@@ -923,7 +923,7 @@ A retry does not always need to happen inside the same worker execution.
 
 For example:
 
-~~~text
+```text
 failure
    |
    v
@@ -937,25 +937,25 @@ worker later claims record
    |
    v
 retry
-~~~
+```
 
 This can be more reliable for long delays.
 
 Instead of keeping a worker blocked:
 
-~~~text
+```text
 worker
    |
    v
 sleep 30 minutes
-~~~
+```
 
 the system can store the future retry time:
 
-~~~text
+```text
 status = retry_pending
 retry_at = 10:30
-~~~
+```
 
 Then a worker can pick it up when it becomes eligible.
 
@@ -965,22 +965,22 @@ Then a worker can pick it up when it becomes eligible.
 
 A generic schema might contain:
 
-~~~text
+```text
 status
 attempt_count
 next_retry_at
 last_error
 updated_at
-~~~
+```
 
 For example:
 
-~~~text
+```text
 status          = retry_pending
 attempt_count   = 2
 next_retry_at   = 2026-09-26 10:30:00
 last_error      = timeout
-~~~
+```
 
 This is a **generic example**.
 
@@ -994,7 +994,7 @@ If the worker crashes, the retry information is still available.
 
 Suppose a worker does:
 
-~~~text
+```text
 claim record
    |
    v
@@ -1002,7 +1002,7 @@ process
    |
    X
 worker crashes
-~~~
+```
 
 The system needs a recovery mechanism.
 
@@ -1028,12 +1028,12 @@ For independent records, retry can happen at record level.
 
 For example:
 
-~~~text
+```text
 Record A -> completed
 Record B -> retry_pending
 Record C -> completed
 Record D -> failed
-~~~
+```
 
 The worker can continue processing A and C while B waits for its retry time.
 
@@ -1049,17 +1049,17 @@ Some operations are naturally batch-level.
 
 For example:
 
-~~~text
+```text
 download entire file
-~~~
+```
 
 If the download fails, retrying the entire operation may make sense.
 
 Another example:
 
-~~~text
+```text
 load a transaction into a warehouse table
-~~~
+```
 
 If the entire transaction fails, the batch may need to be retried.
 
@@ -1071,7 +1071,7 @@ The retry unit should match the operation's failure boundary.
 
 A dangerous design is:
 
-~~~text
+```text
 HTTP client retries 3 times
        |
        v
@@ -1079,15 +1079,15 @@ worker retries 3 times
        |
        v
 job retries 3 times
-~~~
+```
 
 This can create many more attempts than expected.
 
 For example:
 
-~~~text
+```text
 3 × 3 × 3 = 27 attempts
-~~~
+```
 
 The application may think it has a small retry policy while the actual system performs many more attempts.
 
@@ -1101,7 +1101,7 @@ A retry storm occurs when many clients retry a failing dependency at the same ti
 
 The pattern can be:
 
-~~~text
+```text
 dependency fails
       |
       v
@@ -1118,7 +1118,7 @@ dependency remains unhealthy
       |
       v
 workers retry again
-~~~
+```
 
 This can make an outage worse.
 
@@ -1142,7 +1142,7 @@ A circuit breaker can stop repeated calls to a failing dependency.
 
 Conceptually:
 
-~~~text
+```text
 normal
   |
   v
@@ -1159,7 +1159,7 @@ test dependency later
   |
   v
 recover
-~~~
+```
 
 This is different from retry.
 
@@ -1181,9 +1181,9 @@ A retry budget limits how much additional work retries are allowed to create.
 
 For example, suppose a system normally processes:
 
-~~~text
+```text
 10,000 requests
-~~~
+```
 
 If every request can be retried five times, the dependency could receive far more traffic.
 
@@ -1205,14 +1205,14 @@ A useful retry system should make the history understandable.
 
 For example:
 
-~~~text
+```text
 record 1001
 
 attempt 1 -> timeout
 attempt 2 -> timeout
 attempt 3 -> rate limited
 attempt 4 -> completed
-~~~
+```
 
 This can help answer:
 
@@ -1230,7 +1230,7 @@ History can be stored in a dedicated table or represented through logs and metri
 
 Useful retry metrics include:
 
-~~~text
+```text
 retries_total
 retries_by_error_type
 retries_by_service
@@ -1238,17 +1238,17 @@ retry_exhausted_total
 retry_success_total
 retry_attempts_per_record
 retry_delay
-~~~
+```
 
 These metrics can show whether retries are helping.
 
 For example:
 
-~~~text
+```text
 retry attempts: 10,000
 successful retries: 9,500
 exhausted retries: 500
-~~~
+```
 
 The exact metrics should match the system's operational needs.
 
@@ -1260,10 +1260,10 @@ A useful measurement is the percentage of retries that eventually succeed.
 
 Conceptually:
 
-~~~text
+```text
 retry success rate =
 successful retry recoveries / retry attempts
-~~~
+```
 
 The exact denominator should be defined carefully.
 
@@ -1287,69 +1287,69 @@ At minimum, test:
 
 Expected:
 
-~~~text
+```text
 one attempt
 no retry
-~~~
+```
 
 ### Test 2 — First attempt fails, second succeeds
 
 Expected:
 
-~~~text
+```text
 two attempts
 one retry
 final status = completed
-~~~
+```
 
 ### Test 3 — All attempts fail
 
 Expected:
 
-~~~text
+```text
 maximum attempts reached
 final failure state
-~~~
+```
 
 ### Test 4 — Non-retryable error
 
 Expected:
 
-~~~text
+```text
 no retry
-~~~
+```
 
 ### Test 5 — Retryable error
 
 Expected:
 
-~~~text
+```text
 retry occurs
-~~~
+```
 
 ### Test 6 — Backoff
 
 Expected:
 
-~~~text
+```text
 delay follows configured policy
-~~~
+```
 
 ### Test 7 — Retry state persistence
 
 Expected:
 
-~~~text
+```text
 retry information survives worker restart
-~~~
+```
 
 ### Test 8 — Idempotent retry
 
 Expected:
 
-~~~text
+```text
 repeated operation does not create duplicate results
-~~~
+```
 
 ---
 
@@ -1359,30 +1359,30 @@ A common bug is an off-by-one error.
 
 Suppose:
 
-~~~text
+```text
 max_attempts = 3
-~~~
+```
 
 You need to verify exactly how many calls occur.
 
 Expected:
 
-~~~text
+```text
 attempt 1
 attempt 2
 attempt 3
 stop
-~~~
+```
 
 Not:
 
-~~~text
+```text
 attempt 1
 attempt 2
 attempt 3
 attempt 4
 stop
-~~~
+```
 
 Define whether the configured value means total attempts or retry count.
 
@@ -1396,12 +1396,12 @@ Real retry delays can make automated tests unnecessarily slow.
 
 For example:
 
-~~~text
+```text
 2 seconds
 4 seconds
 8 seconds
 16 seconds
-~~~
+```
 
 A test suite should not need to wait 30 seconds to verify the retry calculation.
 
@@ -1426,10 +1426,10 @@ Tests should therefore not require an exact random delay unless randomness is co
 
 A better test can verify:
 
-~~~text
+```text
 delay >= minimum
 delay <= maximum
-~~~
+```
 
 Or use an injectable random-number generator.
 
@@ -1443,11 +1443,11 @@ For an API client, simulate a rate-limit response.
 
 For example:
 
-~~~text
+```text
 request 1 -> HTTP 429
 request 2 -> HTTP 429
 request 3 -> success
-~~~
+```
 
 Verify that:
 
@@ -1467,10 +1467,10 @@ Database retry tests should simulate the relevant temporary failure.
 
 For example:
 
-~~~text
+```text
 transaction attempt 1 -> deadlock
 transaction attempt 2 -> success
-~~~
+```
 
 Verify:
 
@@ -1488,7 +1488,7 @@ This is where transaction correctness and idempotency become important.
 
 For an existing repository, use this order:
 
-~~~text
+```text
 1. Find existing error handling
         |
         v
@@ -1547,7 +1547,7 @@ For an existing repository, use this order:
         |
         v
 20. Verify final state
-~~~
+```
 
 Do not implement backoff before deciding what is actually retryable.
 
@@ -1663,14 +1663,14 @@ Retry limits and delays should be configurable where appropriate.
 
 A retry policy may contain values such as:
 
-~~~text
+```text
 max_attempts
 base_delay
 maximum_delay
 jitter_enabled
 retryable_errors
 retryable_status_codes
-~~~
+```
 
 This is a **generic example**.
 
@@ -1690,14 +1690,14 @@ Every system should have a clear answer to:
 
 Possible layers include:
 
-~~~text
+```text
 HTTP client
 worker
 queue consumer
 scheduler
 job runner
 orchestrator
-~~~
+```
 
 If multiple layers retry independently, the total number of attempts can become difficult to predict.
 
@@ -1723,16 +1723,16 @@ Replay usually means:
 
 For example:
 
-~~~text
+```text
 timeout
   |
   v
 retry
-~~~
+```
 
 But:
 
-~~~text
+```text
 bad code deployed
   |
   v
@@ -1740,7 +1740,7 @@ fix code
   |
   v
 replay historical failed records
-~~~
+```
 
 Replay may happen much later and may use a different processing version.
 
@@ -1756,16 +1756,16 @@ A backfill processes historical data intentionally.
 
 For example:
 
-~~~text
+```text
 today's API call failed
         |
         v
 retry
-~~~
+```
 
 Whereas:
 
-~~~text
+```text
 historical records from January
         |
         v
@@ -1773,7 +1773,7 @@ new transformation
         |
         v
 backfill
-~~~
+```
 
 The two can interact, but they should not be treated as the same operation.
 
@@ -1815,15 +1815,15 @@ Retry logic is complete when:
 
 Retry logic is not:
 
-~~~python
+```python
 try_again()
-~~~
+```
 
 It is a controlled recovery mechanism.
 
 A good retry system answers:
 
-~~~text
+```text
 What failed?
     |
     v
@@ -1845,7 +1845,7 @@ Can it succeed later?
         |
         v
       retry
-~~~
+```
 
 The most important lessons are:
 
