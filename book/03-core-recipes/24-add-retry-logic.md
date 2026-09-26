@@ -1,4 +1,4 @@
-# Chapter 24 — Add Retry Logic
+# Recipe 24 — Add Retry Logic
 
 A temporary failure does not always mean that processing should stop.
 
