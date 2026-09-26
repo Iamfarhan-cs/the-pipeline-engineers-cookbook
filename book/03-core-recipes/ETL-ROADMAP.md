@@ -50,7 +50,7 @@ The **Cross-Cutting Production** group teaches the reliability, performance, obs
 | E06 | [Extract Data from JSON Files](E06-extract-data-from-json-files.md) |
 | E07 | [Extract Data from XML Files](E07-extract-data-from-xml-files.md) |
 | E08 | [Extract Data from Excel Files](E08-extract-data-from-excel-files.md) |
-| E09 | Extract Data from Object Storage |
+| E09 | [Extract Data from Object Storage](E09-extract-data-from-object-storage.md) |
 | E10 | Extract Data from SFTP/FTP |
 | E11 | Extract Data from Webhooks |
 | E12 | Extract Data from Message Queues |
