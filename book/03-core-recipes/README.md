@@ -25,7 +25,7 @@ By the end of every recipe, you should be able to:
 
 The learning loop is:
 
-```text
+~~~text
 REAL DE PROBLEM
       ↓
 UNDERSTAND THE MECHANISM
@@ -47,7 +47,7 @@ LEARN PRODUCTION TOOLS
 OPERATE IT
       ↓
 PROVE YOU ARE DONE
-```
+~~~
 
 ## Core Recipe Sequence
 
@@ -97,9 +97,15 @@ PROVE YOU ARE DONE
 | [Recipe 25 — Rate Limiting](25-rate-limiting.md) | Dependency traffic control |
 | [Recipe 26 — Network Failure](26-network-failure.md) | Network reliability and recovery |
 
+### Stage 5 — Orchestration & Pipeline Operations
+
+| Recipe | Topic |
+|---:|---|
+| [Recipe 27 — Pipeline Orchestration & Scheduling](27-pipeline-orchestration-and-scheduling.md) | Workflow execution, dependencies and scheduling |
+
 ## Learning Order
 
-```text
+~~~text
 1  Ingestion
    ↓
 2  Staging
@@ -152,9 +158,11 @@ PROVE YOU ARE DONE
    ↓
 26 Network Failure
    ↓
-27+
+27 Pipeline Orchestration & Scheduling
+   ↓
+28+
 Future Core Recipes
-```
+~~~
 
 ## Standard Recipe Structure
 
