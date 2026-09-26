@@ -52,14 +52,14 @@ The central idea is simple:
 
 Imagine an ingestion pipeline receives this event:
 
-~~~json
+```json
 {
   "event_id": "evt-1001",
   "customer_id": "cust-42",
   "amount": 250,
   "currency": "EUR"
 }
-~~~
+```
 
 The pipeline inserts the event into a database.
 
@@ -482,11 +482,11 @@ The database should enforce it.
 
 For example:
 
-~~~sql
+```sql
 CREATE UNIQUE INDEX
     idx_events_event_id_unique
 ON events (event_id);
-~~~
+```
 
 This is a **generic example**.
 
@@ -539,7 +539,7 @@ For PostgreSQL, a common pattern is an upsert or conflict-aware insert.
 
 For example:
 
-~~~sql
+```sql
 INSERT INTO events (
     event_id,
     customer_id,
@@ -553,7 +553,7 @@ VALUES (
     'EUR'
 )
 ON CONFLICT (event_id) DO NOTHING;
-~~~
+```
 
 This is a **generic example**.
 
@@ -1012,7 +1012,7 @@ It is a **generic learning example**, not a claim about any specific repository.
 
 Suppose the database contains:
 
-~~~sql
+```sql
 CREATE TABLE events (
     id BIGSERIAL PRIMARY KEY,
     event_id TEXT NOT NULL UNIQUE,
@@ -1020,11 +1020,11 @@ CREATE TABLE events (
     amount NUMERIC NOT NULL,
     currency TEXT NOT NULL
 );
-~~~
+```
 
 The Python processing function could use a conflict-aware insert:
 
-~~~python
+```python
 def process_event(conn, event):
     with conn.cursor() as cur:
         cur.execute(
@@ -1047,7 +1047,7 @@ def process_event(conn, event):
         )
 
     conn.commit()
-~~~
+```
 
 The important part is not the Python syntax.
 
@@ -1071,7 +1071,7 @@ A PostgreSQL query can use RETURNING.
 
 For example:
 
-~~~sql
+```sql
 INSERT INTO events (
     event_id,
     customer_id,
@@ -1086,7 +1086,7 @@ VALUES (
 )
 ON CONFLICT (event_id) DO NOTHING
 RETURNING id;
-~~~
+```
 
 Possible outcomes:
 
@@ -1117,10 +1117,10 @@ Again, the actual behavior should match the repository's requirements.
 
 Avoid this pattern when concurrency is possible:
 
-~~~python
+```python
 if not event_exists(event_id):
     insert_event(event)
-~~~
+```
 
 The problem is not that checking existence is always useless.
 
@@ -1300,11 +1300,11 @@ Verify the actual database state.
 
 For example:
 
-~~~sql
+```sql
 SELECT COUNT(*)
 FROM events
 WHERE event_id = 'evt-1001';
-~~~
+```
 
 Expected:
 
@@ -1365,14 +1365,14 @@ Useful structured logging might include:
 
 For example:
 
-~~~json
+```json
 {
   "event_id": "evt-1001",
   "processing_result": "duplicate",
   "duplicate": true,
   "pipeline_stage": "database_write"
 }
-~~~
+```
 
 This is a **generic example**.
 
