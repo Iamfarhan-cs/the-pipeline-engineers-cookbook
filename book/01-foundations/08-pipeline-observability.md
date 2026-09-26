@@ -1102,7 +1102,7 @@ Before calling a pipeline observable, ask:
 
 # What You Learned
 
-In this chapter, you learned:
+In this recipe, you learned:
 
 - Observability helps engineers understand pipeline behavior.
 - Logs provide detailed event information.
@@ -1123,26 +1123,3 @@ The main lesson is:
 **A production pipeline should not only process data. It should also tell you what it is doing, whether it is making progress, what is failing, and where to look when something goes wrong.**
 
 ---
-
-# Recipe Preview
-
-The Foundations section is now complete.
-
-In the next part of the book, we move from understanding pipeline concepts to investigating real repositories.
-
-You will learn how to:
-
-- Read an unfamiliar Data Engineering repository.
-- Find the pipeline entry point.
-- Find database code.
-- Find migrations.
-- Find tests.
-- Understand configuration.
-- Understand Docker setup.
-- Understand CI/CD workflows.
-
-The next chapter starts Part II:
-
-**Chapter 9 — How to Read a Data Engineering Repository.**
-
-The goal is simple: before changing an existing pipeline, learn how to find where the important parts actually live.
