@@ -1753,3 +1753,53 @@ These tools solve or provide production implementations of concepts covered in t
 ---
 
 
+
+
+## Implementation Lab — Runnable Error Classification
+
+### 1. Error model
+
+~~~python
+# src/errors.py
+from dataclasses import dataclass
+
+@dataclass
+class PipelineError:
+    code: str
+    retryable: bool
+    message: str
+
+def classify_error(exc: Exception) -> PipelineError:
+    if isinstance(exc, TimeoutError):
+        return PipelineError("DEPENDENCY_TIMEOUT", True, str(exc))
+    if isinstance(exc, ValueError):
+        return PipelineError("INVALID_DATA", False, str(exc))
+    return PipelineError("UNEXPECTED_ERROR", False, str(exc))
+~~~
+
+### 2. Tests
+
+~~~python
+def test_timeout_is_retryable():
+    result = classify_error(TimeoutError("API timeout"))
+    assert result.code == "DEPENDENCY_TIMEOUT"
+    assert result.retryable is True
+
+def test_invalid_data_is_not_retryable():
+    result = classify_error(ValueError("invalid amount"))
+    assert result.code == "INVALID_DATA"
+    assert result.retryable is False
+~~~
+
+### 3. Intentional failure drill
+
+Change the timeout classification to non-retryable. Run the tests and observe that a temporary failure is incorrectly stopped.
+
+Restore the classification and verify the recovery path.
+
+### 4. Operational rule
+
+Every error should answer: what failed, why, whether it is retryable, which record/run was affected, and what happens next.
+
+---
+
