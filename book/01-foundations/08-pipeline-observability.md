@@ -1,4 +1,4 @@
-# Recipe 8 — Pipeline Observability
+# Chapter 8 — Pipeline Observability
 
 A pipeline can be running and still be broken.
 
