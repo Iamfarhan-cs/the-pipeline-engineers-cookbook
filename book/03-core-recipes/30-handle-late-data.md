@@ -1515,6 +1515,20 @@ The key is to define the semantics before changing the implementation.
 ---
 
 
+## Production Tools You Should Know
+
+These tools solve or provide production implementations of concepts covered in this recipe. Learn what the tool provides, but understand the underlying problem first.
+
+| Tool | What to know |
+|---|---|
+| **Apache Flink** | Event-time processing, watermarks, and late-event handling. |
+| **Apache Spark Structured Streaming** | Event-time windows and watermark-based processing. |
+| **Kafka Streams** | Stream-time processing and grace periods. |
+
+> These are reference tools for recognition and vocabulary, not substitutes for understanding the engineering mechanism.
+
+---
+
 ## Implementation Lab — Runnable Late-Data Handler
 
 The following example implements a small event processor that separates **event time** from **processing time**, detects late events, updates a windowed aggregate, and keeps an audit trail.
