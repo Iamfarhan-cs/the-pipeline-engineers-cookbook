@@ -134,7 +134,9 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 
 # Part II — TRANSFORM RECIPES
 
-## A. Transformation Fundamentals
+Each transformation recipe belongs to a specific transformation category. General mechanisms already covered by Core Recipes should be applied, not duplicated.
+
+## Category 01 — Transformation Foundations
 
 | ID | Recipe |
 |---|---|
@@ -155,7 +157,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | T15 | Record Splitting |
 | T16 | Record Merging |
 
-## B. Relational Transformations
+## Category 02 — SQL and Relational Transformations
 
 | ID | Recipe |
 |---|---|
@@ -176,7 +178,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | T31 | Pivoting |
 | T32 | Unpivoting |
 
-## C. Data Quality Transformations
+## Category 03 — Data Quality Transformations
 
 | ID | Recipe |
 |---|---|
@@ -193,7 +195,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | T43 | Invalid Record Handling |
 | T44 | Quarantine During Transformation — Transform Application |
 
-## D. Advanced Transformations
+## Category 04 — Dimensional and Warehouse Transformations
 
 | ID | Recipe |
 |---|---|
@@ -205,6 +207,11 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | T50 | Surrogate Keys |
 | T51 | Natural Keys |
 | T52 | Business Keys |
+
+## Category 05 — Event and Stateful Transformations
+
+| ID | Recipe |
+|---|---|
 | T53 | Sessionization |
 | T54 | Event Aggregation |
 | T55 | Event-Time Transformation |
@@ -216,7 +223,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | T61 | Lookup Transformations |
 | T62 | Slowly Changing Reference Data |
 
-## E. Transformation Performance
+## Category 06 — Transformation Performance and Scale
 
 | ID | Recipe |
 |---|---|
@@ -234,7 +241,6 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | T74 | Column Pruning |
 | T75 | Query Optimization |
 
----
 
 # Part III — LOAD RECIPES
 
