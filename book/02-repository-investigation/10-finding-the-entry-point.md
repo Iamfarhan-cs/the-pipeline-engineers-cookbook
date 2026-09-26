@@ -1132,7 +1132,7 @@ When investigating a pipeline entry point, ask:
 
 # What You Learned
 
-In this chapter, you learned:
+In this recipe, you learned:
 
 - An entry point is where a particular execution path begins.
 - A repository can have multiple entry points.
@@ -1150,11 +1150,3 @@ The main lesson is:
 **Do not start by asking which file to edit. Start by asking what starts the system and trace that execution path until you reach the part of the pipeline that actually matters to your task.**
 
 ---
-
-# Recipe Preview
-
-The next chapter focuses on another major part of repository investigation:
-
-**Chapter 11 — Finding Database Code.**
-
-You will learn how to locate database connections, queries, repositories, models, transactions, and database write paths, and how to trace a pipeline operation from application code to the actual database change.
