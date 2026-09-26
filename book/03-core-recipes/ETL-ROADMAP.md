@@ -91,7 +91,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | E06 | [Extract Data from JSON Files](E06-extract-data-from-json-files.md) |
 | E07 | [Extract Data from XML Files](E07-extract-data-from-xml-files.md) |
 | E08 | [Extract Data from Excel Files](E08-extract-data-from-excel-files.md) |
-| E49 | File Discovery |
+| E49 | [File Discovery](E49-file-discovery.md) |
 | E50 | File Naming Conventions |
 | E51 | File Arrival Detection |
 | E52 | File Completeness Detection |
