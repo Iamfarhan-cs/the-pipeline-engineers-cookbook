@@ -12,7 +12,7 @@ Trying to keep all of this in one table or one storage location can make a pipel
 
 A common design is to separate data into layers.
 
-~~~text
+```text
 Source
   |
   v
@@ -26,7 +26,7 @@ Curated
   |
   v
 Warehouse
-~~~
+```
 
 Each layer has a different responsibility.
 
@@ -73,14 +73,14 @@ Consider a simple API pipeline.
 
 The source sends:
 
-~~~json
+```json
 {
   "customerId": "123",
   "name": "Farhan",
   "country": "PK",
   "amount": "1250.50"
 }
-~~~
+```
 
 The source format may not match the format needed by the database or reporting system.
 
@@ -115,7 +115,7 @@ Layers help answer these questions.
 
 A common logical design is:
 
-~~~text
+```text
                 +----------------+
                 |     Source     |
                 +-------+--------+
@@ -139,7 +139,7 @@ A common logical design is:
                 +---------------+
                 |   Warehouse   |
                 +---------------+
-~~~
+```
 
 The flow is not always strictly linear.
 
@@ -147,7 +147,7 @@ A production system may have additional paths.
 
 For example:
 
-~~~text
+```text
                     Source
                       |
                       v
@@ -161,7 +161,7 @@ For example:
                  |
                  v
              Warehouse
-~~~
+```
 
 Failed data may move to a quarantine area instead of continuing through the normal path.
 
@@ -179,12 +179,12 @@ You want to keep enough information to understand what the source actually provi
 
 For example:
 
-~~~text
+```text
 API response
      |
      v
 Raw storage
-~~~
+```
 
 The raw representation might be:
 
@@ -241,7 +241,7 @@ A raw layer often needs metadata.
 
 For example:
 
-~~~text
+```text
 raw record
     |
     +-- source
@@ -250,7 +250,7 @@ raw record
     +-- payload
     +-- checksum
     +-- ingestion_run
-~~~
+```
 
 The exact metadata depends on the system.
 
@@ -305,7 +305,7 @@ The exact responsibilities depend on the architecture.
 
 A simple flow might be:
 
-~~~text
+```text
 Raw
  |
  v
@@ -316,7 +316,7 @@ Validate
  |
  v
 Staging
-~~~
+```
 
 Staging is often closer to the structure needed by downstream processing than raw data is.
 
@@ -326,21 +326,21 @@ Staging is often closer to the structure needed by downstream processing than ra
 
 Suppose the source sends:
 
-~~~json
+```json
 {
   "customer_id": "123",
   "amount": "1250.50",
   "created_at": "2026-09-26T10:15:00Z"
 }
-~~~
+```
 
 The staging representation might use proper database types:
 
-~~~text
+```text
 customer_id   -> integer
 amount        -> numeric
 created_at    -> timestamp
-~~~
+```
 
 This is a generic example.
 
@@ -390,7 +390,7 @@ A curated dataset may have:
 
 For example:
 
-~~~text
+```text
 Staging
    |
    +-- validate
@@ -400,7 +400,7 @@ Staging
    |
    v
 Curated
-~~~
+```
 
 Curated data should be easier for downstream consumers to use than raw or staging data.
 
@@ -410,23 +410,23 @@ Curated data should be easier for downstream consumers to use than raw or stagin
 
 Suppose a source sends customer records with different country representations:
 
-~~~text
+```text
 PK
 Pakistan
 PAK
 pk
-~~~
+```
 
 A transformation may standardize these values.
 
 For example:
 
-~~~text
+```text
 PK
 PK
 PK
 PK
-~~~
+```
 
 This is a simple example of normalization.
 
@@ -446,7 +446,7 @@ The warehouse may organize curated information into structures that make analyti
 
 For example:
 
-~~~text
+```text
 Curated data
       |
       v
@@ -460,7 +460,7 @@ Curated data
       |
       v
 BI / Reports / Analysis
-~~~
+```
 
 A warehouse is not simply another database.
 
@@ -497,7 +497,7 @@ Examples:
 
 A simplified model might look like:
 
-~~~text
+```text
               +---------------+
               |   Customer    |
               +-------+-------+
@@ -515,7 +515,7 @@ A simplified model might look like:
 +-------------+       |
 |   Product   |-------+
 +-------------+
-~~~
+```
 
 The exact warehouse model depends on the business.
 
@@ -546,12 +546,12 @@ A layer is a logical concept.
 
 You do not necessarily need:
 
-~~~text
+```text
 Database 1 = Raw
 Database 2 = Staging
 Database 3 = Curated
 Database 4 = Warehouse
-~~~
+```
 
 That would often be unnecessary.
 
@@ -577,7 +577,7 @@ For a large platform, each layer may have its own storage technology.
 
 Consider this generic pipeline:
 
-~~~text
+```text
 Source
   |
   v
@@ -606,7 +606,7 @@ Warehouse
   |
   v
 Analytics
-~~~
+```
 
 Now imagine a record fails validation.
 
@@ -614,7 +614,7 @@ It should not simply disappear.
 
 A production design may use:
 
-~~~text
+```text
                     Raw
                      |
                      v
@@ -630,7 +630,7 @@ A production design may use:
                |
                v
            Warehouse
-~~~
+```
 
 This makes failure handling part of the architecture.
 
@@ -640,15 +640,15 @@ This makes failure handling part of the architecture.
 
 Suppose a pipeline receives this source value:
 
-~~~text
+```text
 amount = "1250.50"
-~~~
+```
 
 A transformation changes it to:
 
-~~~text
+```text
 amount = 1250.50
-~~~
+```
 
 That transformation may be correct.
 
@@ -658,13 +658,13 @@ Keeping raw and processed representations separate gives you a useful boundary.
 
 You can then say:
 
-~~~text
+```text
 Raw:
 "1250.50"
 
 Curated:
 1250.50
-~~~
+```
 
 The difference is visible.
 
@@ -678,7 +678,7 @@ Data lineage means being able to understand where data came from and how it chan
 
 A simple lineage chain is:
 
-~~~text
+```text
 Source Event
      |
      v
@@ -695,7 +695,7 @@ Warehouse Row
      |
      v
 Dashboard
-~~~
+```
 
 If a dashboard shows an incorrect number, an engineer should ideally be able to move backward through this chain.
 
@@ -717,7 +717,7 @@ Each layer should have clear expectations.
 
 For example:
 
-~~~text
+```text
 Source -> Raw
 Contract:
 Capture the incoming payload.
@@ -733,7 +733,7 @@ Business validation succeeds.
 Curated -> Warehouse
 Contract:
 Data matches the analytical model.
-~~~
+```
 
 These are conceptual contracts.
 
@@ -751,7 +751,7 @@ A source may add a field.
 
 For example:
 
-~~~text
+```text
 Old:
 id
 amount
@@ -762,7 +762,7 @@ id
 amount
 currency
 created_at
-~~~
+```
 
 Adding a field may be easy.
 
@@ -770,9 +770,9 @@ Removing or changing a field can be more difficult.
 
 For example:
 
-~~~text
+```text
 amount
-~~~
+```
 
 changes from a numeric value to a formatted string.
 
@@ -792,7 +792,7 @@ Suppose the same source event enters the pipeline twice.
 
 The system might produce:
 
-~~~text
+```text
 Raw
   |
   +-- Event A
@@ -803,7 +803,7 @@ Staging
   |
   +-- Event A
   +-- Event A
-~~~
+```
 
 If the duplicate is not detected, the problem can move downstream.
 
@@ -830,7 +830,7 @@ Suppose the curated layer contains incorrect data because of a transformation bu
 
 If raw data is preserved, you may be able to:
 
-~~~text
+```text
 Raw
  |
  v
@@ -844,7 +844,7 @@ Curated
  |
  v
 Warehouse
-~~~
+```
 
 You do not necessarily need to request the data again from the source.
 
@@ -860,12 +860,12 @@ A backfill means processing historical data again.
 
 For example:
 
-~~~text
+```text
 January
 February
 March
 April
-~~~
+```
 
 A new business rule may need to be applied to January through April.
 
@@ -873,7 +873,7 @@ A layered pipeline can support this by processing historical raw or staging data
 
 A simplified flow is:
 
-~~~text
+```text
 Historical Raw
       |
       v
@@ -884,7 +884,7 @@ Curated
       |
       v
 Warehouse
-~~~
+```
 
 The backfill still needs careful handling of:
 
@@ -905,7 +905,7 @@ Different layers can use different storage systems.
 
 For example:
 
-~~~text
+```text
 Raw
   -> Object storage
 
@@ -917,7 +917,7 @@ Curated
 
 Warehouse
   -> Data warehouse
-~~~
+```
 
 This is only a generic example.
 
@@ -1044,13 +1044,13 @@ Consider a generic transaction pipeline.
 
 The source sends:
 
-~~~text
+```text
 Transaction event
-~~~
+```
 
 The pipeline could use:
 
-~~~text
+```text
 +----------------------+
 | Source               |
 | Transaction Event    |
@@ -1087,11 +1087,11 @@ The pipeline could use:
 +----------------------+
 | Reports / Analytics  |
 +----------------------+
-~~~
+```
 
 Now consider a bad transaction.
 
-~~~text
+```text
 Source
   |
   v
@@ -1103,7 +1103,7 @@ Validation
   +---- valid ----> Staging -> Curated -> Warehouse
   |
   +---- invalid --> Quarantine
-~~~
+```
 
 The invalid record is not silently lost.
 
