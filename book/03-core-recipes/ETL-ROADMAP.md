@@ -44,7 +44,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | E11 | Extract Data from Webhooks |
 | E15 | Extract Data from SaaS Platforms |
 | E16 | API Authentication — ETL Application |
-| E17 | API Pagination — ETL Application |
+| E17 | [API Pagination](E17-api-pagination.md) |
 | E18 | API Rate Limits — ETL Application |
 | E19 | API Retries — ETL Application |
 | E20 | API Timeouts — ETL Application |
