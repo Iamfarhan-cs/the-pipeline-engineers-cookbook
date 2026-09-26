@@ -6,12 +6,12 @@ This sounds simple.
 
 In a small script, it may be obvious:
 
-~~~text
+```text
 python pipeline.py
         |
         v
      main()
-~~~
+```
 
 In a real repository, it may not be obvious at all.
 
@@ -95,7 +95,7 @@ An entry point does not necessarily contain the main business logic.
 
 Consider:
 
-~~~text
+```text
 Command
   |
   v
@@ -112,7 +112,7 @@ validate_data()
   |
   v
 store_data()
-~~~
+```
 
 `main()` starts the execution.
 
@@ -132,7 +132,7 @@ An existing repository may contain several processes.
 
 For example:
 
-~~~text
+```text
 Repository
    |
    +-- API service
@@ -150,7 +150,7 @@ Repository
    +-- Migration command
           |
           +-- Migration entry point
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -182,9 +182,9 @@ Look in:
 
 For example, a README might contain a command such as:
 
-~~~text
+```text
 python -m app.worker
-~~~
+```
 
 That command already tells you something important.
 
@@ -196,13 +196,13 @@ The process starts from a Python module.
 
 Suppose the command is:
 
-~~~text
+```text
 python -m app.worker
-~~~
+```
 
 Your investigation becomes:
 
-~~~text
+```text
 python -m app.worker
         |
         v
@@ -213,7 +213,7 @@ startup function
         |
         v
 worker loop
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -231,15 +231,15 @@ Common patterns include:
 
 ### Direct script execution
 
-~~~text
+```text
 python pipeline.py
-~~~
+```
 
 ### Module execution
 
-~~~text
+```text
 python -m package.module
-~~~
+```
 
 ### Console scripts
 
@@ -263,10 +263,10 @@ Do not assume a repository uses any particular one until you inspect its configu
 
 A common Python pattern is:
 
-~~~python
+```python
 if __name__ == "__main__":
     main()
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -288,7 +288,7 @@ A project configuration may define a command that maps to a Python function.
 
 Conceptually:
 
-~~~text
+```text
 command
    |
    v
@@ -299,7 +299,7 @@ module:function
    |
    v
 application code
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -313,9 +313,9 @@ Sometimes the visible command is a shell script.
 
 For example:
 
-~~~text
+```text
 ./scripts/start-worker.sh
-~~~
+```
 
 The shell script may:
 
@@ -341,7 +341,7 @@ A Dockerfile can define how the container starts.
 
 Conceptually:
 
-~~~text
+```text
 Docker image
     |
     v
@@ -355,7 +355,7 @@ Application command
     |
     v
 Application code
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -377,11 +377,11 @@ Docker Compose can override or provide commands for services.
 
 A Compose file may conceptually define:
 
-~~~yaml
+```yaml
 services:
   worker:
     command: ...
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -399,11 +399,11 @@ The entry point may depend on configuration.
 
 For example:
 
-~~~text
+```text
 ENVIRONMENT=production
 DATABASE_URL=...
 WORKER_MODE=...
-~~~
+```
 
 These values may change:
 
@@ -431,7 +431,7 @@ Requests then enter through routes or handlers.
 
 Conceptually:
 
-~~~text
+```text
 Server process
      |
      v
@@ -445,7 +445,7 @@ Handler
      |
      v
 Service logic
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -461,7 +461,7 @@ Background workers often run continuously.
 
 Conceptually:
 
-~~~text
+```text
 Worker process starts
         |
         v
@@ -480,7 +480,7 @@ Receive item
 Process item
         |
         +----> repeat
-~~~
+```
 
 The worker's startup function and the processing function are not necessarily the same.
 
@@ -494,7 +494,7 @@ A scheduled pipeline may start because a scheduler triggers it.
 
 Conceptually:
 
-~~~text
+```text
 Scheduler
    |
    v
@@ -508,7 +508,7 @@ Pipeline function
    |
    v
 Processing
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -524,7 +524,7 @@ In an Airflow-based system, a DAG defines an orchestration workflow.
 
 Conceptually:
 
-~~~text
+```text
 Airflow scheduler
         |
         v
@@ -535,7 +535,7 @@ Airflow scheduler
         |
         v
 Pipeline code
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -553,7 +553,7 @@ A Kafka-based pipeline may start by launching a consumer.
 
 Conceptually:
 
-~~~text
+```text
 Consumer process
       |
       v
@@ -567,7 +567,7 @@ Process message
       |
       v
 Commit / acknowledge
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -586,7 +586,7 @@ Other queue systems follow a similar pattern.
 
 Conceptually:
 
-~~~text
+```text
 Worker startup
      |
      v
@@ -600,7 +600,7 @@ Handler
      |
      v
 Processing
-~~~
+```
 
 The queue connection setup and message handler may live in different files.
 
@@ -621,7 +621,7 @@ A workflow may start because:
 
 Then it may execute:
 
-~~~text
+```text
 Workflow trigger
     |
     v
@@ -635,7 +635,7 @@ Command
     |
     v
 Application / tests
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -649,7 +649,7 @@ Once you find the startup command, keep following it until you reach meaningful 
 
 For example:
 
-~~~text
+```text
 docker compose up
       |
       v
@@ -666,7 +666,7 @@ worker.start()
       |
       v
 run_pipeline()
-~~~
+```
 
 At this point, you have reached the first meaningful pipeline function.
 
@@ -680,7 +680,7 @@ Finding `main()` is not enough.
 
 Suppose:
 
-~~~text
+```text
 main()
   |
   v
@@ -694,7 +694,7 @@ process_batch()
   |
   v
 write_records()
-~~~
+```
 
 If the task is about database writes, `main()` is not the relevant code.
 
@@ -714,15 +714,15 @@ This is often more important than asking what the function calls.
 
 Suppose you find:
 
-~~~text
+```text
 write_records()
-~~~
+```
 
 Search for callers.
 
 You may discover:
 
-~~~text
+```text
 worker_loop()
    |
    v
@@ -730,7 +730,7 @@ process_batch()
    |
    v
 write_records()
-~~~
+```
 
 Now you know where the database write fits into the execution path.
 
@@ -744,14 +744,14 @@ Then ask:
 
 For example:
 
-~~~text
+```text
 process_batch()
      |
      +-- validate()
      +-- transform()
      +-- write_records()
      +-- update_status()
-~~~
+```
 
 This reveals the next layer of the execution path.
 
@@ -765,7 +765,7 @@ A call graph shows which functions invoke which other functions.
 
 Conceptually:
 
-~~~text
+```text
 entry_point()
      |
      v
@@ -778,7 +778,7 @@ run_pipeline()
      +---- store_data()
               |
               +---- insert_records()
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -798,7 +798,7 @@ An **entry point** is the code or command where that execution enters the applic
 
 For example:
 
-~~~text
+```text
 Trigger:
 Scheduled time reached
         |
@@ -808,11 +808,11 @@ DAG task starts
         |
         v
 Pipeline function
-~~~
+```
 
 Another example:
 
-~~~text
+```text
 Trigger:
 Message arrives
         |
@@ -822,7 +822,7 @@ Consumer callback
         |
         v
 Processing function
-~~~
+```
 
 This distinction becomes useful when debugging scheduled and event-driven systems.
 
@@ -836,7 +836,7 @@ An entry point is where execution begins for the relevant path.
 
 For example:
 
-~~~text
+```text
 Entry point
      |
      v
@@ -850,7 +850,7 @@ Transform
      |
      v
 Store
-~~~
+```
 
 Finding the entry point helps you discover the stages that follow.
 
@@ -862,12 +862,12 @@ Tests can help verify what you discovered.
 
 Suppose you believe:
 
-~~~text
+```text
 worker.start()
       |
       v
 run_pipeline()
-~~~
+```
 
 Look for tests that call or mock these functions.
 
@@ -888,7 +888,7 @@ If the repository is containerized, compare your understanding with the containe
 
 Trace:
 
-~~~text
+```text
 Docker Compose service
        |
        v
@@ -899,7 +899,7 @@ application startup
        |
        v
 pipeline code
-~~~
+```
 
 If your code investigation says one function starts the worker but Docker starts another command, investigate the difference.
 
@@ -976,22 +976,22 @@ Here is a practical search order.
 
 Look for commands such as:
 
-~~~text
+```text
 python ...
 python -m ...
 make ...
 docker compose ...
-~~~
+```
 
 ### 2. Project configuration
 
 Inspect:
 
-~~~text
+```text
 pyproject.toml
 setup configuration
 package metadata
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -1023,7 +1023,7 @@ Do not limit this technique to Python.
 
 The general process is:
 
-~~~text
+```text
 How is the system started?
         |
         v
@@ -1037,7 +1037,7 @@ What does it call?
         |
         v
 Where does the actual pipeline work begin?
-~~~
+```
 
 The language changes.
 
