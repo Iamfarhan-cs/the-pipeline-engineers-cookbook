@@ -244,7 +244,9 @@ Each transformation recipe belongs to a specific transformation category. Genera
 
 # Part III — LOAD RECIPES
 
-## A. Loading Fundamentals
+Load recipes are grouped by destination and loading problem. General reliability mechanisms from the Core Recipes should be applied rather than re-taught from scratch.
+
+## Category 01 — Destination and Format Loading
 
 | ID | Recipe |
 |---|---|
@@ -256,12 +258,17 @@ Each transformation recipe belongs to a specific transformation category. Genera
 | L06 | Load JSON Data |
 | L07 | Load Parquet Data |
 | L08 | Load Partitioned Data |
+
+## Category 02 — Loading Semantics
+
+| ID | Recipe |
+|---|---|
 | L09 | Append Loading |
 | L10 | Replace Loading |
 | L11 | Upsert Loading |
 | L12 | Merge Loading |
 
-## B. Database Loading
+## Category 03 — Database Loading Mechanics
 
 | ID | Recipe |
 |---|---|
@@ -280,7 +287,7 @@ Each transformation recipe belongs to a specific transformation category. Genera
 | L25 | Load Ordering |
 | L26 | Foreign-Key-Aware Loading |
 
-## C. Warehouse Loading
+## Category 04 — Warehouse Loading
 
 | ID | Recipe |
 |---|---|
@@ -297,7 +304,7 @@ Each transformation recipe belongs to a specific transformation category. Genera
 | L37 | Warehouse MERGE |
 | L38 | Warehouse Reconciliation — Load Application |
 
-## D. Load Reliability
+## Category 05 — Load Reliability and Recovery
 
 | ID | Recipe |
 |---|---|
@@ -314,7 +321,7 @@ Each transformation recipe belongs to a specific transformation category. Genera
 | L49 | Exactly-Once-Like Loading |
 | L50 | Ambiguous Load Outcomes |
 
-## E. Load Performance
+## Category 06 — Load Performance and Scale
 
 | ID | Recipe |
 |---|---|
@@ -329,7 +336,6 @@ Each transformation recipe belongs to a specific transformation category. Genera
 | L59 | Write Amplification |
 | L60 | Load Throughput Measurement |
 
----
 
 # Part IV — CROSS-CUTTING PRODUCTION ETL
 
