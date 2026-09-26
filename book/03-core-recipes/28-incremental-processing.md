@@ -1,4 +1,4 @@
-# Chapter 28 — Incremental Processing
+# Recipe 28 — Incremental Processing
 
 A full load processes everything.
 
