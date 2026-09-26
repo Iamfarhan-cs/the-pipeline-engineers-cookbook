@@ -111,6 +111,7 @@ PROVE YOU ARE DONE
 | [E53 — File Validation — ETL Application](E53-file-validation-etl-application.md) | Validate file integrity, structure, format, and extraction readiness |
 | [E54 — CSV Extraction — ETL Application](E54-csv-extraction-etl-application.md) | Stream and extract CSV records safely into staging |
 | [E55 — JSON Extraction — ETL Application](E55-json-extraction-etl-application.md) | Parse, validate, stream, and stage JSON documents safely |
+| [E56 — JSONL Extraction](E56-jsonl-extraction.md) | Stream, validate, checkpoint, and stage newline-delimited JSON safely |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
