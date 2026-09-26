@@ -1816,3 +1816,74 @@ These tools solve or provide production implementations of concepts covered in t
 ---
 
 
+
+
+## Implementation Lab — Runnable Idempotent Writer
+
+Implement the core primitive: repeated delivery of the same logical event must not create duplicate durable output.
+
+### 1. Idempotent writer
+
+~~~python
+# src/idempotency.py
+from dataclasses import dataclass
+
+@dataclass
+class WriteResult:
+    event_id: str
+    inserted: bool
+
+class IdempotentStore:
+    def __init__(self):
+        self.rows = {}
+
+    def write(self, event_id: str, payload: dict) -> WriteResult:
+        if event_id in self.rows:
+            return WriteResult(event_id, inserted=False)
+        self.rows[event_id] = payload
+        return WriteResult(event_id, inserted=True)
+~~~
+
+### 2. Test duplicate delivery
+
+~~~python
+# tests/test_idempotency.py
+from src.idempotency import IdempotentStore
+
+def test_same_event_is_written_once():
+    store = IdempotentStore()
+    first = store.write("evt-1", {"amount": 100})
+    second = store.write("evt-1", {"amount": 100})
+    assert first.inserted is True
+    assert second.inserted is False
+    assert len(store.rows) == 1
+~~~
+
+### 3. Database enforcement
+
+~~~sql
+CREATE TABLE payment_event (
+    event_id TEXT PRIMARY KEY,
+    amount NUMERIC NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+INSERT INTO payment_event (event_id, amount)
+VALUES ('evt-1', 100)
+ON CONFLICT (event_id) DO NOTHING;
+~~~
+
+### 4. Intentional failure drill
+
+Remove the primary key and run the same event twice.
+
+Expected: duplicate durable rows can appear.
+
+Restore the uniqueness constraint and repeat the test.
+
+### 5. Recovery verification
+
+Verify both the application decision and the durable database state.
+
+---
+
