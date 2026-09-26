@@ -18,7 +18,7 @@ A data pipeline is a system that receives data from a source, processes it, and 
 
 A simple pipeline might look like this:
 
-~~~text
+```text
 Source
   |
   v
@@ -29,7 +29,7 @@ Processing
   |
   v
 Destination
-~~~
+```
 
 The source could be an API, database, file, application, event stream, or another service.
 
@@ -41,10 +41,10 @@ At first, this sounds like a simple programming task.
 
 For example:
 
-~~~python
+```python
 data = fetch_data()
 save_data(data)
-~~~
+```
 
 This code might work perfectly on a good day.
 
@@ -74,7 +74,7 @@ That data often needs to move somewhere else.
 
 For example, an application may use one database for its normal operations while another system is used for reporting and analysis.
 
-~~~text
+```text
 Application
     |
     v
@@ -88,7 +88,7 @@ Analytics System
     |
     v
 Reports
-~~~
+```
 
 The operational database and the analytics system have different jobs.
 
@@ -115,7 +115,7 @@ This is why Data Engineering is more than copying records from one database to a
 
 Let's follow one piece of data through a simple pipeline.
 
-~~~text
+```text
 Source
   |
   v
@@ -135,7 +135,7 @@ Verification
   |
   v
 Monitoring
-~~~
+```
 
 Each stage has a different responsibility.
 
@@ -147,14 +147,14 @@ For example, imagine that a pipeline receives payment events from an external AP
 
 The source might return an event like this:
 
-~~~json
+```json
 {
   "event_id": "evt_1001",
   "payment_id": "pay_1001",
   "amount": 250.00,
   "currency": "EUR"
 }
-~~~
+```
 
 The pipeline does not necessarily control the source.
 
@@ -176,7 +176,7 @@ For a file, it could mean reading records from the file.
 
 For example:
 
-~~~text
+```text
 Pipeline
    |
    v
@@ -184,7 +184,7 @@ HTTP Request
    |
    v
 API Response
-~~~
+```
 
 The first important question is not only:
 
@@ -202,13 +202,13 @@ After the data arrives, we need to decide whether it is acceptable.
 
 Suppose our pipeline expects:
 
-~~~json
+```json
 {
   "payment_id": "pay_1001",
   "amount": 250.00,
   "currency": "EUR"
 }
-~~~
+```
 
 We might require:
 
@@ -219,13 +219,13 @@ We might require:
 
 If the data does not meet the expected rules, it needs a defined path.
 
-~~~text
+```text
 Invalid Data
      |
      +----> Reject
      |
      +----> Quarantine
-~~~
+```
 
 The exact choice depends on the system.
 
@@ -247,17 +247,17 @@ Processing can include:
 
 For example, incoming data might contain:
 
-~~~text
+```text
 customer = "1001"
 amount   = "250.00"
-~~~
+```
 
 The pipeline could transform it into:
 
-~~~text
+```text
 customer_id = 1001
 amount      = 250.00
-~~~
+```
 
 The exact transformation depends on the requirements.
 
@@ -269,30 +269,30 @@ After processing, the result is stored or delivered.
 
 For example:
 
-~~~text
+```text
 Processing
     |
     v
 PostgreSQL
-~~~
+```
 
 Or:
 
-~~~text
+```text
 Processing
     |
     v
 Data Warehouse
-~~~
+```
 
 Or:
 
-~~~text
+```text
 Processing
     |
     v
 Object Storage
-~~~
+```
 
 The destination affects the design of the pipeline.
 
@@ -306,7 +306,7 @@ The simplest pipeline follows what engineers often call the **happy path**.
 
 Everything works:
 
-~~~text
+```text
 Data Received
      |
      v
@@ -320,11 +320,11 @@ Data Stored
      |
      v
 Success
-~~~
+```
 
 For our payment example:
 
-~~~text
+```text
 Payment Event
      |
      v
@@ -341,7 +341,7 @@ Database Write Succeeds
      |
      v
 Pipeline Completes
-~~~
+```
 
 This path is important.
 
@@ -361,7 +361,7 @@ Processing also succeeds.
 
 Then the database becomes unavailable.
 
-~~~text
+```text
 Payment Event
      |
      v
@@ -375,7 +375,7 @@ Database
      |
      X
    ERROR
-~~~
+```
 
 Now we have to decide what the pipeline should do.
 
@@ -401,17 +401,17 @@ This idea will appear throughout this book.
 
 A real pipeline often has several possible outcomes.
 
-~~~text
+```text
                     +--> Success
                     |
 Input --> Validation
                     |
                     +--> Invalid
-~~~
+```
 
 Processing can have even more outcomes:
 
-~~~text
+```text
                     +--> Processed
                     |
 Input --> Processing +--> Retry
@@ -419,7 +419,7 @@ Input --> Processing +--> Retry
                     +--> Quarantine
                     |
                     +--> Failed
-~~~
+```
 
 The exact states depend on the system.
 
@@ -441,17 +441,17 @@ Duplicate data is one of the basic problems in pipeline engineering.
 
 Imagine that the pipeline receives:
 
-~~~text
+```text
 event_id = evt_1001
-~~~
+```
 
 The pipeline processes it successfully.
 
 Later, the same event arrives again:
 
-~~~text
+```text
 event_id = evt_1001
-~~~
+```
 
 If the pipeline simply inserts it again, the destination could contain two copies.
 
@@ -469,7 +469,7 @@ An operation is idempotent when repeating the same operation does not incorrectl
 
 A simple way to think about it is:
 
-~~~text
+```text
 Event
   |
   v
@@ -478,7 +478,7 @@ Check event_id
   +---- Already processed? ----> Do not process again
   |
   +---- New event -------------> Process
-~~~
+```
 
 The exact implementation can vary.
 
@@ -498,7 +498,7 @@ For now, remember this:
 
 Consider this pipeline:
 
-~~~text
+```text
 Read Data
    |
    v
@@ -512,7 +512,7 @@ Write to Database
    |
    v
 Mark Complete
-~~~
+```
 
 Now imagine the database write succeeds, but the process crashes before the pipeline records that the work is complete.
 
@@ -541,7 +541,7 @@ Some pipeline architectures preserve the original input before transforming it.
 
 A simplified design is:
 
-~~~text
+```text
 Source
   |
   v
@@ -552,7 +552,7 @@ Validation
   |
   v
 Processing
-~~~
+```
 
 Why might this be useful?
 
@@ -578,7 +578,7 @@ A staging layer provides an intermediate place for incoming data.
 
 For example:
 
-~~~text
+```text
 Source
   |
   v
@@ -595,7 +595,7 @@ Transformation
   |
   v
 Final Table
-~~~
+```
 
 A staging layer can make it easier to:
 
@@ -617,7 +617,7 @@ A batch pipeline processes data in groups.
 
 For example, a pipeline might run every hour:
 
-~~~text
+```text
 Every hour
     |
     v
@@ -628,11 +628,11 @@ Process records
     |
     v
 Write results
-~~~
+```
 
 Or it might run once per day:
 
-~~~text
+```text
 Every day
     |
     v
@@ -643,7 +643,7 @@ Process it
     |
     v
 Load results
-~~~
+```
 
 Batch processing is useful when data does not need to be processed immediately.
 
@@ -655,7 +655,7 @@ A streaming pipeline processes events continuously or in small increments.
 
 A simplified streaming architecture is:
 
-~~~text
+```text
 Producer
    |
    v
@@ -669,7 +669,7 @@ Processing
    |
    v
 Destination
-~~~
+```
 
 Instead of waiting for a scheduled batch, the system processes events as they become available.
 
@@ -717,9 +717,9 @@ A pipeline can process data successfully and still produce a bad result.
 
 Imagine a pipeline reports:
 
-~~~text
+```text
 1,000,000 records processed
-~~~
+```
 
 That sounds good.
 
@@ -770,7 +770,7 @@ This is the role of **observability**.
 
 A simple model is:
 
-~~~text
+```text
               Pipeline
              /   |   \
             v    v    v
@@ -778,7 +778,7 @@ A simple model is:
              \   |   /
               v  v  v
            Observability
-~~~
+```
 
 Observability helps engineers understand what the system is doing.
 
@@ -788,10 +788,10 @@ Later we will look at logging, metrics, tracing, alerting, and monitoring separa
 
 Consider this code:
 
-~~~python
+```python
 data = fetch_data()
 save_data(data)
-~~~
+```
 
 It may be perfectly valid code.
 
@@ -823,7 +823,7 @@ That is one of the main ideas of this book.
 
 A useful production-oriented model is:
 
-~~~text
+```text
 Source
   |
   v
@@ -843,7 +843,7 @@ Verification
   |
   v
 Observability
-~~~
+```
 
 At every important step, ask three questions:
 
@@ -859,7 +859,7 @@ They can be applied to a small Python pipeline, a PostgreSQL-based system, a Kaf
 
 Throughout this book, we will use the following engineering cycle:
 
-~~~text
+```text
 Understand
     |
     v
@@ -885,7 +885,7 @@ Recover
     |
     v
 Improve
-~~~
+```
 
 ### Understand
 
@@ -988,7 +988,7 @@ One of the biggest differences between a simple data-processing script and a pro
 
 A simple mental model is:
 
-~~~text
+```text
 Input
   |
   v
@@ -996,7 +996,7 @@ Process
   |
   v
 Output
-~~~
+```
 
 A production-oriented engineer asks more questions:
 
@@ -1021,18 +1021,18 @@ Let's bring the ideas together.
 
 Suppose an application produces a payment event:
 
-~~~json
+```json
 {
   "event_id": "evt_1001",
   "payment_id": "pay_1001",
   "amount": 250.00,
   "currency": "EUR"
 }
-~~~
+```
 
 A simplified pipeline could be:
 
-~~~text
+```text
 Payment Event
      |
      v
@@ -1049,7 +1049,7 @@ Processing
      |
      v
 PostgreSQL
-~~~
+```
 
 Now consider several situations.
 
@@ -1057,7 +1057,7 @@ Now consider several situations.
 
 Everything succeeds.
 
-~~~text
+```text
 Event
   |
   v
@@ -1071,13 +1071,13 @@ Database write succeeds
   |
   v
 Success
-~~~
+```
 
 ### Scenario 2 — Invalid Event
 
 Validation fails.
 
-~~~text
+```text
 Event
   |
   v
@@ -1085,7 +1085,7 @@ Validation fails
   |
   v
 Defined failure path
-~~~
+```
 
 The event should follow whatever invalid-data path the system has defined.
 
@@ -1093,7 +1093,7 @@ The event should follow whatever invalid-data path the system has defined.
 
 The event passes validation and processing, but the database operation fails.
 
-~~~text
+```text
 Event
   |
   v
@@ -1107,7 +1107,7 @@ Database
   |
   X
 Failure
-~~~
+```
 
 The pipeline needs a defined retry or recovery strategy.
 
@@ -1115,14 +1115,14 @@ The pipeline needs a defined retry or recovery strategy.
 
 The same event arrives again.
 
-~~~text
+```text
 evt_1001
    |
    v
 Already processed?
    |
    +---- Yes ----> Do not incorrectly process again
-~~~
+```
 
 This is where idempotency becomes important.
 
@@ -1132,7 +1132,7 @@ Suppose the transformation logic contains a bug and is later corrected.
 
 Previously stored input may need to be processed again:
 
-~~~text
+```text
 Stored Input
     |
     v
@@ -1140,7 +1140,7 @@ Corrected Processing
     |
     v
 New Result
-~~~
+```
 
 This is replay or reprocessing.
 
@@ -1331,7 +1331,7 @@ It is a system that needs to define how data is:
 
 A simple pipeline might look like:
 
-~~~text
+```text
 Source
   |
   v
@@ -1342,7 +1342,7 @@ Processing
   |
   v
 Destination
-~~~
+```
 
 A production-oriented pipeline requires more thinking around:
 
@@ -1358,7 +1358,7 @@ A production-oriented pipeline requires more thinking around:
 
 The most important mental model from this chapter is:
 
-~~~text
+```text
 Understand
     |
     v
@@ -1384,7 +1384,7 @@ Recover
     |
     v
 Improve
-~~~
+```
 
 You will see this cycle again and again throughout the book.
 
