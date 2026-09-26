@@ -1343,21 +1343,3 @@ The next question is:
 That leads to validation.
 
 ---
-
-## Next Recipe
-
-**Next: Chapter 19 — Validate Incoming Data**## Production Tools You Should Know
-
-These tools solve or provide production implementations of concepts covered in this recipe. Learn what the tool provides, but understand the underlying problem first.
-
-| Tool | What to know |
-|---|---|
-| **PostgreSQL** | Common staging-layer storage. |
-| **dbt** | Staging and transformation workflows in analytical systems. |
-| **Apache Spark** | Large-scale staging and transformation workloads. |
-
-> These are reference tools for recognition and vocabulary, not substitutes for understanding the engineering mechanism.
-
----
-
-
