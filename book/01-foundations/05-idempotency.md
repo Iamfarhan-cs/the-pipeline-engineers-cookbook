@@ -1363,7 +1363,7 @@ If these questions have clear answers, the pipeline is much easier to reason abo
 
 # What You Learned
 
-In this chapter, you learned:
+In this recipe, you learned:
 
 - Idempotency makes repeated processing safe.
 - Retries and restarts can cause the same input to be processed more than once.
@@ -1382,27 +1382,3 @@ The main lesson is:
 **Assume the same input can arrive more than once, and design the pipeline so that this does not corrupt the result.**
 
 ---
-
-# Recipe Preview
-
-Later in the book, this concept will become an implementation recipe.
-
-You will learn how to:
-
-- Choose an idempotency key.
-- Add database uniqueness.
-- Implement safe inserts.
-- Implement upserts.
-- Track processing state.
-- Protect external side effects.
-- Handle concurrent duplicate processing.
-- Test repeated execution.
-- Make replay safe.
-- Make backfills predictable.
-- Investigate duplicate records in production.
-
-The next chapter moves from duplicate processing to another unavoidable part of pipeline engineering:
-
-**Retries and Failures.**
-
-We will look at why failures happen, which failures should be retried, how retry policies work, and why retrying everything can make a system worse.
