@@ -95,7 +95,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | E50 | File Naming Conventions |
 | E51 | File Arrival Detection |
 | E52 | [File Completeness Detection](E52-file-completeness-detection.md) |
-| E53 | File Validation — ETL Application |
+| E53 | [File Validation — ETL Application](E53-file-validation-etl-application.md) |
 | E54 | CSV Extraction — ETL Application |
 | E55 | JSON Extraction — ETL Application |
 | E56 | JSONL Extraction |
