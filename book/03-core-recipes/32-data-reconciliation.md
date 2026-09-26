@@ -1436,6 +1436,20 @@ Do not close the incident because a number looks correct. Close it when the reco
 ---
 
 
+## Production Tools You Should Know
+
+These tools solve or provide production implementations of concepts covered in this recipe. Learn what the tool provides, but understand the underlying problem first.
+
+| Tool | What to know |
+|---|---|
+| **dbt** | Source-to-model tests and reconciliation queries. |
+| **Great Expectations** | Dataset-level validation and comparison checks. |
+| **Soda** | Data quality and reconciliation monitoring. |
+
+> These are reference tools for recognition and vocabulary, not substitutes for understanding the engineering mechanism.
+
+---
+
 ## Implementation Lab — Runnable Data Reconciliation
 
 The implementation below compares source and destination datasets by count, IDs, aggregates, and field-level differences. It produces a machine-readable reconciliation result instead of a manual comparison.
