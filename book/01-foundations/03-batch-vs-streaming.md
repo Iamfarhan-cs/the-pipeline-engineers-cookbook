@@ -27,7 +27,7 @@ Instead of processing every event immediately, the system could collect the even
 
 The flow might look like this:
 
-~~~text
+```text
 Payment events
      |
      v
@@ -45,7 +45,7 @@ Transformation
      |
      v
 PostgreSQL
-~~~
+```
 
 The important point is that the pipeline waits for a batch.
 
@@ -82,13 +82,13 @@ The next run processes another batch.
 
 A simple schedule could look like:
 
-~~~text
+```text
 00:00  -> Batch 1
 01:00  -> Batch 2
 02:00  -> Batch 3
 03:00  -> Batch 4
 ...
-~~~
+```
 
 The system does not need to process every record at the exact moment it arrives.
 
@@ -127,12 +127,12 @@ Latency means the time between data becoming available and the data becoming ava
 
 For example:
 
-~~~text
+```text
 10:00  Event arrives
 10:05  Event is stored
 11:00  Batch starts
 11:05  Event is processed
-~~~
+```
 
 The event existed at 10:00, but the downstream system did not receive the processed result until 11:05.
 
@@ -150,7 +150,7 @@ Instead of waiting for a large batch, the system can process events one by one o
 
 A simple streaming flow looks like this:
 
-~~~text
+```text
 Producer
    |
    v
@@ -167,16 +167,16 @@ Processing
    |
    v
 Database / Service
-~~~
+```
 
 For example:
 
-~~~text
+```text
 10:00:01  Event A arrives -> processed
 10:00:02  Event B arrives -> processed
 10:00:04  Event C arrives -> processed
 10:00:05  Event D arrives -> processed
-~~~
+```
 
 The exact processing delay depends on the architecture.
 
@@ -236,20 +236,20 @@ A batch window defines the period of data that should be processed.
 
 For example:
 
-~~~text
+```text
 Batch 1 -> 00:00 to 01:00
 Batch 2 -> 01:00 to 02:00
 Batch 3 -> 02:00 to 03:00
-~~~
+```
 
 The pipeline can use timestamps to decide which records belong to each batch.
 
 For example:
 
-~~~sql
+```sql
 WHERE occurred_at >= '10:00'
   AND occurred_at <  '11:00'
-~~~
+```
 
 This is a generic example.
 
@@ -285,7 +285,7 @@ Instead, the consumer keeps processing available events.
 
 For example:
 
-~~~text
+```text
 Event 101
    |
    v
@@ -309,7 +309,7 @@ Consumer
    |
    v
 Process
-~~~
+```
 
 The consumer may continue running for hours, days, or longer.
 
@@ -338,9 +338,9 @@ Event time is when the event actually happened.
 
 For example:
 
-~~~text
+```text
 occurred_at = 10:00:00
-~~~
+```
 
 ## Processing Time
 
@@ -348,10 +348,10 @@ Processing time is when the pipeline processed the event.
 
 For example:
 
-~~~text
+```text
 occurred_at  = 10:00:00
 processed_at = 10:03:12
-~~~
+```
 
 The difference matters.
 
@@ -359,12 +359,12 @@ An event may arrive late.
 
 For example:
 
-~~~text
+```text
 10:00  Event happens
 10:01  Network problem
 10:05  Event arrives
 10:05  Pipeline processes it
-~~~
+```
 
 If the pipeline only looks at processing time, it may incorrectly treat the event as a 10:05 event.
 
@@ -388,11 +388,11 @@ This can happen because of:
 
 Consider this sequence:
 
-~~~text
+```text
 Event A -> occurred at 10:00 -> arrives at 10:01
 Event B -> occurred at 10:02 -> arrives at 10:02
 Event C -> occurred at 10:01 -> arrives at 10:06
-~~~
+```
 
 Event C arrived after Event B even though it happened earlier.
 
@@ -415,19 +415,19 @@ Another important question is whether events must be processed in order.
 
 Suppose these events describe an account:
 
-~~~text
+```text
 1. Account Created
 2. Account Verified
 3. Account Activated
-~~~
+```
 
 If the pipeline processes them as:
 
-~~~text
+```text
 1. Account Created
 3. Account Activated
 2. Account Verified
-~~~
+```
 
 the result may be incorrect.
 
@@ -458,7 +458,7 @@ Instead of processing one event at a time, the system collects a small group of 
 
 For example:
 
-~~~text
+```text
 Events arrive continuously
 
 A B C D E F G H I J
@@ -466,7 +466,7 @@ A B C D E F G H I J
 v     v     v
 Batch Batch Batch
 1     2     3
-~~~
+```
 
 Each batch may contain only a small number of records or cover a short time interval.
 
@@ -484,7 +484,7 @@ Real platforms often use both.
 
 For example:
 
-~~~text
+```text
                   +------------------+
                   | Event Producers  |
                   +--------+---------+
@@ -504,7 +504,7 @@ For example:
                                          |
                                          v
                                    Data Warehouse
-~~~
+```
 
 The streaming path can support operational use cases.
 
@@ -526,7 +526,7 @@ If users only need updated results every hour or every day, streaming may add un
 
 For example:
 
-~~~text
+```text
 CSV file
    |
    v
@@ -537,7 +537,7 @@ Validation
    |
    v
 Database
-~~~
+```
 
 ### 3. Historical data needs processing
 
@@ -616,15 +616,15 @@ Streaming systems can receive data faster than they can process it.
 
 Suppose events arrive at this rate:
 
-~~~text
+```text
 1,000 events/second
-~~~
+```
 
 but the consumer can only process:
 
-~~~text
+```text
 700 events/second
-~~~
+```
 
 The difference creates a growing backlog.
 
@@ -632,7 +632,7 @@ This is commonly called **backpressure** or consumer lag, depending on the archi
 
 Conceptually:
 
-~~~text
+```text
 Incoming rate:  1,000/sec
 Processing rate: 700/sec
 
@@ -641,7 +641,7 @@ Backlog:
 600/sec
 900/sec
 ...
-~~~
+```
 
 If the situation continues, the backlog can become very large.
 
@@ -666,7 +666,7 @@ Batch failures are often easier to see because the job has a clear execution bou
 
 For example:
 
-~~~text
+```text
 Batch starts
     |
     v
@@ -677,7 +677,7 @@ Validate
     |
     X
 Processing fails
-~~~
+```
 
 The job can record that the batch failed.
 
@@ -704,12 +704,12 @@ Streaming failures have a slightly different shape.
 
 For example:
 
-~~~text
+```text
 Event 101 -> success
 Event 102 -> success
 Event 103 -> failure
 Event 104 -> not processed yet
-~~~
+```
 
 The consumer must decide what happens to Event 103.
 
@@ -770,9 +770,9 @@ Batch systems often have a useful property: a batch can be identified by its inp
 
 For example:
 
-~~~text
+```text
 Batch: 2026-09-26 10:00 -> 11:00
-~~~
+```
 
 If processing fails, the same range can potentially be processed again.
 
@@ -780,22 +780,22 @@ But replay is only safe when the pipeline handles duplicates correctly.
 
 Suppose the first attempt inserted:
 
-~~~text
+```text
 Record A
 Record B
 Record C
-~~~
+```
 
 and then failed.
 
 The second attempt reads:
 
-~~~text
+```text
 Record A
 Record B
 Record C
 Record D
-~~~
+```
 
 If the pipeline simply inserts everything again, A, B, and C may be duplicated.
 
@@ -811,7 +811,7 @@ Streaming systems can also replay events.
 
 A simplified flow is:
 
-~~~text
+```text
 Event Stream
      |
      v
@@ -825,7 +825,7 @@ Restart
      |
      v
 Replay previous events
-~~~
+```
 
 Replay can be useful for:
 
@@ -851,7 +851,7 @@ A checkpoint represents a known processing position.
 
 For example:
 
-~~~text
+```text
 Event 100
 Event 101
 Event 102
@@ -860,7 +860,7 @@ Event 104
        ^
        |
    checkpoint
-~~~
+```
 
 If the consumer crashes after processing Event 104, it needs some way to know where to continue.
 
@@ -886,19 +886,19 @@ Consider a payment telemetry system.
 
 Events may look conceptually like:
 
-~~~text
+```text
 page_view
 login
 onboarding_started
 api_request_failed
 onboarding_completed
-~~~
+```
 
 Suppose the business wants dashboards showing events from the previous day.
 
 A batch design could be:
 
-~~~text
+```text
 Frontend / services
         |
         v
@@ -913,11 +913,11 @@ PostgreSQL
         |
         v
 Dashboard
-~~~
+```
 
 If the business later requires near-real-time operational monitoring, a streaming path could be introduced:
 
-~~~text
+```text
 Frontend / services
         |
         v
@@ -931,7 +931,7 @@ Operational storage
         |
         v
 Monitoring
-~~~
+```
 
 The important part is not choosing a technology first.
 
@@ -1031,7 +1031,7 @@ The architecture should match the team's ability to operate it.
 
 This is a practical starting point, not a strict rule.
 
-~~~text
+```text
 Does the system need continuously available results?
              |
           No | Yes
@@ -1055,7 +1055,7 @@ Does data arrive continuously as events?
              |
              v
          Consider Streaming
-~~~
+```
 
 Sometimes the answer is both.
 
