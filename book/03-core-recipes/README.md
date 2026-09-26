@@ -27,7 +27,7 @@ By the end of every recipe, you should be able to:
 
 The learning loop is:
 
-~~~text
+```text
 REAL DE PROBLEM
       ↓
 UNDERSTAND THE MECHANISM
@@ -49,7 +49,7 @@ LEARN PRODUCTION TOOLS
 OPERATE IT
       ↓
 PROVE YOU ARE DONE
-~~~
+```
 
 ## Core Recipe Sequence
 
@@ -112,7 +112,7 @@ PROVE YOU ARE DONE
 
 ## Learning Order
 
-~~~text
+```text
 1  Ingestion
    ↓
 2  Staging
@@ -179,7 +179,7 @@ PROVE YOU ARE DONE
    ↓
 33+
 Future Core Recipes
-~~~
+```
 
 ## Standard Recipe Structure
 
