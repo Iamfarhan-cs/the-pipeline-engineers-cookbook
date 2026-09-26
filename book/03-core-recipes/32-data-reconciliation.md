@@ -1435,6 +1435,215 @@ Do not close the incident because a number looks correct. Close it when the reco
 
 ---
 
+
+## Implementation Lab — Runnable Data Reconciliation
+
+The implementation below compares source and destination datasets by count, IDs, aggregates, and field-level differences. It produces a machine-readable reconciliation result instead of a manual comparison.
+
+### 1. Reconciliation model
+
+```python
+# src/reconcile.py
+from dataclasses import dataclass
+from decimal import Decimal
+
+
+@dataclass(frozen=True)
+class ReconciliationResult:
+    source_count: int
+    target_count: int
+    missing_ids: set[str]
+    extra_ids: set[str]
+    source_total: Decimal
+    target_total: Decimal
+    count_match: bool
+    id_match: bool
+    amount_match: bool
+
+    @property
+    def passed(self) -> bool:
+        return self.count_match and self.id_match and self.amount_match
+
+
+def reconcile(
+    source: list[dict],
+    target: list[dict],
+) -> ReconciliationResult:
+    source_map = {row["id"]: row for row in source}
+    target_map = {row["id"]: row for row in target}
+
+    source_total = sum((Decimal(str(r["amount"])) for r in source), Decimal("0"))
+    target_total = sum((Decimal(str(r["amount"])) for r in target), Decimal("0"))
+
+    return ReconciliationResult(
+        source_count=len(source),
+        target_count=len(target),
+        missing_ids=set(source_map) - set(target_map),
+        extra_ids=set(target_map) - set(source_map),
+        source_total=source_total,
+        target_total=target_total,
+        count_match=len(source) == len(target),
+        id_match=set(source_map) == set(target_map),
+        amount_match=source_total == target_total,
+    )
+```
+
+### 2. Tests
+
+```python
+# tests/test_reconcile.py
+from decimal import Decimal
+from src.reconcile import reconcile
+
+
+def test_reconciliation_passes():
+    source = [
+        {"id": "a", "amount": "10.00"},
+        {"id": "b", "amount": "20.00"},
+    ]
+    target = [
+        {"id": "a", "amount": "10.00"},
+        {"id": "b", "amount": "20.00"},
+    ]
+
+    result = reconcile(source, target)
+
+    assert result.passed
+    assert result.missing_ids == set()
+    assert result.extra_ids == set()
+
+
+def test_missing_record_fails():
+    source = [
+        {"id": "a", "amount": "10.00"},
+        {"id": "b", "amount": "20.00"},
+    ]
+    target = [{"id": "a", "amount": "10.00"}]
+
+    result = reconcile(source, target)
+
+    assert result.passed is False
+    assert result.missing_ids == {"b"}
+
+
+def test_amount_difference_fails_even_when_counts_match():
+    source = [{"id": "a", "amount": "10.00"}]
+    target = [{"id": "a", "amount": "11.00"}]
+
+    result = reconcile(source, target)
+
+    assert result.count_match
+    assert result.id_match
+    assert result.amount_match is False
+    assert result.passed is False
+```
+
+### 3. PostgreSQL control totals
+
+For large datasets, reconcile in the database rather than loading everything into Python.
+
+```sql
+SELECT
+    COUNT(*) AS row_count,
+    COUNT(DISTINCT event_id) AS distinct_ids,
+    COALESCE(SUM(amount), 0) AS amount_total
+FROM source_snapshot
+WHERE run_id = $1;
+```
+
+Compare against the destination:
+
+```sql
+SELECT
+    COUNT(*) AS row_count,
+    COUNT(DISTINCT event_id) AS distinct_ids,
+    COALESCE(SUM(amount), 0) AS amount_total
+FROM target_snapshot
+WHERE run_id = $1;
+```
+
+For ID-level differences:
+
+```sql
+SELECT s.event_id
+FROM source_snapshot s
+LEFT JOIN target_snapshot t
+    ON t.event_id = s.event_id
+WHERE t.event_id IS NULL
+  AND s.run_id = $1;
+```
+
+### 4. Persist the reconciliation result
+
+```sql
+CREATE TABLE reconciliation_runs (
+    reconciliation_id UUID PRIMARY KEY,
+    run_id            UUID NOT NULL,
+    source_count      BIGINT NOT NULL,
+    target_count      BIGINT NOT NULL,
+    missing_count     BIGINT NOT NULL,
+    extra_count       BIGINT NOT NULL,
+    source_total      NUMERIC NOT NULL,
+    target_total      NUMERIC NOT NULL,
+    status            TEXT NOT NULL,
+    checked_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+### 5. Intentional failure
+
+Change one destination amount:
+
+```sql
+UPDATE target_snapshot
+SET amount = amount + 1
+WHERE event_id = 'event-100';
+```
+
+Run reconciliation.
+
+Expected:
+
+```text
+count_match  = true
+id_match     = true
+amount_match = false
+status       = FAILED
+```
+
+Repair the value and rerun reconciliation.
+
+The final state must be:
+
+```text
+PASSED
+```
+
+### 6. Production rule
+
+Never define reconciliation as only:
+
+```text
+source_count == target_count
+```
+
+A robust reconciliation compares several independent controls:
+
+```text
+count
+  +
+unique IDs
+  +
+control totals
+  +
+important fields
+  +
+business invariants
+```
+
+One matching metric does not prove correctness.
+
+
 ## 52. Definition of Done
 
 - [ ] Datasets being compared are explicitly defined.
