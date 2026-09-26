@@ -113,6 +113,7 @@ PROVE YOU ARE DONE
 | [E55 — JSON Extraction — ETL Application](E55-json-extraction-etl-application.md) | Parse, validate, stream, and stage JSON documents safely |
 | [E56 — JSONL Extraction](E56-jsonl-extraction.md) | Stream, validate, checkpoint, and stage newline-delimited JSON safely |
 | [E57 — XML Extraction — ETL Application](E57-xml-extraction-etl-application.md) | Extract, validate, stream, and stage XML safely |
+| [E58 — Parquet Extraction](E58-parquet-extraction.md) | Efficiently read, filter, project, validate, and stage Parquet datasets |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
