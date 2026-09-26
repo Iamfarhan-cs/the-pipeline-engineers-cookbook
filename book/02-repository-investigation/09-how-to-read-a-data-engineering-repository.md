@@ -46,7 +46,7 @@ It means building a useful mental model of the system.
 
 A good first pass should help you understand:
 
-~~~text
+```text
 Repository
    |
    +-- Application entry point
@@ -56,13 +56,13 @@ Repository
    +-- Tests
    +-- Infrastructure
    +-- CI/CD
-~~~
+```
 
 You are trying to understand relationships between these parts.
 
 For example:
 
-~~~text
+```text
 API / Scheduler / Worker
           |
           v
@@ -73,7 +73,7 @@ API / Scheduler / Worker
           |
           v
        PostgreSQL
-~~~
+```
 
 The exact architecture will differ from repository to repository.
 
@@ -132,7 +132,7 @@ The repository root is your map.
 
 A typical Data Engineering repository may contain directories such as:
 
-~~~text
+```text
 project/
 |
 +-- src/
@@ -147,7 +147,7 @@ project/
 +-- docker-compose.yml
 +-- pyproject.toml
 +-- README.md
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -188,14 +188,14 @@ You want to identify the major areas of the project.
 
 For example:
 
-~~~text
+```text
 src/       -> application code
 tests/     -> automated tests
 migrations/ -> database schema changes
 scripts/   -> operational or development scripts
 docs/      -> project documentation
 .github/   -> GitHub workflows
-~~~
+```
 
 These meanings are common patterns, not guaranteed rules.
 
@@ -282,7 +282,7 @@ A repository can contain several independent processes.
 
 For example:
 
-~~~text
+```text
 Repository
    |
    +-- API service
@@ -290,7 +290,7 @@ Repository
    +-- Scheduler
    +-- Migration command
    +-- Data quality job
-~~~
+```
 
 Each may have its own entry point.
 
@@ -311,10 +311,10 @@ Start by looking for commands in:
 
 For Python, also look for patterns such as:
 
-~~~python
+```python
 if __name__ == "__main__":
     ...
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -330,7 +330,7 @@ Once you find an entry point, follow what it calls.
 
 Imagine:
 
-~~~text
+```text
 main()
   |
   v
@@ -344,7 +344,7 @@ validate()
   |
   v
 store_data()
-~~~
+```
 
 Now you have a basic execution path.
 
@@ -472,9 +472,9 @@ They can tell you:
 
 Suppose application code uses:
 
-~~~text
+```text
 processing_status
-~~~
+```
 
 Before assuming the column exists everywhere, find the migration that created it or changed it.
 
@@ -505,9 +505,9 @@ Tests can sometimes explain behavior more clearly than comments.
 
 Suppose you find a test named conceptually like:
 
-~~~text
+```text
 test_duplicate_event_is_ignored
-~~~
+```
 
 That test tells you something important.
 
@@ -577,14 +577,14 @@ Look for:
 
 For example:
 
-~~~text
+```text
 docker compose
      |
      +-- application
      +-- postgres
      +-- queue
      +-- monitoring
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -606,7 +606,7 @@ Look for:
 
 Common CI steps include:
 
-~~~text
+```text
 Checkout
   |
   v
@@ -623,7 +623,7 @@ Build
   |
   v
 Deploy
-~~~
+```
 
 Do not assume this exact sequence.
 
@@ -637,7 +637,7 @@ After the first investigation pass, write down what you found.
 
 For example:
 
-~~~text
+```text
 Repository
   |
   +-- Entry point -> worker.py
@@ -657,7 +657,7 @@ Repository
   +-- Runtime -> Docker Compose
   |
   +-- CI -> GitHub Actions
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -675,7 +675,7 @@ A data flow map tells you how data moves.
 
 For example:
 
-~~~text
+```text
 External API
      |
      v
@@ -695,7 +695,7 @@ Transformation
      |
      v
 Curated table
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -711,7 +711,7 @@ Ask where the system can fail.
 
 For example:
 
-~~~text
+```text
 API request
     |
     +---- timeout ----> retry
@@ -723,7 +723,7 @@ API request
                               +---- fail ----> error state
                               |
                               +---- pass ----> database
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -737,7 +737,7 @@ If the pipeline tracks processing state, identify the states.
 
 For example:
 
-~~~text
+```text
 RECEIVED
    |
    v
@@ -751,7 +751,7 @@ PROCESSING
    |      PROCESSING
    |
    +----> FAILED
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -779,22 +779,22 @@ Useful search targets include:
 
 For example, if a ticket mentions:
 
-~~~text
+```text
 processing_status
-~~~
+```
 
 search the repository for that exact term.
 
 You may find:
 
-~~~text
+```text
 migration
 model
 SQL query
 service
 test
 documentation
-~~~
+```
 
 This creates a much faster path through an unfamiliar codebase.
 
@@ -841,22 +841,22 @@ Start with a known identifier.
 
 For example:
 
-~~~text
+```text
 event_id = 123
-~~~
+```
 
 Then search for that identifier's usage or the code responsible for processing that type of record.
 
 Trace:
 
-~~~text
+```text
 Input
   -> validation
   -> transformation
   -> database write
   -> processing state
   -> output
-~~~
+```
 
 This can reveal the actual path more clearly than reading the repository from top to bottom.
 
@@ -870,15 +870,15 @@ Start with an actual error message.
 
 For example:
 
-~~~text
+```text
 database connection timeout
-~~~
+```
 
 Search for the error or the code that can produce it.
 
 Then follow:
 
-~~~text
+```text
 Error
   -> exception
   -> caller
@@ -886,7 +886,7 @@ Error
   -> state update
   -> logging
   -> test
-~~~
+```
 
 This creates a failure path through the repository.
 
@@ -916,22 +916,22 @@ Start with the smallest set that answers the current question.
 
 For a database bug, that might be:
 
-~~~text
+```text
 1. Entry point
 2. Service function
 3. Database function
 4. Migration
 5. Relevant test
-~~~
+```
 
 For a CI failure, it might be:
 
-~~~text
+```text
 1. CI workflow
 2. Test command
 3. Dependency configuration
 4. Relevant test
-~~~
+```
 
 Expand the investigation only when necessary.
 
@@ -943,7 +943,7 @@ You will often discover new information while investigating.
 
 For example:
 
-~~~text
+```text
 Start
   |
   v
@@ -960,7 +960,7 @@ Discover trigger
   |
   v
 Return to entry point
-~~~
+```
 
 This is normal.
 
