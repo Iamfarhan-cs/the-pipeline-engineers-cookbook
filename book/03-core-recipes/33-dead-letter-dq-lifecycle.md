@@ -1754,6 +1754,20 @@ When dead-letter volume increases:
 ---
 
 
+## Production Tools You Should Know
+
+These tools solve or provide production implementations of concepts covered in this recipe. Learn what the tool provides, but understand the underlying problem first.
+
+| Tool | What to know |
+|---|---|
+| **Apache Kafka** | Dead-letter topics for failed events. |
+| **RabbitMQ** | Dead-letter exchanges and queues. |
+| **Amazon SQS** | Dead-letter queues for failed messages. |
+
+> These are reference tools for recognition and vocabulary, not substitutes for understanding the engineering mechanism.
+
+---
+
 ## Implementation Lab — Runnable Dead-Letter / DQ Lifecycle
 
 The implementation below creates a small dead-letter lifecycle with stable failure codes, explicit states, repair, validation, bounded replay, and idempotent completion.
