@@ -1,4 +1,4 @@
-# Chapter 1 — How Data Pipelines Work
+# Recipe 1 — How Data Pipelines Work
 
 When you first hear the words **Data Engineering**, it can sound complicated.
 
