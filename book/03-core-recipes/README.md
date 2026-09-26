@@ -99,6 +99,14 @@ PROVE YOU ARE DONE
 | [Recipe 25 — Rate Limiting](25-rate-limiting.md) | Dependency traffic control |
 | [Recipe 26 — Network Failure](26-network-failure.md) | Network reliability and recovery |
 
+
+### Stage 6 — File-Based ETL
+
+| Recipe | Topic |
+|---:|---|
+| [E49 — File Discovery](E49-file-discovery.md) | Discover, identify, register, and safely hand off files |
+| [E50 — File Naming Conventions](E50-file-naming-conventions.md) | Deterministic file identity and naming contracts |
+
 ### Stage 5 — Orchestration & Pipeline Operations
 
 | Recipe | Topic |
