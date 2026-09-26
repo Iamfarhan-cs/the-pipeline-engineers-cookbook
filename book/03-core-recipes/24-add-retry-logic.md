@@ -1912,3 +1912,56 @@ These tools solve or provide production implementations of concepts covered in t
 ---
 
 
+
+
+## Implementation Lab — Bounded Retry With Backoff
+
+### 1. Retry implementation
+
+~~~python
+# src/retry.py
+import random
+import time
+
+def retry(operation, max_attempts=5, base_delay=0.1, sleep=time.sleep):
+    for attempt in range(max_attempts):
+        try:
+            return operation()
+        except TimeoutError:
+            if attempt == max_attempts - 1:
+                raise
+            delay = min(30, base_delay * (2 ** attempt))
+            delay += random.uniform(0, delay * 0.1)
+            sleep(delay)
+~~~
+
+### 2. Test retry limits
+
+~~~python
+def test_retry_stops_after_max_attempts():
+    calls = []
+
+    def failing_operation():
+        calls.append(1)
+        raise TimeoutError("temporary failure")
+
+    try:
+        retry(failing_operation, max_attempts=3, sleep=lambda _: None)
+    except TimeoutError:
+        pass
+
+    assert len(calls) == 3
+~~~
+
+### 3. Intentional failure drill
+
+Replace exponential backoff with an immediate retry and simulate a failing dependency.
+
+Observe the retry storm, then restore bounded backoff.
+
+### 4. Recovery verification
+
+Verify maximum attempts, error classification, increasing delays, and jitter.
+
+---
+
