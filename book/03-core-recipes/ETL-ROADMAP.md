@@ -48,7 +48,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | E18 | [API Rate Limits](E18-api-rate-limits.md) |
 | E19 | [API Retries](E19-api-retries.md) |
 | E20 | [API Timeouts](E20-api-timeouts.md) |
-| E21 | API Backoff and Jitter — ETL Application |
+| E21 | [API Backoff and Jitter](E21-api-backoff-and-jitter.md) |
 | E22 | API Checkpointing — ETL Application |
 | E23 | API Incremental Extraction |
 | E24 | API Cursor-Based Extraction |
