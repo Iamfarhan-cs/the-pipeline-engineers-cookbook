@@ -1,4 +1,4 @@
-# Recipe 22 — Add Error Handling
+# Recipe 20 — Add Error Handling
 
 A pipeline will fail.
 
