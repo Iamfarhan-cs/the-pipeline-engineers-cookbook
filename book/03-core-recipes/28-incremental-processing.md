@@ -2019,3 +2019,39 @@ These tools solve or provide production implementations of concepts covered in t
 ---
 
 
+
+
+## Implementation Lab — Incremental Cursor
+
+### 1. Use a stable cursor
+
+~~~python
+from dataclasses import dataclass
+
+@dataclass
+class Cursor:
+    occurred_at: str
+    event_id: str
+
+def is_after(event, cursor):
+    return (event["occurred_at"], event["event_id"]) > (cursor.occurred_at, cursor.event_id)
+~~~
+
+The second field makes equal timestamps deterministic.
+
+### 2. Use overlap safely
+
+Read a small overlap window and rely on idempotency at the target boundary.
+
+### 3. Intentional failure drill
+
+Advance the cursor before writing the target. Crash between those operations. The cursor now says processed while the target is missing data.
+
+Restore: read → write durable result → advance cursor.
+
+### 4. Recovery
+
+Move the cursor back to a safe checkpoint and replay the affected range idempotently.
+
+---
+
