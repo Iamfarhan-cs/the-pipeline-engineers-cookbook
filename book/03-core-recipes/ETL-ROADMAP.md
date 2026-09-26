@@ -32,30 +32,17 @@ Do not duplicate a mechanism just because it appears in another ETL category.
 
 # Part I — EXTRACT RECIPES
 
-## A. Extraction Fundamentals
+Each recipe remains numbered by its stable E01–E65 identifier. The category determines **what kind of extraction problem it teaches**; the ID does not determine the category.
+
+## Category 01 — API Extraction
 
 | ID | Recipe |
 |---|---|
 | E01 | [Extract Data from REST APIs](E01-extract-data-from-rest-apis.md) |
 | E02 | [Extract Data from Paginated APIs](E02-extract-data-from-paginated-apis.md) |
 | E03 | [Extract Data from GraphQL APIs](E03-extract-data-from-graphql-apis.md) |
-| E04 | [Extract Data from Relational Databases](E04-extract-data-from-relational-databases.md) |
-| E05 | [Extract Data from CSV Files](E05-extract-data-from-csv-files.md) |
-| E06 | [Extract Data from JSON Files](E06-extract-data-from-json-files.md) |
-| E07 | [Extract Data from XML Files](E07-extract-data-from-xml-files.md) |
-| E08 | [Extract Data from Excel Files](E08-extract-data-from-excel-files.md) |
-| E09 | [Extract Data from Object Storage](E09-extract-data-from-object-storage.md) |
-| E10 | Extract Data from SFTP/FTP |
 | E11 | Extract Data from Webhooks |
-| E12 | Extract Data from Message Queues |
-| E13 | Extract Data from Kafka |
-| E14 | Extract Data from Cloud Storage |
 | E15 | Extract Data from SaaS Platforms |
-
-## B. API Extraction
-
-| ID | Recipe |
-|---|---|
 | E16 | API Authentication — ETL Application |
 | E17 | API Pagination — ETL Application |
 | E18 | API Rate Limits — ETL Application |
@@ -74,12 +61,11 @@ Do not duplicate a mechanism just because it appears in another ETL category.
 | E31 | API Extraction Resume — ETL Application |
 | E32 | API Extraction Auditing |
 
-These recipes must assume the reader already understands the corresponding general mechanisms from the Core Recipes. They should focus on API-specific implementation details and failure modes.
-
-## C. Database Extraction
+## Category 02 — Database Extraction
 
 | ID | Recipe |
 |---|---|
+| E04 | [Extract Data from Relational Databases](E04-extract-data-from-relational-databases.md) |
 | E33 | Full Database Extraction |
 | E34 | Incremental Database Extraction — ETL Application |
 | E35 | Watermark-Based Extraction |
@@ -97,10 +83,14 @@ These recipes must assume the reader already understands the corresponding gener
 | E47 | Handling Source Database Load |
 | E48 | Source Schema Evolution — ETL Application |
 
-## D. File and Object Extraction
+## Category 03 — File Extraction
 
 | ID | Recipe |
 |---|---|
+| E05 | [Extract Data from CSV Files](E05-extract-data-from-csv-files.md) |
+| E06 | [Extract Data from JSON Files](E06-extract-data-from-json-files.md) |
+| E07 | [Extract Data from XML Files](E07-extract-data-from-xml-files.md) |
+| E08 | [Extract Data from Excel Files](E08-extract-data-from-excel-files.md) |
 | E49 | File Discovery |
 | E50 | File Naming Conventions |
 | E51 | File Arrival Detection |
@@ -119,9 +109,28 @@ These recipes must assume the reader already understands the corresponding gener
 | E64 | Missing File Detection |
 | E65 | Late File Detection |
 
-File and object recipes should focus on source-specific mechanics. Generic idempotency, retries, checkpointing, and failure recovery should be referenced rather than rewritten.
+## Category 04 — Object and Cloud Storage Extraction
 
----
+| ID | Recipe |
+|---|---|
+| E09 | [Extract Data from Object Storage](E09-extract-data-from-object-storage.md) |
+| E14 | Extract Data from Cloud Storage |
+
+## Category 05 — Remote File Transfer Extraction
+
+| ID | Recipe |
+|---|---|
+| E10 | Extract Data from SFTP/FTP |
+
+## Category 06 — Messaging and Event Extraction
+
+| ID | Recipe |
+|---|---|
+| E12 | Extract Data from Message Queues |
+| E13 | Extract Data from Kafka |
+
+> **ETL application rule:** API, database, file, storage, and messaging recipes should reference the relevant Core Recipe when a general mechanism already exists. The ETL recipe must teach the source-specific implementation, constraints, and failure modes instead of copying the Core Recipe.
+
 
 # Part II — TRANSFORM RECIPES
 
