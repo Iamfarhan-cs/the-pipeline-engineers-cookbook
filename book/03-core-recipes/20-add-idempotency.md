@@ -1801,4 +1801,18 @@ The important distinction will be:
         v
     Duplicate records are identified
 
-A production pipeline often needs both.
+A production pipeline often needs both.## Production Tools You Should Know
+
+These tools solve or provide production implementations of concepts covered in this recipe. Learn what the tool provides, but understand the underlying problem first.
+
+| Tool | What to know |
+|---|---|
+| **PostgreSQL** | Unique constraints and upserts provide practical idempotency controls. |
+| **Apache Kafka** | Producer idempotence and delivery semantics. |
+| **Redis** | Idempotency keys and short-lived deduplication state. |
+
+> These are reference tools for recognition and vocabulary, not substitutes for understanding the engineering mechanism.
+
+---
+
+
