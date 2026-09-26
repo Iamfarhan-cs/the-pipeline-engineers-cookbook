@@ -89,6 +89,7 @@ PROVE YOU ARE DONE
 | [Recipe 17 — Handle Schema Changes](17-handle-schema-changes.md) | Schema evolution |
 | [Recipe 18 — Handle Backpressure](18-handle-backpressure.md) | Flow control |
 | [Recipe 19 — Dead-Letter / Data-Quality Lifecycle](19-dead-letter-dq-lifecycle.md) | Failure and DQ lifecycle |
+| [Recipe 20 — Boundary Validation](20-boundary-validation.md) | Validate at trust boundaries |
 
 ## Learning Order
 
