@@ -1,4 +1,4 @@
-# Chapter 17 — Create an Ingestion Pipeline
+# Recipe 17 — Create an Ingestion Pipeline
 
 Part III starts with the most basic pipeline we can build: receive data from a source, validate it, and store it in a database.
 
