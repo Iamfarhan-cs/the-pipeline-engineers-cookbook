@@ -1,4 +1,4 @@
-# Chapter 18 — Create a Staging Layer
+# Recipe 18 — Create a Staging Layer
 
 Chapter 17 gave us a working ingestion pipeline:
 
