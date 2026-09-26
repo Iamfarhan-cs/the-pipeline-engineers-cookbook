@@ -90,6 +90,7 @@ PROVE YOU ARE DONE
 | [Recipe 18 — Handle Backpressure](18-handle-backpressure.md) | Flow control |
 | [Recipe 19 — Dead-Letter / Data-Quality Lifecycle](19-dead-letter-dq-lifecycle.md) | Failure and DQ lifecycle |
 | [Recipe 20 — Boundary Validation](20-boundary-validation.md) | Validate at trust boundaries |
+| [Recipe 21 — Transactions & Atomicity](21-transactions-atomicity.md) | Atomic database operations |
 
 ## Learning Order
 
@@ -134,7 +135,9 @@ PROVE YOU ARE DONE
    ↓
 20 Boundary Validation
    ↓
-21+
+21 Transactions & Atomicity
+   ↓
+22+
 Future Core Recipes
 ```
 
