@@ -1858,6 +1858,20 @@ The objective is to make unexplained data loss visible.
 ---
 
 
+## Production Tools You Should Know
+
+These tools solve or provide production implementations of concepts covered in this recipe. Learn what the tool provides, but understand the underlying problem first.
+
+| Tool | What to know |
+|---|---|
+| **Great Expectations** | Completeness and expectation checks. |
+| **Soda** | Missing-data and freshness checks. |
+| **dbt** | Source/model tests and completeness-oriented assertions. |
+
+> These are reference tools for recognition and vocabulary, not substitutes for understanding the engineering mechanism.
+
+---
+
 ## Implementation Lab — Runnable Missing-Data Detection and Recovery
 
 This implementation compares expected IDs with observed IDs, identifies missing records, distinguishes a genuinely empty period from an incomplete period, and performs bounded recovery.
