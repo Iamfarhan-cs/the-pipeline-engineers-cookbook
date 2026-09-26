@@ -10,6 +10,20 @@ The goal is not to build a production platform in one chapter. The goal is to un
 
 ---
 
+## Production Tools You Should Know
+
+These tools solve or provide production implementations of concepts covered in this recipe. Learn what the tool provides, but understand the underlying problem first.
+
+| Tool | What to know |
+|---|---|
+| **Requests** | HTTP/API source communication from Python. |
+| **PostgreSQL** | Common durable destination for ingestion pipelines. |
+| **Docker Compose** | Reproducible local pipeline infrastructure. |
+
+> These are reference tools for recognition and vocabulary, not substitutes for understanding the engineering mechanism.
+
+---
+
 ## Recipe Goal
 
 By the end of this recipe, you will have a small ingestion pipeline that can:
