@@ -1817,3 +1817,43 @@ These tools solve or provide production implementations of concepts covered in t
 ---
 
 
+
+
+## Implementation Lab — Quarantine and Recovery
+
+### 1. Quarantine model
+
+~~~python
+from dataclasses import dataclass
+
+@dataclass
+class QuarantinedRecord:
+    event_id: str
+    reason: str
+    payload: dict
+    status: str = "QUARANTINED"
+
+def quarantine(event_id, payload, reason):
+    return QuarantinedRecord(event_id, reason, payload)
+~~~
+
+### 2. Test preservation
+
+~~~python
+def test_quarantine_preserves_original_payload():
+    record = quarantine("evt-1", {"amount": -10}, "INVALID_AMOUNT")
+    assert record.event_id == "evt-1"
+    assert record.payload["amount"] == -10
+    assert record.status == "QUARANTINED"
+~~~
+
+### 3. Intentional failure drill
+
+Replace the original payload with only the error message. Observe that repair evidence is lost. Restore original-payload preservation.
+
+### 4. Recovery
+
+Repair, validate again, then move the record to replay. Moving out of quarantine is not proof of successful processing.
+
+---
+
