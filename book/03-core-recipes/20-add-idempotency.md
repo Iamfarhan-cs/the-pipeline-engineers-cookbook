@@ -1,4 +1,4 @@
-# Chapter 20 — Add Idempotency
+# Recipe 20 — Add Idempotency
 
 A pipeline can fail without losing data.
 
