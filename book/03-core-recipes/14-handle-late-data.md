@@ -69,14 +69,14 @@ The central idea is:
 
 Consider a payment event:
 
-~~~json
+```json
 {
   "event_id": "evt-1001",
   "occurred_at": "2026-09-26T10:00:00Z",
   "amount": 250,
   "currency": "EUR"
 }
-~~~
+```
 
 The event does not reach the pipeline until:
 
@@ -321,13 +321,13 @@ A late-data strategy starts with a timestamp contract.
 
 For an event, define fields such as:
 
-~~~json
+```json
 {
   "event_id": "evt-1001",
   "occurred_at": "2026-09-26T10:00:00Z",
   "ingested_at": "2026-09-26T10:08:00Z"
 }
-~~~
+```
 
 The contract should make clear:
 
@@ -779,12 +779,12 @@ A robust event model commonly keeps both timestamps.
 
 For example:
 
-~~~sql
+```sql
 event_id
 occurred_at
 ingested_at
 processed_at
-~~~
+```
 
 This makes it possible to answer:
 
@@ -892,16 +892,16 @@ The thresholds must come from actual system requirements and observed behavior.
 
 Suppose events contain:
 
-~~~sql
+```sql
 event_id
 occurred_at
 ingested_at
 payload
-~~~
+```
 
 A simple lateness query could be:
 
-~~~sql
+```sql
 SELECT
     event_id,
     occurred_at,
@@ -909,17 +909,17 @@ SELECT
     EXTRACT(EPOCH FROM (ingested_at - occurred_at))
         AS lateness_seconds
 FROM events;
-~~~
+```
 
 This is a generic PostgreSQL example.
 
 For a threshold:
 
-~~~sql
+```sql
 SELECT *
 FROM events
 WHERE ingested_at - occurred_at > INTERVAL '10 minutes';
-~~~
+```
 
 This identifies events later than ten minutes.
 
