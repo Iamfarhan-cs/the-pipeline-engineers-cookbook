@@ -1248,7 +1248,7 @@ Before saying that you understand a repository's configuration, check:
 
 ## 40. What You Learned
 
-In this chapter, you learned how to investigate configuration as part of understanding a Data Engineering repository.
+In this recipe, you learned how to investigate configuration as part of understanding a Data Engineering repository.
 
 You learned how to:
 
