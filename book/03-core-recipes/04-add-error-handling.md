@@ -66,7 +66,7 @@ One record contains an invalid value.
 
 A simple implementation might do this:
 
-~~~text
+```text
 read batch
    |
    v
@@ -83,7 +83,7 @@ record 500 fails
    |
    X
 worker crashes
-~~~
+```
 
 The result may be:
 
@@ -97,7 +97,7 @@ That is not necessarily the behavior the pipeline needs.
 
 A better design asks:
 
-~~~text
+```text
 Did one record fail?
 
 Can the other records continue?
@@ -107,7 +107,7 @@ Should the failed record be retried?
 Should it be quarantined?
 
 Should the entire batch stop?
-~~~
+```
 
 The answer depends on the type of error and the processing model.
 
@@ -131,7 +131,7 @@ It interacts with:
 
 For example:
 
-~~~text
+```text
 Record fails
     |
     v
@@ -146,7 +146,7 @@ Classify error
                 |
                 v
             quarantine
-~~~
+```
 
 Without classification, the pipeline may retry errors that will never succeed.
 
@@ -182,7 +182,7 @@ It becomes especially important when processing must continue after individual r
 
 A simple error-handling flow looks like this:
 
-~~~text
+```text
                  Process record
                        |
                        v
@@ -202,11 +202,11 @@ A simple error-handling flow looks like this:
                     |
                     v
                 processing
-~~~
+```
 
 Unexpected system-level failures may follow another path:
 
-~~~text
+```text
 Database unavailable
        |
        v
@@ -217,7 +217,7 @@ protect transaction
        |
        v
 recover
-~~~
+```
 
 The key idea is that different failures can require different actions.
 
@@ -308,13 +308,13 @@ Examples:
 
 Conceptually:
 
-~~~text
+```text
 Error
  |
  +--> retryable ------> retry
  |
  +--> non-retryable --> quarantine / reject
-~~~
+```
 
 Do not retry everything.
 
@@ -326,12 +326,12 @@ Suppose an API request fails because the payload contains an invalid identifier.
 
 The pipeline retries:
 
-~~~text
+```text
 attempt 1 -> invalid identifier
 attempt 2 -> invalid identifier
 attempt 3 -> invalid identifier
 attempt 4 -> invalid identifier
-~~~
+```
 
 Nothing changed.
 
@@ -352,7 +352,7 @@ Retry should be based on the error category.
 
 A practical pipeline can classify errors into categories such as:
 
-~~~text
+```text
 ValidationError
 DatabaseError
 NetworkError
@@ -362,7 +362,7 @@ AuthenticationError
 BusinessRuleError
 SerializationError
 UnknownError
-~~~
+```
 
 These names are **generic examples**.
 
@@ -378,16 +378,16 @@ Validation errors usually indicate that the input does not meet the required con
 
 For example:
 
-~~~text
+```text
 missing customer_id
 invalid amount
 unsupported currency
 invalid timestamp
-~~~
+```
 
 A typical flow is:
 
-~~~text
+```text
 record
   |
   v
@@ -401,7 +401,7 @@ record-level error
   |
   v
 quarantine / reject
-~~~
+```
 
 Retrying the same invalid record without changing the input usually does not help.
 
@@ -451,7 +451,7 @@ API errors also need classification.
 
 For example:
 
-~~~text
+```text
 HTTP 400
     |
     v
@@ -459,11 +459,11 @@ bad request
     |
     v
 usually not retryable
-~~~
+```
 
 Whereas:
 
-~~~text
+```text
 HTTP 503
     |
     v
@@ -471,11 +471,11 @@ service unavailable
     |
     v
 often retryable
-~~~
+```
 
 And:
 
-~~~text
+```text
 HTTP 429
     |
     v
@@ -483,7 +483,7 @@ rate limited
     |
     v
 retry according to rate-limit policy
-~~~
+```
 
 These are general patterns.
 
@@ -497,23 +497,23 @@ A record-level error affects one processing unit.
 
 For example:
 
-~~~text
+```text
 Record 1 -> success
 Record 2 -> success
 Record 3 -> invalid
 Record 4 -> success
 Record 5 -> success
-~~~
+```
 
 If the processing model supports isolation, the pipeline may continue:
 
-~~~text
+```text
 Record 1 -> completed
 Record 2 -> completed
 Record 3 -> failed/quarantined
 Record 4 -> completed
 Record 5 -> completed
-~~~
+```
 
 This is often preferable for independent records.
 
@@ -529,23 +529,23 @@ A batch-level error affects the processing unit as a whole.
 
 For example:
 
-~~~text
+```text
 Database unavailable
-~~~
+```
 
 If every record requires that database, continuing may cause every record to fail.
 
 Another example:
 
-~~~text
+```text
 Input file cannot be parsed
-~~~
+```
 
 There may be no safe record-level processing at all.
 
 In such cases:
 
-~~~text
+```text
 batch
   |
   v
@@ -556,7 +556,7 @@ stop
   |
   v
 retry / investigate
-~~~
+```
 
 The important question is:
 
@@ -574,7 +574,7 @@ A reliable pipeline tries to isolate failures where it is safe to do so.
 
 For example:
 
-~~~text
+```text
 Batch
  |
  +--> Record A -> success
@@ -584,19 +584,19 @@ Batch
  +--> Record C -> success
  |
  +--> Record D -> success
-~~~
+```
 
 The failure of B does not necessarily need to stop A, C, and D.
 
 But consider:
 
-~~~text
+```text
 Batch
  |
  +--> shared database unavailable
  |
  +--> every record depends on database
-~~~
+```
 
 Now the failure is shared.
 
@@ -612,7 +612,7 @@ An error should contain enough information to investigate the failure.
 
 Useful fields may include:
 
-~~~text
+```text
 record_id
 error_type
 error_message
@@ -621,11 +621,11 @@ attempt_count
 pipeline_stage
 source
 correlation_id
-~~~
+```
 
 A generic error object might look like:
 
-~~~json
+```json
 {
   "record_id": "1001",
   "error_type": "ValidationError",
@@ -633,7 +633,7 @@ A generic error object might look like:
   "pipeline_stage": "validation",
   "attempt_count": 1
 }
-~~~
+```
 
 This is a **generic example**.
 
@@ -647,20 +647,20 @@ Error messages can accidentally expose sensitive information.
 
 For example, avoid logging:
 
-~~~text
+```text
 password
 authentication token
 full payment details
 identity documents
 private credentials
-~~~
+```
 
 A safer message might be:
 
-~~~text
+```text
 record 1001 failed validation
 reason = required field missing
-~~~
+```
 
 rather than logging the entire input record.
 
@@ -674,7 +674,7 @@ For important pipeline failures, storing error information can be useful.
 
 A generic failure table might look like:
 
-~~~sql
+```sql
 CREATE TABLE pipeline_errors (
     id BIGSERIAL PRIMARY KEY,
     record_id BIGINT,
@@ -684,7 +684,7 @@ CREATE TABLE pipeline_errors (
     attempt_count INTEGER,
     occurred_at TIMESTAMP NOT NULL
 );
-~~~
+```
 
 This is a **generic example**.
 
@@ -708,19 +708,19 @@ There is a difference between storing the latest error and storing every error.
 
 A record might currently have:
 
-~~~text
+```text
 status = failed
 last_error = timeout
-~~~
+```
 
 But the actual history could be:
 
-~~~text
+```text
 attempt 1 -> timeout
 attempt 2 -> rate limited
 attempt 3 -> timeout
 attempt 4 -> completed
-~~~
+```
 
 If only the latest error is stored, the previous failures disappear.
 
@@ -734,7 +734,7 @@ The processing-status model from Recipe 6 should work with error handling.
 
 For example:
 
-~~~text
+```text
 pending
    |
    v
@@ -745,11 +745,11 @@ error
    |
    v
 failed
-~~~
+```
 
 Then:
 
-~~~text
+```text
 failed
    |
    v
@@ -757,11 +757,11 @@ retry allowed?
    |
    v
 processing
-~~~
+```
 
 Or:
 
-~~~text
+```text
 failed
    |
    v
@@ -769,7 +769,7 @@ non-retryable
    |
    v
 quarantined
-~~~
+```
 
 The status tells the pipeline where the record is.
 
@@ -783,7 +783,7 @@ Error handling should classify the failure before deciding whether to retry.
 
 For example:
 
-~~~text
+```text
 process
   |
   v
@@ -797,13 +797,13 @@ classify
   +---- non-retryable --> quarantine
   |
   +---- unknown --------> alert / investigate
-~~~
+```
 
 This prevents the retry system from having to understand every possible exception itself.
 
 A useful separation is:
 
-~~~text
+```text
 Error classification
         |
         v
@@ -811,7 +811,7 @@ Retry policy
         |
         v
 Retry execution
-~~~
+```
 
 Each part has a different responsibility.
 
@@ -823,21 +823,21 @@ Even retryable errors should have limits.
 
 For example:
 
-~~~text
+```text
 attempt 1 -> fail
 attempt 2 -> fail
 attempt 3 -> fail
 attempt 4 -> stop
-~~~
+```
 
 After the maximum number of attempts:
 
-~~~text
+```text
 failed
    |
    v
 quarantine / manual review
-~~~
+```
 
 Without a retry limit, one bad dependency can keep a record in a retry loop indefinitely.
 
@@ -853,25 +853,25 @@ Transaction boundaries matter when an error occurs.
 
 Suppose a database transaction does:
 
-~~~text
+```text
 BEGIN
     write result A
     write result B
     update status
 COMMIT
-~~~
+```
 
 If an error occurs before commit:
 
-~~~text
+```text
 ROLLBACK
-~~~
+```
 
 The partial transaction should not remain.
 
 But consider:
 
-~~~text
+```text
 database transaction
        |
        v
@@ -879,7 +879,7 @@ external API call
        |
        v
 database commit
-~~~
+```
 
 The external API may already have changed state before the database transaction fails.
 
@@ -893,12 +893,12 @@ This is another reason idempotency and external-side-effect design are important
 
 A dangerous pattern is:
 
-~~~python
+```python
 try:
     process_record(record)
 except Exception:
     pass
-~~~
+```
 
 The error disappears.
 
@@ -924,12 +924,12 @@ The exact sequence depends on the architecture.
 
 Another common pattern is:
 
-~~~python
+```python
 try:
     entire_pipeline()
 except Exception:
     handle_error()
-~~~
+```
 
 This can be useful as a final safety boundary.
 
@@ -939,12 +939,12 @@ If all failures become one generic error, the pipeline loses important informati
 
 For example:
 
-~~~text
+```text
 ValidationError
 DatabaseTimeout
 RateLimit
 ProgrammingBug
-~~~
+```
 
 should not necessarily have identical behavior.
 
@@ -960,7 +960,7 @@ A codebase can define specific exception types.
 
 For example:
 
-~~~python
+```python
 class ValidationError(Exception):
     pass
 
@@ -971,7 +971,7 @@ class RetryableError(Exception):
 
 class NonRetryableError(Exception):
     pass
-~~~
+```
 
 This is a **generic example**.
 
@@ -987,31 +987,31 @@ When an error is raised, useful context should travel with it.
 
 For example:
 
-~~~text
+```text
 error_type
 record_id
 pipeline_stage
 source
 attempt
 correlation_id
-~~~
+```
 
 Suppose the same error appears in hundreds of records.
 
 Without context:
 
-~~~text
+```text
 timeout
-~~~
+```
 
 With context:
 
-~~~text
+```text
 timeout
 record_id = 1001
 stage = external_api
 attempt = 2
-~~~
+```
 
 The second message is much easier to investigate.
 
@@ -1023,7 +1023,7 @@ A correlation ID can connect logs from different components.
 
 For example:
 
-~~~text
+```text
 ingestion
     |
     v
@@ -1034,15 +1034,15 @@ processing
     |
     v
 database
-~~~
+```
 
 All related operations can carry the same correlation ID.
 
 Then an engineer can search:
 
-~~~text
+```text
 correlation_id = abc-123
-~~~
+```
 
 and follow the operation across the pipeline.
 
@@ -1065,7 +1065,7 @@ A useful error log should answer:
 
 A generic structured log might contain:
 
-~~~json
+```json
 {
   "level": "ERROR",
   "event": "record_processing_failed",
@@ -1074,7 +1074,7 @@ A generic structured log might contain:
   "stage": "external_api",
   "attempt": 2
 }
-~~~
+```
 
 This is a **generic example**.
 
@@ -1090,7 +1090,7 @@ Metrics show the larger pattern.
 
 Useful metrics can include:
 
-~~~text
+```text
 errors_total
 errors_by_type
 errors_by_stage
@@ -1098,14 +1098,14 @@ retryable_errors_total
 non_retryable_errors_total
 quarantined_records_total
 failed_records_total
-~~~
+```
 
 You can also measure error rates:
 
-~~~text
+```text
 error rate =
 failed records / processed records
-~~~
+```
 
 The exact metric definition should be consistent.
 
@@ -1125,27 +1125,27 @@ These two metrics answer different questions.
 
 Suppose:
 
-~~~text
+```text
 10 errors out of 100 records
-~~~
+```
 
 Error rate:
 
-~~~text
+```text
 10%
-~~~
+```
 
 Now:
 
-~~~text
+```text
 100 errors out of 100,000 records
-~~~
+```
 
 Error rate:
 
-~~~text
+```text
 0.1%
-~~~
+```
 
 The second case has more errors in absolute terms but a lower failure rate.
 
@@ -1161,7 +1161,7 @@ Some errors should move records to a quarantine path.
 
 For example:
 
-~~~text
+```text
 record
   |
   v
@@ -1172,7 +1172,7 @@ invalid
   |
   v
 quarantine
-~~~
+```
 
 Quarantine is useful when:
 
@@ -1183,14 +1183,14 @@ Quarantine is useful when:
 
 A quarantine record may include:
 
-~~~text
+```text
 original data reference
 error type
 error message
 failure stage
 created_at
 attempt_count
-~~~
+```
 
 The exact structure depends on the pipeline.
 
@@ -1213,15 +1213,15 @@ A quarantined record should have a clear reason.
 
 For example:
 
-~~~text
+```text
 reason = invalid_currency
-~~~
+```
 
 is more useful than:
 
-~~~text
+```text
 reason = failed
-~~~
+```
 
 The goal is to preserve information about why the normal path could not process the record.
 
@@ -1231,7 +1231,7 @@ The goal is to preserve information about why the normal path could not process 
 
 A useful recovery flow can look like:
 
-~~~text
+```text
 failed record
       |
       v
@@ -1244,7 +1244,7 @@ inspect error
       +---- code bug ------> deploy fix
       |
       +---- unknown -------> investigate
-~~~
+```
 
 This is more useful than simply rerunning the whole pipeline.
 
@@ -1269,7 +1269,7 @@ The pipeline should determine:
 
 A useful history might look like:
 
-~~~text
+```text
 Run 1
   attempt 1 -> validation failure
 
@@ -1277,7 +1277,7 @@ Fix applied
 
 Run 2
   attempt 1 -> completed
-~~~
+```
 
 Do not erase the original failure if the history is operationally important.
 
@@ -1289,12 +1289,12 @@ Backfills can produce large numbers of failures.
 
 For example:
 
-~~~text
+```text
 1,000,000 historical records
         |
         v
 20,000 failures
-~~~
+```
 
 Stopping the entire backfill may be too expensive.
 
@@ -1302,11 +1302,11 @@ But ignoring the failures is also dangerous.
 
 A controlled backfill can separate:
 
-~~~text
+```text
 successful records
 failed records
 quarantined records
-~~~
+```
 
 Then the failed population can be investigated separately.
 
@@ -1324,65 +1324,65 @@ At minimum, test:
 
 Expected:
 
-~~~text
+```text
 record rejected or quarantined
-~~~
+```
 
 ### Test 2 — Temporary API failure
 
 Expected:
 
-~~~text
+```text
 retry path
-~~~
+```
 
 ### Test 3 — Permanent API error
 
 Expected:
 
-~~~text
+```text
 no unnecessary retries
-~~~
+```
 
 ### Test 4 — Database timeout
 
 Expected:
 
-~~~text
+```text
 appropriate retry or failure handling
-~~~
+```
 
 ### Test 5 — Unexpected exception
 
 Expected:
 
-~~~text
+```text
 error captured and observable
-~~~
+```
 
 ### Test 6 — Error during transaction
 
 Expected:
 
-~~~text
+```text
 transaction rolled back
-~~~
+```
 
 ### Test 7 — Error after external side effect
 
 Expected:
 
-~~~text
+```text
 idempotency or compensation policy is applied
-~~~
+```
 
 ### Test 8 — Multiple failing records
 
 Expected:
 
-~~~text
+```text
 failure isolation follows the pipeline design
-~~~
+```
 
 ---
 
@@ -1394,21 +1394,21 @@ Test the classification.
 
 For example:
 
-~~~text
+```text
 HTTP 400
     |
     v
 non-retryable
-~~~
+```
 
 and:
 
-~~~text
+```text
 HTTP 503
     |
     v
 retryable
-~~~
+```
 
 The classification itself is part of the business and operational logic.
 
@@ -1423,21 +1423,21 @@ A wrong classification can create either:
 
 Suppose a pipeline dashboard shows:
 
-~~~text
+```text
 processed: 100,000
 failed:      5,000
-~~~
+```
 
 Start by grouping failures.
 
 For example:
 
-~~~text
+```text
 ValidationError      3,800
 TimeoutError            700
 DatabaseError           300
 UnknownError            200
-~~~
+```
 
 Now the problem is easier to understand.
 
@@ -1545,7 +1545,7 @@ The pipeline must also have a path to recover.
 
 For an existing repository, use this order:
 
-~~~text
+```text
 1. Understand the processing flow
         |
         v
@@ -1604,7 +1604,7 @@ For an existing repository, use this order:
         |
         v
 20. Document the recovery procedure
-~~~
+```
 
 The important part is to design the error categories before writing the exception handlers.
 
@@ -1646,7 +1646,7 @@ It is a decision system.
 
 A reliable pipeline asks:
 
-~~~text
+```text
 Something failed
       |
       v
@@ -1667,7 +1667,7 @@ Retry  Quarantine
    |
    v
 Verify
-~~~
+```
 
 The most important lesson is:
 
@@ -1688,7 +1688,7 @@ The correct action depends on the failure.
 
 Error handling also connects the reliability features built throughout Part III:
 
-~~~text
+```text
 Validation
     |
     v
@@ -1705,6 +1705,6 @@ Error Classification
     |
     v
 Observability
-~~~
+```
 
 Once errors have clear categories and recovery paths, the pipeline becomes much easier to operate.
