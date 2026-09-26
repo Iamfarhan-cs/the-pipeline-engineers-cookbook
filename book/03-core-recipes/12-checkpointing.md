@@ -14,7 +14,7 @@ It tells the pipeline where it can safely continue.
 
 The basic idea is:
 
-~~~text
+```text
 source
   |
   v
@@ -25,7 +25,7 @@ save progress
   |
   v
 continue
-~~~
+```
 
 Without checkpoints, recovery often becomes guesswork.
 
@@ -80,30 +80,30 @@ The central principle is:
 
 Suppose a worker receives:
 
-~~~text
+```text
 1,000,000 records
-~~~
+```
 
 It processes:
 
-~~~text
+```text
 700,000 records
-~~~
+```
 
 Then the worker crashes.
 
 The system now needs to determine:
 
-~~~text
+```text
 What was completed?
 What was not completed?
 What can safely be repeated?
 Where should processing resume?
-~~~
+```
 
 Without checkpointing:
 
-~~~text
+```text
 worker crashes
      |
      v
@@ -111,11 +111,11 @@ unknown position
      |
      v
 manual investigation
-~~~
+```
 
 With checkpointing:
 
-~~~text
+```text
 worker crashes
      |
      v
@@ -123,7 +123,7 @@ read checkpoint
      |
      v
 resume from known position
-~~~
+```
 
 This does not automatically guarantee correctness.
 
@@ -138,34 +138,34 @@ A checkpoint is persistent state representing processing progress.
 
 A simple checkpoint could be:
 
-~~~text
+```text
 last_processed_id = 500000
-~~~
+```
 
 Another could be:
 
-~~~text
+```text
 last_processed_timestamp = 2026-09-26T10:00:00
-~~~
+```
 
 A streaming system may use:
 
-~~~text
+```text
 partition = 3
 offset = 982341
-~~~
+```
 
 A batch pipeline may use:
 
-~~~text
+```text
 batch_number = 70
-~~~
+```
 
 The exact representation depends on the processing model.
 
 The common idea is:
 
-~~~text
+```text
 processing state
        |
        v
@@ -173,7 +173,7 @@ checkpoint
        |
        v
 resume position
-~~~
+```
 
 
 ---
@@ -188,9 +188,9 @@ A cursor identifies where to read from.
 
 For example:
 
-~~~text
+```text
 id > 500000
-~~~
+```
 
 ### Checkpoint
 
@@ -198,9 +198,9 @@ A checkpoint records the processing progress that has been safely completed.
 
 For example:
 
-~~~text
+```text
 last_successful_id = 500000
-~~~
+```
 
 A pipeline may use the same value for both.
 
@@ -219,22 +219,22 @@ A watermark usually represents a boundary up to which data is considered safe or
 
 For example:
 
-~~~text
+```text
 current time = 10:30
 watermark    = 10:20
-~~~
+```
 
 A checkpoint may then record:
 
-~~~text
+```text
 processed through = 10:15
-~~~
+```
 
 The two values can be different.
 
 Conceptually:
 
-~~~text
+```text
 source timeline
 ---------------------------------------------------->
 
@@ -242,7 +242,7 @@ source timeline
            |                 |                 |
            v                 v                 v
           10:15             10:20             10:30
-~~~
+```
 
 The exact relationship depends on the pipeline.
 
@@ -269,10 +269,10 @@ It also makes pipeline progress observable.
 
 For example:
 
-~~~text
+```text
 processed = 650,000
 checkpoint = 650,000
-~~~
+```
 
 An operator can see how far the pipeline has progressed.
 
@@ -310,7 +310,7 @@ The checkpoint should correspond to a stable processing boundary.
 
 Possible values include:
 
-~~~text
+```text
 last_processed_id
 last_processed_timestamp
 last_processed_event_id
@@ -318,7 +318,7 @@ batch_number
 partition + offset
 sequence_number
 version
-~~~
+```
 
 The correct value depends on the source.
 
@@ -341,25 +341,25 @@ An increasing ID is one of the simplest checkpoint models.
 
 Suppose records are:
 
-~~~text
+```text
 1
 2
 3
 ...
 100
-~~~
+```
 
 After processing through 100:
 
-~~~text
+```text
 checkpoint = 100
-~~~
+```
 
 Next selection:
 
-~~~text
+```text
 id > 100
-~~~
+```
 
 This works well when:
 
@@ -379,15 +379,15 @@ A timestamp can also represent progress.
 
 For example:
 
-~~~text
+```text
 checkpoint = 2026-09-26T10:00:00
-~~~
+```
 
 The next run may select:
 
-~~~text
+```text
 updated_at > checkpoint
-~~~
+```
 
 But timestamps can have:
 
@@ -406,34 +406,34 @@ A timestamp checkpoint often works better with a secondary ordering key.
 
 A composite checkpoint can contain:
 
-~~~text
+```text
 (updated_at, id)
-~~~
+```
 
 For example:
 
-~~~text
+```text
 updated_at = 10:00:00
 id = 105
-~~~
+```
 
 This allows the pipeline to resume precisely after the last processed record.
 
 Conceptually:
 
-~~~text
+```text
 10:00:00, 103
 10:00:00, 104
 10:00:00, 105  <- checkpoint
 10:00:00, 106
 10:00:01, 107
-~~~
+```
 
 The next position starts after:
 
-~~~text
+```text
 (10:00:00, 105)
-~~~
+```
 
 This can be safer than timestamp-only checkpointing.
 
@@ -446,18 +446,18 @@ A batch pipeline can checkpoint after each successful batch.
 
 For example:
 
-~~~text
+```text
 batch 1 -> success -> checkpoint 1
 batch 2 -> success -> checkpoint 2
 batch 3 -> success -> checkpoint 3
 batch 4 -> failure
-~~~
+```
 
 After restart:
 
-~~~text
+```text
 checkpoint = 3
-~~~
+```
 
 The pipeline resumes from batch 4.
 
@@ -472,12 +472,12 @@ The exact resume behavior still depends on whether a failed batch may have parti
 
 Progress is saved at a fine-grained level.
 
-~~~text
+```text
 record 1001
 record 1002
 record 1003
 ...
-~~~
+```
 
 This can provide precise recovery.
 
@@ -487,11 +487,11 @@ But frequent checkpoint writes may be expensive.
 
 Progress is saved after a batch.
 
-~~~text
+```text
 batch 1
 batch 2
 batch 3
-~~~
+```
 
 This reduces checkpoint overhead.
 
@@ -508,7 +508,7 @@ Never advance the checkpoint before the work it represents is safely committed.
 
 Unsafe flow:
 
-~~~text
+```text
 read batch
     |
     v
@@ -519,7 +519,7 @@ write target
     |
     X
 failure
-~~~
+```
 
 Now the checkpoint says the batch is complete even though the target write failed.
 
@@ -527,7 +527,7 @@ This can permanently skip data.
 
 Safer flow:
 
-~~~text
+```text
 read batch
     |
     v
@@ -541,7 +541,7 @@ commit
     |
     v
 advance checkpoint
-~~~
+```
 
 The exact atomicity depends on the architecture, but the ordering must be deliberate.
 
@@ -552,13 +552,13 @@ The exact atomicity depends on the architecture, but the ordering must be delibe
 
 Consider:
 
-~~~text
+```text
 target says:
 record processed
 
 checkpoint says:
 record not processed
-~~~
+```
 
 The record may be processed again.
 
@@ -566,13 +566,13 @@ That is not necessarily incorrect if the target is idempotent.
 
 Now consider:
 
-~~~text
+```text
 checkpoint says:
 record processed
 
 target says:
 record not processed
-~~~
+```
 
 This is dangerous.
 
@@ -597,21 +597,21 @@ Idempotency answers:
 
 Together:
 
-~~~text
+```text
 checkpoint
      +
 idempotency
      |
      v
 safe recovery
-~~~
+```
 
 If a worker crashes after the target commit but before the checkpoint update:
 
-~~~text
+```text
 target = processed
 checkpoint = old
-~~~
+```
 
 The batch may run again.
 
@@ -644,14 +644,14 @@ For a database-backed pipeline, a database table may be practical because proces
 
 A generic PostgreSQL design might look like:
 
-~~~sql
+```sql
 CREATE TABLE pipeline_checkpoints (
     pipeline_name TEXT PRIMARY KEY,
     checkpoint_value TEXT,
     status TEXT NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-~~~
+```
 
 This is a **generic example**.
 
@@ -675,12 +675,12 @@ Do not copy this schema without understanding the actual pipeline.
 
 A simple pipeline may have:
 
-~~~text
+```text
 pipeline A
    |
    v
 checkpoint A
-~~~
+```
 
 This is easy to reason about.
 
@@ -693,13 +693,13 @@ But it may not work when multiple independent processing streams exist.
 
 A partitioned system may need:
 
-~~~text
+```text
 pipeline
    |
    +--> partition 1 -> checkpoint 1000
    +--> partition 2 -> checkpoint 850
    +--> partition 3 -> checkpoint 920
-~~~
+```
 
 This allows partitions to progress independently.
 
@@ -707,9 +707,9 @@ The checkpoint identity must include the partition.
 
 For example:
 
-~~~text
+```text
 pipeline_name + partition_id
-~~~
+```
 
 The exact model depends on the processing system.
 
@@ -722,10 +722,10 @@ With multiple workers, consider who owns a checkpoint.
 
 For example:
 
-~~~text
+```text
 worker A -> partition 1
 worker B -> partition 2
-~~~
+```
 
 The system needs to prevent two workers from incorrectly updating the same checkpoint.
 
@@ -746,19 +746,19 @@ The correct mechanism depends on the architecture.
 
 Consider:
 
-~~~text
+```text
 worker A:
 checkpoint 100 -> 200
 
 worker B:
 checkpoint 100 -> 150
-~~~
+```
 
 If worker B writes after worker A, the checkpoint may move backward:
 
-~~~text
+```text
 200 -> 150
-~~~
+```
 
 This can cause repeated processing or inconsistent progress.
 
@@ -773,7 +773,7 @@ For many pipelines, checkpoint progress should move forward.
 
 For example:
 
-~~~text
+```text
 100
  |
  v
@@ -784,15 +784,15 @@ For example:
  |
  v
 400
-~~~
+```
 
 Unexpected backward movement should be treated as suspicious.
 
 A checkpoint should not normally move:
 
-~~~text
+```text
 400 -> 250
-~~~
+```
 
 unless the system explicitly supports rollback or controlled recovery.
 
@@ -805,22 +805,22 @@ Checkpoint state can sometimes require a version.
 
 For example:
 
-~~~text
+```text
 checkpoint_version = 2
 checkpoint_value = ...
-~~~
+```
 
 This can help when the checkpoint format changes.
 
 For example:
 
-~~~text
+```text
 version 1:
 last_id
 
 version 2:
 (updated_at, id)
-~~~
+```
 
 Changing checkpoint semantics requires careful migration.
 
@@ -835,7 +835,7 @@ The strongest designs make progress updates atomic with the work they represent 
 
 For example:
 
-~~~text
+```text
 transaction
     |
     +--> write target
@@ -844,7 +844,7 @@ transaction
     |
     v
 commit
-~~~
+```
 
 Then either both changes commit or neither does.
 
@@ -852,7 +852,7 @@ This is easier when the target and checkpoint are in the same transactional syst
 
 If they are separate systems:
 
-~~~text
+```text
 source
   |
   v
@@ -861,7 +861,7 @@ processing
   +--> target system
   |
   +--> checkpoint system
-~~~
+```
 
 atomicity becomes harder.
 
@@ -878,29 +878,29 @@ Checkpointing should be tested against different crash points.
 
 ### Crash before processing
 
-~~~text
+```text
 read batch
    |
    X
 crash
-~~~
+```
 
 No progress should be recorded.
 
 ### Crash during processing
 
-~~~text
+```text
 process batch
    |
    X
 crash
-~~~
+```
 
 The batch may need to be retried.
 
 ### Crash after target commit
 
-~~~text
+```text
 write target
    |
    v
@@ -908,7 +908,7 @@ commit
    |
    X
 crash
-~~~
+```
 
 The checkpoint may still point to the previous position.
 
@@ -918,7 +918,7 @@ Idempotency becomes important.
 
 ### Crash after checkpoint commit
 
-~~~text
+```text
 write target
    |
    v
@@ -926,7 +926,7 @@ checkpoint
    |
    v
 crash
-~~~
+```
 
 The next run should continue after the checkpoint.
 
@@ -937,19 +937,19 @@ The next run should continue after the checkpoint.
 
 The most dangerous scenario is:
 
-~~~text
+```text
 checkpoint updated
       |
       X
 target write fails
-~~~
+```
 
 This creates:
 
-~~~text
+```text
 checkpoint = advanced
 target = incomplete
-~~~
+```
 
 The pipeline may skip the missing work.
 
@@ -962,7 +962,7 @@ This is why checkpoint ordering matters.
 
 For a database-backed pipeline, one possible pattern is:
 
-~~~text
+```text
 BEGIN
 
 process batch
@@ -972,13 +972,13 @@ write target
 update checkpoint
 
 COMMIT
-~~~
+```
 
 If anything fails:
 
-~~~text
+```text
 ROLLBACK
-~~~
+```
 
 This can provide strong consistency when the target and checkpoint are in the same database transaction.
 
@@ -993,21 +993,21 @@ For external systems, different coordination strategies are needed.
 
 Suppose the pipeline writes to:
 
-~~~text
+```text
 PostgreSQL
-~~~
+```
 
 and:
 
-~~~text
+```text
 external API
-~~~
+```
 
 A single database transaction cannot automatically roll back the API call.
 
 The flow:
 
-~~~text
+```text
 API call
    |
    v
@@ -1015,7 +1015,7 @@ database write
    |
    v
 checkpoint
-~~~
+```
 
 can fail at different points.
 
@@ -1032,7 +1032,7 @@ When a worker starts, it should read checkpoint state.
 
 Conceptually:
 
-~~~text
+```text
 worker starts
      |
      v
@@ -1046,7 +1046,7 @@ determine resume position
      |
      v
 process
-~~~
+```
 
 The validation step matters.
 
@@ -1086,15 +1086,15 @@ Checkpoint corruption can happen because of:
 
 Suppose the checkpoint says:
 
-~~~text
+```text
 last_id = 9000000
-~~~
+```
 
 but the source currently contains only:
 
-~~~text
+```text
 5000000 records
-~~~
+```
 
 That checkpoint should be investigated.
 
@@ -1107,7 +1107,7 @@ Do not blindly continue.
 
 A controlled recovery process is:
 
-~~~text
+```text
 detect invalid checkpoint
        |
        v
@@ -1127,7 +1127,7 @@ replay/backfill affected range
        |
        v
 verify
-~~~
+```
 
 The correct recovery depends on how much state can be trusted.
 
@@ -1157,17 +1157,17 @@ The goal is to have enough history to recover from state corruption.
 
 Instead of storing only:
 
-~~~text
+```text
 current checkpoint = 500000
-~~~
+```
 
 a system may retain history:
 
-~~~text
+```text
 run 101 -> 450000
 run 102 -> 470000
 run 103 -> 500000
-~~~
+```
 
 This can help investigate:
 
@@ -1186,24 +1186,24 @@ A history table can be useful for operational debugging.
 
 Useful metrics include:
 
-~~~text
+```text
 current checkpoint
 records processed
 records remaining
 checkpoint age
 processing lag
 checkpoint advancement rate
-~~~
+```
 
 A healthy pipeline should normally show progress.
 
 For example:
 
-~~~text
+```text
 10:00 -> checkpoint 100000
 10:05 -> checkpoint 120000
 10:10 -> checkpoint 140000
-~~~
+```
 
 If the checkpoint stops moving, investigation may be required.
 
@@ -1216,7 +1216,7 @@ Checkpoint lag represents how far processing is behind the source.
 
 For example:
 
-~~~text
+```text
 source position:
 1,000,000
 
@@ -1225,11 +1225,11 @@ checkpoint:
 
 lag:
 100,000
-~~~
+```
 
 For timestamp-based processing:
 
-~~~text
+```text
 current source time:
 10:30
 
@@ -1238,7 +1238,7 @@ checkpoint:
 
 lag:
 20 minutes
-~~~
+```
 
 The exact lag calculation depends on the source.
 
@@ -1269,10 +1269,10 @@ Sometimes there is nothing new to process.
 
 For example:
 
-~~~text
+```text
 checkpoint = 1000
 source maximum = 1000
-~~~
+```
 
 The pipeline should safely perform a no-op.
 
@@ -1294,7 +1294,7 @@ A backfill may need its own checkpoint.
 
 For example:
 
-~~~text
+```text
 normal pipeline checkpoint
        |
        v
@@ -1304,7 +1304,7 @@ backfill checkpoint
        |
        v
 historical processing
-~~~
+```
 
 Do not automatically use the same checkpoint for both unless the architecture explicitly defines that behavior.
 
@@ -1319,22 +1319,22 @@ Replay can also require separate progress state.
 
 For example:
 
-~~~text
+```text
 replay job
    |
    v
 replay checkpoint
-~~~
+```
 
 This allows a replay operation to stop and resume independently from the normal pipeline.
 
 A useful design separates:
 
-~~~text
+```text
 live progress
 historical progress
 replay progress
-~~~
+```
 
 when those operations have independent lifecycles.
 
@@ -1347,17 +1347,17 @@ In partitioned systems, ownership can change.
 
 For example:
 
-~~~text
+```text
 worker A owns partition 1
 worker B owns partition 2
-~~~
+```
 
 After rebalancing:
 
-~~~text
+```text
 worker C owns partition 1
 worker B owns partition 2
-~~~
+```
 
 The checkpoint should belong to the partition, not permanently to worker A.
 
@@ -1372,19 +1372,19 @@ Checkpointing depends on the processing order.
 
 Suppose records are processed in this order:
 
-~~~text
+```text
 1
 2
 4
 3
 5
-~~~
+```
 
 A checkpoint of:
 
-~~~text
+```text
 4
-~~~
+```
 
 does not necessarily mean record 3 was completed.
 
@@ -1401,13 +1401,13 @@ Some systems intentionally process records out of order.
 
 For example:
 
-~~~text
+```text
 partition A:
 1, 2, 3
 
 partition B:
 100, 101, 102
-~~~
+```
 
 Each partition can have its own checkpoint.
 
@@ -1436,15 +1436,15 @@ Infrequent checkpoints:
 
 For example:
 
-~~~text
+```text
 checkpoint every record
-~~~
+```
 
 versus:
 
-~~~text
+```text
 checkpoint every 10,000 records
-~~~
+```
 
 There is no universal correct value.
 
@@ -1459,20 +1459,20 @@ Checkpoint writes themselves consume resources.
 
 If a pipeline processes:
 
-~~~text
+```text
 1,000,000 records
-~~~
+```
 
 and writes a checkpoint after every record, it may create unnecessary database traffic.
 
 Batch checkpoints can reduce overhead:
 
-~~~text
+```text
 10,000 records
      |
      v
 one checkpoint
-~~~
+```
 
 The correct frequency depends on:
 
@@ -1495,67 +1495,67 @@ At minimum, test:
 
 Expected:
 
-~~~text
+```text
 target committed
 checkpoint advanced
-~~~
+```
 
 ### Test 2 — Processing failure
 
 Expected:
 
-~~~text
+```text
 target changes rolled back where applicable
 checkpoint not incorrectly advanced
-~~~
+```
 
 ### Test 3 — Crash after target commit
 
 Expected:
 
-~~~text
+```text
 reprocessing is safe
-~~~
+```
 
 ### Test 4 — Crash before target commit
 
 Expected:
 
-~~~text
+```text
 batch can be retried
-~~~
+```
 
 ### Test 5 — Invalid checkpoint
 
 Expected:
 
-~~~text
+```text
 pipeline stops safely
-~~~
+```
 
 ### Test 6 — Empty source
 
 Expected:
 
-~~~text
+```text
 safe no-op
-~~~
+```
 
 ### Test 7 — Concurrent workers
 
 Expected:
 
-~~~text
+```text
 checkpoint cannot move backward incorrectly
-~~~
+```
 
 ### Test 8 — Partition recovery
 
 Expected:
 
-~~~text
+```text
 new worker resumes from partition checkpoint
-~~~
+```
 
 
 ---
@@ -1564,33 +1564,33 @@ new worker resumes from partition checkpoint
 
 For a checkpoint:
 
-~~~text
+```text
 100
-~~~
+```
 
 test:
 
-~~~text
+```text
 99
 100
 101
-~~~
+```
 
 Verify exactly which records are selected next.
 
 For a timestamp:
 
-~~~text
+```text
 10:00:00
-~~~
+```
 
 test:
 
-~~~text
+```text
 09:59:59
 10:00:00
 10:00:01
-~~~
+```
 
 Boundary tests should also include duplicate timestamps when timestamps are part of the cursor.
 
@@ -1601,10 +1601,10 @@ Boundary tests should also include duplicate timestamps when timestamps are part
 
 Simulate:
 
-~~~text
+```text
 checkpoint:
 invalid value
-~~~
+```
 
 Then verify the pipeline:
 
@@ -1621,7 +1621,7 @@ Then verify the pipeline:
 
 Simulate:
 
-~~~text
+```text
 worker starts
    |
    v
@@ -1629,18 +1629,18 @@ processes batch
    |
    X
 worker stops
-~~~
+```
 
 Restart it.
 
 Verify:
 
-~~~text
+```text
 checkpoint loaded
 resume position correct
 target remains correct
 no data is permanently skipped
-~~~
+```
 
 This should be part of the normal integration test suite for important pipelines.
 
@@ -1651,10 +1651,10 @@ This should be part of the normal integration test suite for important pipelines
 
 If checkpoints are expected to be monotonic, test:
 
-~~~text
+```text
 checkpoint = 200
 update to 150
-~~~
+```
 
 The system should reject the invalid movement unless rollback is explicitly supported.
 
@@ -1669,10 +1669,10 @@ Force the same batch to execute twice.
 
 Expected:
 
-~~~text
+```text
 first execution -> target correct
 second execution -> target still correct
-~~~
+```
 
 This test connects checkpoint behavior to idempotency.
 
@@ -1867,7 +1867,7 @@ It is a statement about completed work.
 
 The basic model is:
 
-~~~text
+```text
 read source
     |
     v
@@ -1881,7 +1881,7 @@ commit successful work
     |
     v
 advance checkpoint
-~~~
+```
 
 The most important lessons are:
 
