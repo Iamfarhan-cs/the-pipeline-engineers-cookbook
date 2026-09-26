@@ -1068,7 +1068,7 @@ Before saying that you understand a repository's migrations, check:
 
 ## 29. What You Learned
 
-In this chapter, you learned how to investigate database migrations instead of treating the current schema as the whole story.
+In this recipe, you learned how to investigate database migrations instead of treating the current schema as the whole story.
 
 You learned how to:
 
