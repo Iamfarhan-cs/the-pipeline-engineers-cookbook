@@ -1,3 +1,5 @@
+# E62 — Multi-File Extraction
+
 ## 1. Problem Recognition
 
 Production file pipelines often receive a logical **delivery** containing many files, not one isolated file.
