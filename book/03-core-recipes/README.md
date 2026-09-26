@@ -105,6 +105,7 @@ PROVE YOU ARE DONE
 | [Recipe 28 — Pipeline Run Tracking](28-pipeline-run-tracking.md) | Durable execution identity, state and history |
 | [Recipe 29 — Pipeline Logging](29-pipeline-logging.md) | Structured execution evidence and correlation |
 | [Recipe 30 — Pipeline Metrics](30-pipeline-metrics.md) | Measurable pipeline health, performance and data signals |
+| [Recipe 31 — Bottleneck Detection](31-bottleneck-detection.md) | Finding limiting pipeline constraints |
 
 ## Learning Order
 
@@ -169,7 +170,9 @@ PROVE YOU ARE DONE
    ↓
 30 Pipeline Metrics
    ↓
-31+
+31 Bottleneck Detection
+   ↓
+32+
 Future Core Recipes
 ~~~
 
