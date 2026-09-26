@@ -55,7 +55,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | E25 | [API Offset-Based Extraction](E25-api-offset-based-extraction.md) |
 | E26 | [API Token Refresh](E26-api-token-refresh.md) |
 | E27 | [API Response Validation](E27-api-response-validation.md) |
-| E28 | API Schema Changes — ETL Application |
+| E28 | [API Schema Changes](E28-api-schema-changes.md) |
 | E29 | API Partial Failure |
 | E30 | API Deduplication — ETL Application |
 | E31 | API Extraction Resume — ETL Application |
