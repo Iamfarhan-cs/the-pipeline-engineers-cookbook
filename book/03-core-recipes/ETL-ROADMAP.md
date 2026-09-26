@@ -74,7 +74,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | E38 | [High-Watermark Management](E38-high-watermark-management.md) |
 | E39 | [Database CDC](E39-database-cdc.md) |
 | E40 | [Transaction Log CDC](E40-transaction-log-cdc.md) |
-| E41 | Snapshot Extraction |
+| E41 | [Snapshot Extraction](E41-snapshot-extraction.md) |
 | E42 | Consistent Database Snapshots |
 | E43 | Database Connection Pooling |
 | E44 | Database Extraction Batching |
