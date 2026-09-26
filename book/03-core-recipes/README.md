@@ -122,6 +122,13 @@ PROVE YOU ARE DONE
 | [E64 — Missing File Detection](E64-missing-file-detection.md) | Determine when required files are truly missing using durable expectations, deadlines, calendars, dependencies, and idempotent incidents |
 | [E65 — Late File Detection](E65-late-file-detection.md) | Measure delivery lateness, SLA breaches, timing thresholds, escalation, recovery, and late-file operational metrics |
 
+### Stage 7 — Transform Recipes
+
+| Recipe | Topic |
+|---:|---|
+| [T01 — Raw Data to Staging](T01-raw-data-to-staging.md) | Establish a traceable, idempotent staging boundary between raw evidence and downstream transformation |
+| [T02 — Data Type Conversion](T02-data-type-conversion.md) | Convert source representations into explicit, validated, precision-safe target types |
+
 ### Stage 5 — Orchestration & Pipeline Operations
 
 | Recipe | Topic |
