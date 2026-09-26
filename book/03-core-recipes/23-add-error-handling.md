@@ -1738,4 +1738,18 @@ We will cover:
 
 The key question will be:
 
-> When a failure is temporary, how should the pipeline safely try again?
+> When a failure is temporary, how should the pipeline safely try again?## Production Tools You Should Know
+
+These tools solve or provide production implementations of concepts covered in this recipe. Learn what the tool provides, but understand the underlying problem first.
+
+| Tool | What to know |
+|---|---|
+| **Apache Airflow** | Task failure handling and operational visibility. |
+| **Dagster** | Structured run failure and asset status. |
+| **Prefect** | Workflow failure handling and retries. |
+
+> These are reference tools for recognition and vocabulary, not substitutes for understanding the engineering mechanism.
+
+---
+
+
