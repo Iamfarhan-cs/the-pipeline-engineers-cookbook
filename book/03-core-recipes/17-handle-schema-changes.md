@@ -59,34 +59,34 @@ By the end of this recipe, you should be able to:
 
 Original payload:
 
-~~~json
+```json
 {
   "event_id": "E1",
   "amount": 100,
   "currency": "EUR"
 }
-~~~
+```
 
 Adding an optional field may be safe:
 
-~~~json
+```json
 {
   "event_id": "E1",
   "amount": 100,
   "currency": "EUR",
   "country": "PK"
 }
-~~~
+```
 
 But changing the type can break consumers:
 
-~~~json
+```json
 {
   "event_id": "E1",
   "amount": "100 EUR",
   "currency": "EUR"
 }
-~~~
+```
 
 Removing a required field can also break the pipeline.
 
@@ -300,18 +300,18 @@ Nested structures can change while keeping the outer field name unchanged.
 
 Before:
 
-~~~json
+```json
 {
   "customer": {
     "id": "C1",
     "name": "Farhan"
   }
 }
-~~~
+```
 
 After:
 
-~~~json
+```json
 {
   "customer": {
     "id": "C1",
@@ -321,7 +321,7 @@ After:
     }
   }
 }
-~~~
+```
 
 The field still exists, but its type and meaning changed.
 
@@ -430,7 +430,7 @@ Do not contract before proving that active consumers no longer depend on the old
 
 For event-based systems, explicit schema versions can make compatibility easier to manage.
 
-~~~json
+```json
 {
   "event_name": "payment.created",
   "event_version": 2,
@@ -438,7 +438,7 @@ For event-based systems, explicit schema versions can make compatibility easier 
   "amount": 100,
   "currency": "EUR"
 }
-~~~
+```
 
 Versioning identifies the contract. It does not automatically make an unsafe change safe.
 
@@ -474,7 +474,7 @@ Capture a known-good schema before accepting a new version.
 
 Example:
 
-~~~text
+```text
 schema_id = payment.created
 version = 3
 captured_at = 2026-09-26T10:00:00Z
@@ -484,7 +484,7 @@ fields:
   amount       DECIMAL   required
   currency     TEXT      required
   country      TEXT      optional
-~~~
+```
 
 Historical snapshots provide the baseline for drift detection and incident investigation.
 
@@ -494,7 +494,7 @@ Historical snapshots provide the baseline for drift detection and incident inves
 
 A useful schema diff should say exactly what changed.
 
-~~~text
+```text
 ADDED:
     country TEXT NULL
 
@@ -509,7 +509,7 @@ NULLABILITY:
 
 CONSTRAINT:
     amount >= 0 -> amount > 0
-~~~
+```
 
 Do not reduce the output to:
 
@@ -523,7 +523,7 @@ The engineer needs the actual difference.
 
 For database-backed pipelines:
 
-~~~sql
+```sql
 SELECT
     column_name,
     data_type,
@@ -533,7 +533,7 @@ FROM information_schema.columns
 WHERE table_schema = 'public'
   AND table_name = 'payments'
 ORDER BY ordinal_position;
-~~~
+```
 
 Inspect constraints separately.
 
@@ -805,22 +805,22 @@ A migration is not complete when deployment succeeds. It is complete when the ne
 
 Start:
 
-~~~json
+```json
 {
   "id": "E1",
   "amount": 100
 }
-~~~
+```
 
 Change:
 
-~~~json
+```json
 {
   "id": "E1",
   "amount": 100,
   "country": "PK"
 }
-~~~
+```
 
 Expected when unknown optional fields are permitted:
 
@@ -841,12 +841,12 @@ Expected:
 
 Input:
 
-~~~json
+```json
 {
   "id": "E1",
   "amount": 100
 }
-~~~
+```
 
 Expected:
 
@@ -886,13 +886,13 @@ Change:
 
 Input:
 
-~~~json
+```json
 {
   "id": "E1",
   "amount": "100",
   "currency": "EUR"
 }
-~~~
+```
 
 Expected:
 
