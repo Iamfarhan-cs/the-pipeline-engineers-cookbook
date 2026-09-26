@@ -1,4 +1,4 @@
-# Recipe 16 — Understanding CI/CD
+# Chapter 16 — Understanding CI/CD
 
 CI/CD is where the repository's code moves from a developer's change toward an automatically tested and deployable system.
 
