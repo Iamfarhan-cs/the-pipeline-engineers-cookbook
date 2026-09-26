@@ -92,6 +92,7 @@ PROVE YOU ARE DONE
 | [Recipe 20 — Boundary Validation](20-boundary-validation.md) | Validate at trust boundaries |
 | [Recipe 21 — Transactions & Atomicity](21-transactions-atomicity.md) | Atomic database operations |
 | [Recipe 22 — Bulk Loading](22-bulk-loading.md) | High-volume loading |
+| [Recipe 23 — Batch Size & Chunking](23-batch-size-and-chunking.md) | Workload chunking |
 
 ## Learning Order
 
@@ -140,7 +141,9 @@ PROVE YOU ARE DONE
    ↓
 22 Bulk Loading
    ↓
-23+
+23 Batch Size & Chunking
+   ↓
+24+
 Future Core Recipes
 ```
 
