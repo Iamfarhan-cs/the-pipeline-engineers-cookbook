@@ -29,7 +29,7 @@ Kafka extraction problems commonly appear as:
 
 The fundamental Kafka relationship is:
 
-~~~~text
+```
 PARTITION
    ↓
 OFFSET
@@ -41,7 +41,7 @@ PROCESS
 PERSIST
    ↓
 COMMIT OFFSET
-~~~~
+```
 
 Do not treat a Kafka offset as proof that downstream data is already durable unless your processing architecture guarantees that relationship.
 
@@ -49,7 +49,7 @@ Do not treat a Kafka offset as proof that downstream data is already durable unl
 
 A Kafka topic contains partitions:
 
-~~~~text
+```
 TOPIC
  ├── PARTITION 0
  │     ├── offset 0
@@ -65,15 +65,15 @@ TOPIC
        ├── offset 0
        ├── offset 1
        └── offset 2
-~~~~
+```
 
 An offset identifies a record position within a partition.
 
 Therefore:
 
-~~~~text
+```
 (topic, partition, offset)
-~~~~
+```
 
 is a useful technical identity for a Kafka record.
 
@@ -81,13 +81,13 @@ is a useful technical identity for a Kafka record.
 
 A consumer group allows multiple consumers to divide partitions:
 
-~~~~text
+```
 TOPIC
  ├── P0 ── Consumer A
  ├── P1 ── Consumer B
  ├── P2 ── Consumer C
  └── P3 ── Consumer A
-~~~~
+```
 
 Within a consumer group, a partition is normally assigned to one consumer at a time.
 
@@ -95,12 +95,12 @@ Adding consumers does not automatically increase throughput beyond the number of
 
 Example:
 
-~~~~text
+```
 4 partitions + 8 consumers
         ↓
 4 consumers can own partitions
 4 consumers may be idle
-~~~~
+```
 
 This is an important capacity constraint.
 
@@ -112,9 +112,9 @@ It does not provide one global ordering across all partitions.
 
 Therefore:
 
-~~~~text
+```
 PARTITION ORDER ≠ GLOBAL ORDER
-~~~~
+```
 
 If events belonging to one business entity must remain ordered, producers commonly use a stable key so related records are routed to the same partition.
 
@@ -131,7 +131,7 @@ Important offset concepts include:
 
 Conceptually:
 
-~~~~text
+```
 EARLIEST
    ↓
 OFFSET 100
@@ -141,7 +141,7 @@ CURRENT POSITION
 OFFSET 150
    ↓
 LATEST
-~~~~
+```
 
 The consumer's current position is not necessarily the same as its committed position.
 
@@ -151,7 +151,7 @@ This distinction matters during crashes.
 
 Unsafe:
 
-~~~~text
+```
 POLL
  ↓
 COMMIT OFFSET
@@ -159,13 +159,13 @@ COMMIT OFFSET
 DATABASE WRITE
  ↓
 CRASH
-~~~~
+```
 
 The database write may never happen, but Kafka considers the record consumed.
 
 Safer:
 
-~~~~text
+```
 POLL
  ↓
 VALIDATE
@@ -175,7 +175,7 @@ PERSIST
 COMMIT DATABASE TRANSACTION
  ↓
 COMMIT KAFKA OFFSET
-~~~~
+```
 
 This still requires idempotent persistence because a crash can occur after database commit but before Kafka offset commit.
 
@@ -183,7 +183,7 @@ This still requires idempotent persistence because a crash can occur after datab
 
 A practical default is:
 
-~~~~text
+```
 PERSIST
  ↓
 CRASH
@@ -193,7 +193,7 @@ OFFSET NOT COMMITTED
 RESTART
  ↓
 REPROCESS RECORD
-~~~~
+```
 
 The result is duplicate processing.
 
@@ -205,17 +205,17 @@ Therefore:
 
 A Kafka record can be identified by:
 
-~~~~text
+```
 topic
 partition
 offset
-~~~~
+```
 
 For many ingestion systems this tuple is an excellent technical ingestion identity.
 
 Example database table:
 
-~~~~sql
+```
 CREATE TABLE kafka_ingestion (
     topic TEXT NOT NULL,
     partition_id INTEGER NOT NULL,
@@ -224,7 +224,7 @@ CREATE TABLE kafka_ingestion (
     payload JSONB NOT NULL,
     PRIMARY KEY (topic, partition_id, record_offset)
 );
-~~~~
+```
 
 This gives the database a durable uniqueness boundary.
 
@@ -232,7 +232,7 @@ This gives the database a durable uniqueness boundary.
 
 Python example using the Confluent Kafka Python client:
 
-~~~~python
+```
 from confluent_kafka import Consumer
 
 
@@ -265,13 +265,13 @@ try:
 
 finally:
     consumer.close()
-~~~~
+```
 
 The important setting is:
 
-~~~~text
+```
 enable.auto.commit = False
-~~~~
+```
 
 The consumer now controls when offsets are committed.
 
@@ -279,7 +279,7 @@ The consumer now controls when offsets are committed.
 
 A simplified processing boundary:
 
-~~~~python
+```
 def process_message(message, database):
     identity = (
         message.topic(),
@@ -293,17 +293,17 @@ def process_message(message, database):
     )
 
     return inserted
-~~~~
+```
 
 Then:
 
-~~~~python
+```
 processed = process_message(message, database)
 
 database.commit()
 
 consumer.commit(message=message)
-~~~~
+```
 
 The exact database transaction and offset commit strategy must be designed carefully for the application's failure semantics.
 
@@ -311,7 +311,7 @@ The exact database transaction and offset commit strategy must be designed caref
 
 Example:
 
-~~~~sql
+```
 INSERT INTO kafka_ingestion (
     topic,
     partition_id,
@@ -331,7 +331,7 @@ ON CONFLICT (
     partition_id,
     record_offset
 ) DO NOTHING;
-~~~~
+```
 
 If the same Kafka record is replayed, the database does not create a second ingestion record.
 
@@ -341,7 +341,7 @@ Kafka consumers continuously poll for records.
 
 Conceptually:
 
-~~~~text
+```
 POLL
  ↓
 RECEIVE BATCH
@@ -349,7 +349,7 @@ RECEIVE BATCH
 PROCESS
  ↓
 POLL AGAIN
-~~~~
+```
 
 The poll loop must remain healthy.
 
@@ -361,7 +361,7 @@ This is one reason to separate polling from heavy processing when processing dur
 
 Consumers commonly process several records per poll:
 
-~~~~text
+```
 POLL
  ↓
 R1 R2 R3 R4 R5
@@ -369,19 +369,19 @@ R1 R2 R3 R4 R5
 PROCESS
  ↓
 COMMIT SAFE PROGRESS
-~~~~
+```
 
 Batching can improve throughput but complicates failure handling.
 
 If:
 
-~~~~text
+```
 R1 → success
 R2 → success
 R3 → failure
 R4 → not processed
 R5 → not processed
-~~~~
+```
 
 the consumer must not blindly commit an offset that would skip R3–R5.
 
@@ -393,19 +393,19 @@ Kafka offsets are partition-specific.
 
 Example:
 
-~~~~text
+```
 P0 → committed offset 100
 P1 → committed offset 240
 P2 → committed offset 75
-~~~~
+```
 
 Do not store a single global Kafka offset for a multi-partition topic.
 
 Use:
 
-~~~~text
+```
 (topic, partition) → committed offset
-~~~~
+```
 
 ## 15. Consumer Rebalancing
 
@@ -430,7 +430,7 @@ Therefore, committed offsets must represent a safe restart point.
 
 Unsafe:
 
-~~~~text
+```
 PROCESS RECORD
  ↓
 NO DURABLE COMMIT
@@ -440,7 +440,7 @@ REBALANCE
 NEW CONSUMER
  ↓
 PROCESS AGAIN
-~~~~
+```
 
 This is not necessarily data loss.
 
@@ -448,7 +448,7 @@ With idempotent processing it becomes safe duplicate processing.
 
 The dangerous case is:
 
-~~~~text
+```
 COMMIT OFFSET
  ↓
 DATA NOT DURABLE
@@ -456,7 +456,7 @@ DATA NOT DURABLE
 REBALANCE
  ↓
 RECORD SKIPPED
-~~~~
+```
 
 This can cause data loss.
 
@@ -466,13 +466,13 @@ Consumer lag represents how far the consumer is behind the available records.
 
 Conceptually:
 
-~~~~text
+```
 LATEST OFFSET
       -
 COMMITTED OFFSET
       =
 LAG
-~~~~
+```
 
 Exact lag reporting depends on the monitoring system and offset state being compared.
 
@@ -490,15 +490,15 @@ Lag should be interpreted together with message age and processing throughput.
 
 If producers generate:
 
-~~~~text
+```
 10,000 records/sec
-~~~~
+```
 
 but consumers process:
 
-~~~~text
+```
 7,000 records/sec
-~~~~
+```
 
 backlog grows.
 
@@ -518,11 +518,11 @@ Do not simply add consumers if the topic has too few partitions.
 
 Suppose:
 
-~~~~text
+```
 P0 → 90% of records
 P1 → 5%
 P2 → 5%
-~~~~
+```
 
 Consumers assigned to P1/P2 may be mostly idle while P0 becomes the bottleneck.
 
@@ -541,7 +541,7 @@ Kafka's retained log makes historical replay possible when the required records 
 
 A replay can be modeled as:
 
-~~~~text
+```
 CHOOSE TOPIC
       ↓
 CHOOSE PARTITIONS
@@ -551,7 +551,7 @@ CHOOSE START OFFSET / TIME
 READ RECORDS
       ↓
 REPROCESS
-~~~~
+```
 
 Replay should normally use a separate consumer group so production consumption is not unintentionally moved.
 
@@ -561,7 +561,7 @@ A consumer may need to process records from a particular time rather than a know
 
 Conceptually:
 
-~~~~text
+```
 TIMESTAMP
    ↓
 FIND OFFSET PER PARTITION
@@ -569,7 +569,7 @@ FIND OFFSET PER PARTITION
 SEEK
    ↓
 CONSUME
-~~~~
+```
 
 This is useful for backfills and incident recovery.
 
@@ -583,7 +583,7 @@ Records can disappear according to retention policies.
 
 Therefore:
 
-~~~~text
+```
 RETENTION WINDOW
       ↓
 CONSUMER MUST CATCH UP
@@ -591,7 +591,7 @@ CONSUMER MUST CATCH UP
 OR
       ↓
 REQUIRED DATA MUST EXIST ELSEWHERE
-~~~~
+```
 
 If a consumer falls behind beyond retention, the original records may no longer be available.
 
@@ -611,7 +611,7 @@ The consumer should know the serialization contract.
 
 A safe ingestion boundary validates:
 
-~~~~text
+```
 TOPIC
  ↓
 MESSAGE METADATA
@@ -621,7 +621,7 @@ DESERIALIZATION
 SCHEMA VALIDATION
  ↓
 DURABLE STORAGE
-~~~~
+```
 
 Schema evolution should be compatible with the producer/consumer contract.
 
@@ -633,10 +633,10 @@ This can have semantic meaning, particularly in compacted topics.
 
 For example:
 
-~~~~text
+```
 KEY = customer-123
 VALUE = null
-~~~~
+```
 
 may represent a deletion/tombstone.
 
@@ -688,7 +688,7 @@ Never silently skip an offset because a record is difficult.
 
 A consumer should stop safely:
 
-~~~~text
+```
 STOP ACCEPTING NEW WORK
        ↓
 FINISH SAFE IN-FLIGHT WORK
@@ -700,7 +700,7 @@ COMMIT SAFE OFFSETS
 LEAVE GROUP
        ↓
 CLOSE CONSUMER
-~~~~
+```
 
 If work cannot be completed safely, allow it to be replayed rather than committing an unsafe offset.
 
@@ -733,7 +733,7 @@ Test at least:
 
 ## 29. Example Unit Tests
 
-~~~~python
+```
 def test_kafka_identity_is_partition_specific():
     first = ("payments", 0, 100)
     second = ("payments", 1, 100)
@@ -759,7 +759,7 @@ def test_same_offset_in_different_partition_is_not_duplicate():
     identity = ("payments", 1, 100)
 
     assert identity not in processed
-~~~~
+```
 
 These tests teach the key identity rule. Integration tests should use a real Kafka-compatible environment to verify actual offset and consumer-group behavior.
 
@@ -767,7 +767,7 @@ These tests teach the key identity rule. Integration tests should use a real Kaf
 
 Monitor at minimum:
 
-~~~~text
+```
 kafka_records_received_total
 kafka_records_processed_total
 kafka_records_failed_total
@@ -782,11 +782,11 @@ kafka_rebalances_total
 kafka_records_per_partition
 kafka_bytes_per_partition
 kafka_dead_letter_total
-~~~~
+```
 
 Useful log fields:
 
-~~~~text
+```
 consumer_group
 consumer_id
 topic
@@ -797,7 +797,7 @@ delivery_attempt
 processing_status
 processing_duration
 error_type
-~~~~
+```
 
 Do not log sensitive payloads by default.
 
@@ -978,7 +978,7 @@ Kafka extraction is fundamentally about coordinating **record position and durab
 
 The core pattern is:
 
-~~~~text
+```
 POLL
   ↓
 IDENTIFY
@@ -994,7 +994,7 @@ COMMIT SAFE OFFSET
 MONITOR LAG
   ↓
 REPLAY / RECOVER WHEN REQUIRED
-~~~~
+```
 
 The most important rule is:
 
