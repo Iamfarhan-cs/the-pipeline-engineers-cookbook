@@ -23,13 +23,13 @@ Production extraction must understand:
 
 The core principle is:
 
-@@@
+```
 DO NOT READ WHAT YOU DO NOT NEED
-@@@
+```
 
 Production flow:
 
-@@@
+```
 DISCOVER PARQUET
       |
       v
@@ -52,7 +52,7 @@ STAGE
       |
       v
 OBSERVE + RECONCILE
-@@@
+```
 
 ## 2. Why Parquet Is Different
 
@@ -60,7 +60,7 @@ A row-oriented format stores records together. Parquet stores data by columns in
 
 Conceptually:
 
-@@@
+```
 Row format:
 record 1 -> A B C
 record 2 -> A B C
@@ -70,7 +70,7 @@ Parquet:
 column A -> A A A
 column B -> B B B
 column C -> C C C
-@@@
+```
 
 If an ETL job needs only A and C, a columnar engine can avoid reading B.
 
@@ -80,21 +80,21 @@ That is the basis of column projection.
 
 Bad:
 
-@@@
+```
 table = pq.read_table("payments.parquet")
-@@@
+```
 
 when the pipeline needs only:
 
-@@@
+```
 payment_id
 amount
 currency
-@@@
+```
 
 Better:
 
-@@@
+```
 import pyarrow.parquet as pq
 
 table = pq.read_table(
@@ -105,7 +105,7 @@ table = pq.read_table(
         "currency",
     ],
 )
-@@@
+```
 
 Reading only required columns reduces I/O and memory.
 
@@ -117,7 +117,7 @@ Instead of reading everything and filtering afterward, push the filter toward th
 
 Conceptually:
 
-@@@
+```
 source
   |
   v
@@ -125,7 +125,7 @@ predicate
   |
   v
 read matching data
-@@@
+```
 
 Predicate pushdown can allow the reader to skip irrelevant row groups or files.
 
@@ -135,10 +135,10 @@ Parquet files contain metadata and statistics at the row-group level.
 
 For example, a row group may have:
 
-@@@
+```
 min(event_date) = 2026-09-01
 max(event_date) = 2026-09-01
-@@@
+```
 
 If the query asks for 2026-09-26, that row group can be skipped.
 
@@ -158,14 +158,14 @@ A Parquet file is divided into row groups.
 
 Conceptually:
 
-@@@
+```
 file
  |
  +-- row group 1
  +-- row group 2
  +-- row group 3
  +-- row group 4
-@@@
+```
 
 Each row group contains column chunks.
 
@@ -183,7 +183,7 @@ Do not treat row groups as application records. They are storage-level units.
 
 Use PyArrow to inspect the file:
 
-@@@
+```
 import pyarrow.parquet as pq
 
 metadata = pq.ParquetFile(
@@ -192,7 +192,7 @@ metadata = pq.ParquetFile(
 
 print(metadata.metadata)
 print(metadata.schema)
-@@@
+```
 
 Useful metadata includes:
 
@@ -203,7 +203,7 @@ Useful metadata includes:
 
 ## 8. Inspecting Row Groups
 
-@@@
+```
 parquet_file = pq.ParquetFile(
     "payments.parquet"
 )
@@ -221,7 +221,7 @@ for index in range(
         row_group.num_rows,
         row_group.total_byte_size,
     )
-@@@
+```
 
 This is useful when diagnosing unexpectedly slow extraction.
 
@@ -229,13 +229,13 @@ This is useful when diagnosing unexpectedly slow extraction.
 
 Inspect the schema before extraction:
 
-@@@
+```
 schema = pq.read_schema(
     "payments.parquet"
 )
 
 print(schema)
-@@@
+```
 
 Verify required columns before reading millions of rows.
 
@@ -247,26 +247,26 @@ Define the extraction contract.
 
 Required:
 
-@@@
+```
 required_columns = {
     "payment_id",
     "amount",
     "currency",
 }
-@@@
+```
 
 Optional:
 
-@@@
+```
 optional_columns = {
     "channel",
     "merchant_country",
 }
-@@@
+```
 
 Check the source schema:
 
-@@@
+```
 available = set(schema.names)
 missing = required_columns - available
 
@@ -274,7 +274,7 @@ if missing:
     raise ValueError(
         f"Missing required columns: {sorted(missing)}"
     )
-@@@
+```
 
 Do not let a missing required column silently become an all-null output.
 
@@ -284,13 +284,13 @@ Parquet schemas contain types, but the application contract may be stricter.
 
 Example:
 
-@@@
+```
 schema = pq.read_schema(
     "payments.parquet"
 )
 
 print(schema.field("amount").type)
-@@@
+```
 
 Validate important types explicitly.
 
@@ -319,10 +319,10 @@ Parquet can store timestamp values with different units and timezone metadata.
 
 Inspect them rather than assuming:
 
-@@@
+```
 field = schema.field("occurred_at")
 print(field.type)
-@@@
+```
 
 Your extraction contract should define the expected timezone semantics.
 
@@ -348,7 +348,7 @@ Parquet is frequently stored as a directory of files rather than one file.
 
 Example:
 
-@@@
+```
 payments/
   year=2026/
     month=09/
@@ -357,7 +357,7 @@ payments/
         part-0002.parquet
       day=26/
         part-0003.parquet
-@@@
+```
 
 Partition columns are often encoded in the path.
 
@@ -367,11 +367,11 @@ This can allow entire directories or files to be skipped before opening them.
 
 Suppose the query requires:
 
-@@@
+```
 year = 2026
 month = 9
 day = 26
-@@@
+```
 
 A partition-aware reader can avoid reading day 25 entirely.
 
@@ -381,7 +381,7 @@ This is often more significant than row-level filtering because entire files are
 
 Use PyArrow Dataset for partitioned collections:
 
-@@@
+```
 import pyarrow.dataset as ds
 
 dataset = ds.dataset(
@@ -397,7 +397,7 @@ table = dataset.to_table(
         "currency",
     ]
 )
-@@@
+```
 
 Dataset is generally a better abstraction than treating hundreds of files as unrelated individual reads.
 
@@ -405,7 +405,7 @@ Dataset is generally a better abstraction than treating hundreds of files as unr
 
 Example:
 
-@@@
+```
 import pyarrow.dataset as ds
 
 dataset = ds.dataset(
@@ -426,7 +426,7 @@ table = dataset.to_table(
         & (ds.field("day") == 26)
     ),
 )
-@@@
+```
 
 The filter can enable partition pruning and predicate pushdown.
 
@@ -450,13 +450,13 @@ Parquet readers can use statistics such as min and max values to skip row groups
 
 Conceptually:
 
-@@@
+```
 requested date = 2026-09-26
 
 row group 1: 2026-09-20 -> 2026-09-20  SKIP
 row group 2: 2026-09-26 -> 2026-09-26  READ
 row group 3: 2026-09-30 -> 2026-09-30  SKIP
-@@@
+```
 
 Statistics are most useful when data layout aligns with common predicates.
 
@@ -466,15 +466,15 @@ Two Parquet datasets can contain the same data but have very different extractio
 
 Good layout for a date-heavy workload:
 
-@@@
+```
 year/month/day partitions
-@@@
+```
 
 Potentially poor layout:
 
-@@@
+```
 one enormous unpartitioned file with random dates
-@@@
+```
 
 Extraction performance is partly determined upstream by how files are written.
 
@@ -509,7 +509,7 @@ Choose file and row-group sizes based on workload rather than a universal number
 
 For large extracts, process record batches rather than materializing a giant table.
 
-@@@
+```
 scanner = dataset.scanner(
     columns=[
         "payment_id",
@@ -520,7 +520,7 @@ scanner = dataset.scanner(
 
 for batch in scanner.to_batches():
     process_batch(batch)
-@@@
+```
 
 This keeps application memory bounded by the processing batch rather than the entire dataset.
 
@@ -557,17 +557,17 @@ Define a schema compatibility policy.
 
 Suppose day 25 has:
 
-@@@
+```
 payment_id
 amount
 currency
-@@@
+```
 
 but day 26 adds:
 
-@@@
+```
 channel
-@@@
+```
 
 A dataset reader may need to unify schemas across files.
 
@@ -591,11 +591,11 @@ Do not allow automatic schema unification to hide a breaking type change.
 
 A partitioned dataset may expose:
 
-@@@
+```
 year
 month
 day
-@@@
+```
 
 even when those values are not stored as normal Parquet columns in every file.
 
@@ -605,7 +605,7 @@ Treat partition metadata and physical file schema as related but distinct concep
 
 For every source file, preserve:
 
-@@@
+```
 source_uri
 source_file
 source_hash
@@ -613,7 +613,7 @@ dataset_partition
 file_size
 row_count
 extracted_at
-@@@
+```
 
 Dataset-level extraction should not destroy file-level lineage.
 
@@ -623,9 +623,9 @@ Parquet does not automatically provide a business record identity.
 
 Prefer a source business key:
 
-@@@
+```
 payment_id
-@@@
+```
 
 If none exists, combine source file identity and deterministic row position where appropriate.
 
@@ -635,7 +635,7 @@ Do not use a random UUID as the only identity for replay-sensitive ingestion.
 
 Example PostgreSQL staging table:
 
-@@@
+```
 CREATE TABLE parquet_staging (
     source_file TEXT NOT NULL,
     source_hash TEXT NOT NULL,
@@ -645,11 +645,11 @@ CREATE TABLE parquet_staging (
     extracted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     PRIMARY KEY (source_hash, source_row_number)
 );
-@@@
+```
 
 Insert idempotently:
 
-@@@
+```
 INSERT INTO parquet_staging (
     source_file,
     source_hash,
@@ -660,7 +660,7 @@ INSERT INTO parquet_staging (
 VALUES (%s, %s, %s, %s, %s)
 ON CONFLICT (source_hash, source_row_number)
 DO NOTHING;
-@@@
+```
 
 Choose the identity based on the source contract. A dataset may have stable business keys that are better than physical row positions.
 
@@ -670,9 +670,9 @@ Parquet is not a database table with guaranteed application ordering.
 
 Do not assume that:
 
-@@@
+```
 row 1 < row 2 < row 3
-@@@
+```
 
 represents event order.
 
@@ -682,7 +682,7 @@ If business ordering matters, use an explicit event timestamp or sequence field.
 
 A common production pattern is:
 
-@@@
+```
 required_columns = [
     "payment_id",
     "amount",
@@ -692,7 +692,7 @@ required_columns = [
 scanner = dataset.scanner(
     columns=required_columns,
 )
-@@@
+```
 
 Keep the extraction projection close to the business requirement.
 
@@ -702,20 +702,20 @@ Do not read hundreds of columns because they might be useful later.
 
 Less efficient:
 
-@@@
+```
 table = dataset.to_table()
 filtered = table.filter(
     pc.equal(table["currency"], "EUR")
 )
-@@@
+```
 
 Preferred when supported:
 
-@@@
+```
 table = dataset.to_table(
     filter=(ds.field("currency") == "EUR")
 )
-@@@
+```
 
 The second approach gives the storage reader an opportunity to skip data.
 
@@ -723,7 +723,7 @@ The second approach gives the storage reader an opportunity to skip data.
 
 Combine both:
 
-@@@
+```
 table = dataset.to_table(
     columns=[
         "payment_id",
@@ -733,7 +733,7 @@ table = dataset.to_table(
         ds.field("currency") == "EUR"
     ),
 )
-@@@
+```
 
 Read fewer columns and fewer rows.
 
@@ -761,12 +761,12 @@ Classify this separately from a schema mismatch.
 
 Useful categories:
 
-@@@
+```
 PARQUET_CORRUPT
 PARQUET_SCHEMA_MISMATCH
 PARQUET_READ_FAILURE
 PARTITION_MISMATCH
-@@@
+```
 
 Quarantine the artifact and preserve its source identity.
 
@@ -794,7 +794,7 @@ Parquet is frequently stored in object storage.
 
 Logical flow:
 
-@@@
+```
 object storage
       |
       v
@@ -814,7 +814,7 @@ record batches
       |
       v
 staging
-@@@
+```
 
 Keep storage access separate from transformation logic.
 
@@ -826,14 +826,14 @@ Do not treat the dataset as one opaque source.
 
 Track each file:
 
-@@@
+```
 source_file
 source_hash
 partition
 rows_seen
 rows_staged
 status
-@@@
+```
 
 This makes partial failure recovery much easier.
 
@@ -841,7 +841,7 @@ This makes partial failure recovery much easier.
 
 Example:
 
-@@@
+```
 DISCOVERED
   -> VALIDATING
   -> EXTRACTING
@@ -852,7 +852,7 @@ or
 DISCOVERED
   -> FAILED
   -> QUARANTINED
-@@@
+```
 
 A dataset run can be completed only after its required files are successfully processed.
 
@@ -870,9 +870,9 @@ Use explicit partition metadata when possible.
 
 Example:
 
-@@@
+```
 year=2026/month=09/day=26/hour=08
-@@@
+```
 
 Validate that the partition encoded in the path agrees with the data when this invariant matters.
 
@@ -884,10 +884,10 @@ Filtering on timestamps requires careful timezone handling.
 
 Example problem:
 
-@@@
+```
 partition day = UTC day
 application day = local timezone day
-@@@
+```
 
 Those may not represent the same records.
 
@@ -921,12 +921,12 @@ A partition can be rewritten or corrected.
 
 Track:
 
-@@@
+```
 source_hash
 file_version
 partition
 arrival_time
-@@@
+```
 
 Use source versioning or deterministic replacement logic when the producer supports it.
 
@@ -934,7 +934,7 @@ Never blindly append a corrected snapshot as though it were a new event stream.
 
 ## 50. End-to-End Extraction Skeleton
 
-@@@
+```
 import pyarrow.dataset as ds
 
 def extract_payments(dataset_path, start_day, end_day):
@@ -962,7 +962,7 @@ def extract_payments(dataset_path, start_day, end_day):
     for batch in scanner.to_batches():
         validate_batch(batch)
         yield batch
-@@@
+```
 
 This keeps memory bounded and allows the dataset reader to apply storage-level optimizations.
 
@@ -985,13 +985,13 @@ Convert only the required fields and stage in bounded transactions.
 
 Conceptually:
 
-@@@
+```
 for batch in scanner.to_batches():
     rows = normalize(batch)
     insert_batch(rows)
     commit()
     checkpoint()
-@@@
+```
 
 Checkpoint only after the corresponding transaction is durable.
 
@@ -1073,7 +1073,7 @@ Expected:
 
 Track:
 
-@@@
+```
 parquet_files_discovered_total
 parquet_files_completed_total
 parquet_files_failed_total
@@ -1084,7 +1084,7 @@ parquet_extraction_duration_seconds
 parquet_schema_failures_total
 parquet_read_failures_total
 parquet_duplicate_rows_total
-@@@
+```
 
 Useful dimensions:
 
@@ -1101,7 +1101,7 @@ Avoid high-cardinality payload values in metrics.
 
 Example:
 
-@@@
+```
 {
   "event": "parquet_file_completed",
   "source_file": "part-0003.parquet",
@@ -1111,7 +1111,7 @@ Example:
   "rows_staged": 500000,
   "extractor_version": "1.2.0"
 }
-@@@
+```
 
 Record enough metadata to reproduce the extraction decision without logging entire datasets.
 
@@ -1156,11 +1156,11 @@ Use for local and analytical Parquet inspection when SQL is useful.
 
 Example:
 
-@@@
+```
 SELECT payment_id, amount
 FROM read_parquet('payments/*.parquet')
 WHERE currency = 'EUR';
-@@@
+```
 
 DuckDB is particularly useful for validating a dataset before wiring it into a larger ETL pipeline.
 
@@ -1321,7 +1321,7 @@ E58 is complete when you can independently:
 
 Parquet extraction is primarily an exercise in minimizing unnecessary I/O while preserving correctness.
 
-@@@
+```
 PARQUET DATASET
       |
       v
@@ -1347,7 +1347,7 @@ VALIDATE + STAGE
       |
       v
 OBSERVE + RECOVER
-@@@
+```
 
 The central rule is simple: read the minimum data required, but never sacrifice source identity, schema validation, deterministic replay, or business correctness for performance.
 
