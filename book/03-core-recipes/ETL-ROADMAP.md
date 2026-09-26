@@ -80,7 +80,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | E44 | [Database Extraction Batching](E44-database-extraction-batching.md) |
 | E45 | [Database Extraction Parallelism](E45-database-extraction-parallelism.md) |
 | E46 | [Extracting Large Tables Safely](E46-extracting-large-tables-safely.md) |
-| E47 | Handling Source Database Load |
+| E47 | [Handling Source Database Load](E47-handling-source-database-load.md) |
 | E48 | Source Schema Evolution — ETL Application |
 
 ## Category 03 — File Extraction
