@@ -2096,3 +2096,42 @@ These tools solve or provide production implementations of concepts covered in t
 ---
 
 
+
+
+## Implementation Lab — Bounded Backfill
+
+### 1. Define a bounded range
+
+~~~python
+from datetime import date, timedelta
+
+def date_ranges(start: date, end: date, days: int = 1):
+    current = start
+    while current < end:
+        batch_end = min(current + timedelta(days=days), end)
+        yield current, batch_end
+        current = batch_end
+~~~
+
+### 2. Persist progress
+
+~~~python
+checkpoint = {"run_id": "backfill-2026-01", "last_completed_end": None}
+
+for start, end in date_ranges(date(2026, 1, 1), date(2026, 2, 1)):
+    process_range(start, end)
+    checkpoint["last_completed_end"] = end
+~~~
+
+Advance the checkpoint only after the target write succeeds.
+
+### 3. Intentional failure drill
+
+Crash after processing a batch but before recording its checkpoint. Restart it and verify idempotency prevents duplicate target state.
+
+### 4. Recovery verification
+
+Reconcile source and target counts and totals for every completed range.
+
+---
+
