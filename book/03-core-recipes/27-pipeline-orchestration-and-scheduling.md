@@ -8,13 +8,13 @@ This recipe teaches the underlying mechanism of pipeline orchestration and sched
 
 A simple script can work like this:
 
-~~~text
+```text
 python pipeline.py
-~~~
+```
 
 Production pipelines usually contain dependent steps:
 
-~~~text
+```text
 Extract
   ↓
 Validate
@@ -24,7 +24,7 @@ Transform
 Load
   ↓
 Reconcile
-~~~
+```
 
 The problem appears when you need to answer:
 
@@ -48,11 +48,11 @@ Orchestration coordinates independent pieces of work.
 
 A workflow can be represented as a directed acyclic graph (DAG):
 
-~~~text
+```text
               ┌→ Transform A ─┐
 Extract ──────┤               ├→ Load
               └→ Transform B ─┘
-~~~
+```
 
 The arrows represent dependencies.
 
@@ -68,7 +68,7 @@ The arrows represent dependencies.
 
 Mental model:
 
-~~~text
+```text
 SCHEDULE
    ↓
 CREATE RUN
@@ -82,23 +82,23 @@ RECORD STATE
 RUN NEXT TASKS
    ↓
 COMPLETE WORKFLOW
-~~~
+```
 
 ## 3. Task States
 
 Start with:
 
-~~~text
+```text
 PENDING
 RUNNING
 SUCCESS
 FAILED
 SKIPPED
-~~~
+```
 
 A workflow can expose:
 
-~~~text
+```text
 workflow: RUNNING
 
 extract:     SUCCESS
@@ -106,7 +106,7 @@ validate:    SUCCESS
 transform:   RUNNING
 load:        PENDING
 reconcile:   PENDING
-~~~
+```
 
 Do not infer operational state from log messages alone. Persist state explicitly.
 
@@ -114,10 +114,10 @@ Do not infer operational state from log messages alone. Persist state explicitly
 
 A task is ready when all required upstream tasks succeeded.
 
-~~~text
+```text
 A ─→ C
 B ─→ C
-~~~
+```
 
 C is ready only when A and B are SUCCESS.
 
@@ -131,7 +131,7 @@ Build a small orchestration engine using Python standard-library mechanisms.
 
 ### 5.1 Task definition
 
-~~~python
+```python
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Callable
@@ -149,13 +149,13 @@ class Task:
     function: Callable[[], None]
     dependencies: list[str] = field(default_factory=list)
     state: TaskState = TaskState.PENDING
-~~~
+```
 
 The task contains identity, executable function, dependencies, and current state.
 
 ### 5.2 Workflow definition
 
-~~~python
+```python
 class Workflow:
     def __init__(self, tasks: list[Task]):
         self.tasks = {task.name: task for task in tasks}
@@ -166,13 +166,13 @@ class Workflow:
             for dependency in task.dependencies:
                 if dependency not in self.tasks:
                     raise ValueError(f"Unknown dependency: {dependency}")
-~~~
+```
 
 The workflow validates that dependencies actually exist.
 
 ### 5.3 Find ready tasks
 
-~~~python
+```python
 def ready_tasks(self):
     ready = []
 
@@ -189,13 +189,13 @@ def ready_tasks(self):
             ready.append(task)
 
     return ready
-~~~
+```
 
 This implements the core dependency rule.
 
 ### 5.4 Execute a task
 
-~~~python
+```python
 def execute_task(self, task):
     task.state = TaskState.RUNNING
 
@@ -206,21 +206,21 @@ def execute_task(self, task):
         raise
     else:
         task.state = TaskState.SUCCESS
-~~~
+```
 
 The state transition is:
 
-~~~text
+```text
 PENDING
    ↓
 RUNNING
    ↓
 SUCCESS / FAILED
-~~~
+```
 
 ### 5.5 Run the workflow
 
-~~~python
+```python
 def run(self):
     while True:
         ready = self.ready_tasks()
@@ -243,7 +243,7 @@ def run(self):
             for task in self.tasks.values()
         ):
             break
-~~~
+```
 
 This is intentionally simple. The goal is to understand the mechanism an orchestrator provides, not to rebuild Airflow.
 
@@ -251,13 +251,13 @@ This is intentionally simple. The goal is to understand the mechanism an orchest
 
 A downstream task should not run if an upstream dependency failed.
 
-~~~python
+```python
 def skip_downstream_tasks(self, failed_task_name):
     for task in self.tasks.values():
         if failed_task_name in task.dependencies:
             if task.state == TaskState.PENDING:
                 task.state = TaskState.SKIPPED
-~~~
+```
 
 For a larger DAG, downstream skipping must propagate through the graph.
 
@@ -267,25 +267,25 @@ A workflow should reject invalid dependency graphs.
 
 ### Unknown dependency
 
-~~~text
+```text
 transform → missing_task
-~~~
+```
 
 This should fail before execution.
 
 ### Cyclic dependency
 
-~~~text
+```text
 A → B
 B → C
 C → A
-~~~
+```
 
 This is not a valid DAG.
 
 A simple cycle detector can use depth-first search:
 
-~~~python
+```python
 def has_cycle(graph):
     visiting = set()
     visited = set()
@@ -307,7 +307,7 @@ def has_cycle(graph):
         return False
 
     return any(visit(node) for node in graph)
-~~~
+```
 
 Validate the graph before production execution.
 
@@ -317,18 +317,18 @@ Orchestration answers how tasks execute. Scheduling answers when the workflow st
 
 Schedules can be time-based:
 
-~~~text
+```text
 Every day at 02:00
 Every 15 minutes
-~~~
+```
 
 or event-driven:
 
-~~~text
+```text
 New source file arrives
        ↓
 Start workflow
-~~~
+```
 
 Keep WHEN TO RUN separate from WHAT TO RUN.
 
@@ -338,30 +338,30 @@ Do not put scheduling logic inside business transformation code.
 
 A workflow definition is not the same as a workflow execution.
 
-~~~text
+```text
 Workflow:
 daily_payments
 
 Runs:
 2026-09-25 02:00 → SUCCESS
 2026-09-26 02:00 → FAILED
-~~~
+```
 
 Every execution should have a unique run ID.
 
 Store at least:
 
-~~~text
+```text
 workflow_name
 run_id
 started_at
 finished_at
 state
-~~~
+```
 
 For each task:
 
-~~~text
+```text
 run_id
 task_name
 attempt
@@ -369,7 +369,7 @@ started_at
 finished_at
 state
 error
-~~~
+```
 
 This makes execution observable and recoverable.
 
@@ -377,11 +377,11 @@ This makes execution observable and recoverable.
 
 Consider a workflow scheduled every 15 minutes:
 
-~~~text
+```text
 02:00 → Run A starts
 02:15 → Run B starts
 02:30 → Run C starts
-~~~
+```
 
 If Run A takes 40 minutes, all three may overlap.
 
@@ -402,7 +402,7 @@ Task retries and workflow retries are different.
 
 ### Task retry
 
-~~~text
+```text
 extract
   ↓
 failure
@@ -412,17 +412,17 @@ retry extract
 success
   ↓
 continue
-~~~
+```
 
 ### Workflow rerun
 
-~~~text
+```text
 entire workflow
        ↓
 new run
        ↓
 re-execute selected work
-~~~
+```
 
 Prefer retrying the smallest safe unit.
 
@@ -440,19 +440,19 @@ Test the orchestrator as an execution engine.
 
 ### Test 1 — Linear dependencies
 
-~~~text
+```text
 A → B → C
-~~~
+```
 
 Expected order: A, then B, then C.
 
 ### Test 2 — Independent tasks
 
-~~~text
+```text
 A     B
  \\   /
    C
-~~~
+```
 
 A and B are eligible before C.
 
@@ -460,10 +460,10 @@ A and B are eligible before C.
 
 If A fails:
 
-~~~text
+```text
 A = FAILED
 C = SKIPPED
-~~~
+```
 
 ### Test 4 — Unknown dependency
 
@@ -493,7 +493,7 @@ Trigger the same scheduled run twice and verify the configured overlap/idempoten
 
 At minimum, record:
 
-~~~text
+```text
 workflow_runs_total
 workflow_success_total
 workflow_failure_total
@@ -505,21 +505,21 @@ workflow_duration_seconds
 task_retries_total
 scheduled_runs_total
 skipped_tasks_total
-~~~
+```
 
 Useful dimensions:
 
-~~~text
+```text
 workflow
 task
 state
 attempt
 failure_type
-~~~
+```
 
 Example:
 
-~~~json
+```json
 {
   "event": "task_finished",
   "workflow": "daily_payments",
@@ -528,7 +528,7 @@ Example:
   "state": "SUCCESS",
   "duration_ms": 1832
 }
-~~~
+```
 
 Avoid logging credentials, tokens, PII, or complete source records.
 
@@ -546,12 +546,12 @@ Observe downstream tasks, workflow state, error information, and retry behavior.
 
 Force:
 
-~~~text
+```text
 extract → SUCCESS
 transform → FAILED
 load → SKIPPED
 reconcile → SKIPPED
-~~~
+```
 
 Verify that successful work is not unnecessarily repeated.
 
@@ -586,13 +586,13 @@ When a workflow fails:
 
 Example:
 
-~~~text
+```text
 extract       SUCCESS
 validate      SUCCESS
 transform     FAILED
 load          PENDING
 reconcile     PENDING
-~~~
+```
 
 Recovery should normally focus on transform, then load, then reconcile — not rerun everything blindly.
 
@@ -614,19 +614,19 @@ The period of data the run is responsible for.
 
 Example:
 
-~~~text
+```text
 Run: 2026-09-26 02:00
 Data interval:
 2026-09-25 02:00 → 2026-09-26 02:00
-~~~
+```
 
 This distinction becomes critical for backfills, late data, retries, and missed schedules.
 
 Do not assume:
 
-~~~text
+```text
 run time = data time
-~~~
+```
 
 ## 17. Catchup and Missed Runs
 
@@ -785,7 +785,7 @@ The central principle is:
 
 The core mechanism is:
 
-~~~text
+```text
 SCHEDULE
    ↓
 CREATE RUN
@@ -801,7 +801,7 @@ HANDLE FAILURE / RETRY
 RUN NEXT TASKS
    ↓
 COMPLETE WORKFLOW
-~~~
+```
 
 Orchestration does not make unreliable code reliable by itself.
 
