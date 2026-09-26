@@ -1214,7 +1214,7 @@ Before saying that you understand the repository's Docker setup, check:
 
 ## 43. What You Learned
 
-In this chapter, you learned how to investigate Docker as part of understanding a Data Engineering repository.
+In this recipe, you learned how to investigate Docker as part of understanding a Data Engineering repository.
 
 You learned how to:
 
