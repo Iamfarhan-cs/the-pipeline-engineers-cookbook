@@ -72,7 +72,7 @@ Bad data can move through an entire system without causing a technical error.
 
 Consider:
 
-~~~text
+```text
 Source
   |
   v
@@ -89,7 +89,7 @@ Reporting
   |
   v
 Business decision
-~~~
+```
 
 If bad data is not detected near the beginning, it can affect every later stage.
 
@@ -116,7 +116,7 @@ Validation often happens while data is entering or moving through a pipeline.
 
 For example:
 
-~~~text
+```text
 Incoming record
       |
       v
@@ -128,7 +128,7 @@ Validate fields
    |     |
    v     v
 Process Quarantine
-~~~
+```
 
 Data quality can be broader.
 
@@ -187,9 +187,9 @@ Are required fields populated?
 
 For example:
 
-~~~text
+```text
 customer_id = NULL
-~~~
+```
 
 If `customer_id` is required, the record is incomplete.
 
@@ -203,10 +203,10 @@ Some fields are optional.
 
 For example:
 
-~~~text
+```text
 customer_id: 12345
 middle_name: null
-~~~
+```
 
 `middle_name` may legitimately be empty.
 
@@ -226,11 +226,11 @@ Quality rules need business context.
 
 A simple SQL check for required values might look like this:
 
-~~~sql
+```sql
 SELECT COUNT(*)
 FROM customer
 WHERE customer_id IS NULL;
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -238,12 +238,12 @@ If the result is greater than zero, the dataset contains records without the req
 
 Another example:
 
-~~~sql
+```sql
 SELECT COUNT(*)
 FROM orders
 WHERE order_id IS NULL
    OR created_at IS NULL;
-~~~
+```
 
 These queries are examples of the type of checks a pipeline can perform.
 
@@ -261,19 +261,19 @@ For example, an event may have a unique event ID.
 
 Expected:
 
-~~~text
+```text
 event_001
 event_002
 event_003
-~~~
+```
 
 Problem:
 
-~~~text
+```text
 event_001
 event_002
 event_002
-~~~
+```
 
 If the event ID is supposed to be unique, the dataset contains a duplicate.
 
@@ -283,12 +283,12 @@ If the event ID is supposed to be unique, the dataset contains a duplicate.
 
 A common SQL pattern is:
 
-~~~sql
+```sql
 SELECT event_id, COUNT(*)
 FROM events
 GROUP BY event_id
 HAVING COUNT(*) > 1;
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -313,9 +313,9 @@ A uniqueness constraint can help prevent the same logical record from being stor
 
 For example:
 
-~~~sql
+```sql
 CREATE UNIQUE INDEX ...;
-~~~
+```
 
 The exact index definition depends on the table and business key.
 
@@ -362,17 +362,17 @@ The actual rules depend on the dataset.
 
 Suppose a status field supports:
 
-~~~text
+```text
 pending
 completed
 failed
-~~~
+```
 
 Now a record contains:
 
-~~~text
+```text
 status = "finished"
-~~~
+```
 
 The value may be understandable to a human, but it is not part of the defined contract.
 
@@ -380,11 +380,11 @@ That makes it invalid for the expected schema.
 
 A simple check could be:
 
-~~~sql
+```sql
 SELECT COUNT(*)
 FROM events
 WHERE status NOT IN ('pending', 'completed', 'failed');
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -396,16 +396,16 @@ Some values must stay inside a defined range.
 
 For example:
 
-~~~text
+```text
 percentage >= 0
 percentage <= 100
-~~~
+```
 
 Or:
 
-~~~text
+```text
 quantity > 0
-~~~
+```
 
 A range check catches values that are structurally valid but logically outside the allowed range.
 
@@ -419,7 +419,7 @@ Referential integrity asks:
 
 Consider two tables:
 
-~~~text
+```text
 customers
 ---------
 customer_id
@@ -428,15 +428,15 @@ orders
 ------
 order_id
 customer_id
-~~~
+```
 
 An order references a customer.
 
 If an order contains:
 
-~~~text
+```text
 customer_id = 99999
-~~~
+```
 
 but customer `99999` does not exist, the relationship is broken.
 
@@ -452,10 +452,10 @@ For example, a foreign key can prevent references to non-existent records.
 
 **GENERIC EXAMPLE**
 
-~~~sql
+```sql
 FOREIGN KEY (customer_id)
 REFERENCES customers(customer_id)
-~~~
+```
 
 This is valuable because the database becomes another layer of protection.
 
@@ -483,9 +483,9 @@ The current time is 12:00.
 
 Data age is approximately:
 
-~~~text
+```text
 12:00 - 09:00 = 3 hours
-~~~
+```
 
 If the expected maximum age is 30 minutes, the dataset is stale.
 
@@ -497,11 +497,11 @@ A dataset can be complete but stale.
 
 For example:
 
-~~~text
+```text
 Expected records: 100,000
 Received records: 100,000
 Latest record: yesterday
-~~~
+```
 
 Completeness looks good.
 
@@ -521,21 +521,21 @@ Consistency asks whether the same information follows the same rules across the 
 
 Suppose one system stores a country as:
 
-~~~text
+```text
 Pakistan
-~~~
+```
 
 Another uses:
 
-~~~text
+```text
 PK
-~~~
+```
 
 Another uses:
 
-~~~text
+```text
 PAK
-~~~
+```
 
 All may represent the same country.
 
@@ -583,9 +583,9 @@ Suppose a pipeline normally receives around 100,000 events per day.
 
 One day it receives:
 
-~~~text
+```text
 1,200 events
-~~~
+```
 
 The pipeline may have technically completed successfully.
 
@@ -610,11 +610,11 @@ The idea is to compare current behavior with expected behavior.
 
 For example:
 
-~~~text
+```text
 Yesterday: 98,400
 Today:     99,100
 Tomorrow:  1,900
-~~~
+```
 
 The sudden drop is a signal.
 
@@ -630,7 +630,7 @@ Data quality checks can run at multiple stages.
 
 A useful model is:
 
-~~~text
+```text
 Source
   |
   v
@@ -650,7 +650,7 @@ Curated
   |
   v
 Warehouse
-~~~
+```
 
 Different checks belong at different boundaries.
 
@@ -692,22 +692,22 @@ The correct choice depends on the data and business consequences.
 
 Suppose a pipeline receives three events:
 
-~~~text
+```text
 Event A -> valid
 Event B -> missing event_id
 Event C -> valid
-~~~
+```
 
 A record-level validation strategy could produce:
 
-~~~text
+```text
 Valid:
   Event A
   Event C
 
 Invalid:
   Event B
-~~~
+```
 
 Event B can be quarantined for investigation.
 
@@ -725,7 +725,7 @@ This is useful when a validation rule changes later.
 
 Consider:
 
-~~~text
+```text
 Source data
     |
     v
@@ -736,7 +736,7 @@ Validation
     |
     v
 Curated data
-~~~
+```
 
 If a record fails validation, the original data may still be available for investigation or reprocessing, depending on the storage and retention design.
 
@@ -750,7 +750,7 @@ A source can change its schema.
 
 For example:
 
-~~~text
+```text
 Before:
 customer_id
 name
@@ -761,7 +761,7 @@ customer_id
 name
 email
 country
-~~~
+```
 
 Adding a field may be harmless if the pipeline allows optional fields.
 
@@ -769,11 +769,11 @@ Other changes can be breaking.
 
 For example:
 
-~~~text
+```text
 amount: number
       ->
 amount: object
-~~~
+```
 
 A pipeline should understand which schema changes are compatible and which require code or contract changes.
 
@@ -799,7 +799,7 @@ Quality checks can enforce parts of that contract.
 
 Conceptually:
 
-~~~text
+```text
 Producer
    |
    v
@@ -810,7 +810,7 @@ Validation
    |
    v
 Consumer
-~~~
+```
 
 This reduces the chance that an unexpected change silently reaches downstream systems.
 
@@ -822,7 +822,7 @@ Database transactions can protect atomic changes.
 
 For example:
 
-~~~text
+```text
 Begin
   |
   v
@@ -833,7 +833,7 @@ Run required checks
   |
   v
 Commit
-~~~
+```
 
 If a critical check fails before commit, the transaction may be rolled back.
 
@@ -851,20 +851,20 @@ The quality strategy should match the size and purpose of the check.
 
 A quality check should not only return:
 
-~~~text
+```text
 PASS
-~~~
+```
 
 when possible, it should provide useful evidence.
 
 For example:
 
-~~~text
+```text
 Check: required customer_id
 Status: FAILED
 Invalid records: 37
 Checked at: 2026-09-26 10:00
-~~~
+```
 
 The exact output format depends on the system.
 
@@ -907,13 +907,13 @@ A quality rule may therefore have a threshold.
 
 For example:
 
-~~~text
+```text
 Invalid records <= allowed threshold
     -> continue
 
 Invalid records > allowed threshold
     -> fail or alert
-~~~
+```
 
 The threshold must be defined according to the actual requirement.
 
@@ -927,7 +927,7 @@ A **quality gate** is a point in the pipeline where data must satisfy required c
 
 For example:
 
-~~~text
+```text
 Raw
  |
  v
@@ -937,7 +937,7 @@ Quality Gate
  |
  v
 Staging
-~~~
+```
 
 A quality gate can protect downstream systems from known bad data.
 
@@ -953,7 +953,7 @@ Batch pipelines often have natural quality boundaries.
 
 For example:
 
-~~~text
+```text
 Daily source
     |
     v
@@ -966,7 +966,7 @@ Run quality checks
     |
     v
 Publish batch
-~~~
+```
 
 A batch should ideally not be marked successful simply because the processing code finished.
 
@@ -993,7 +993,7 @@ Instead, checks may run at several levels:
 
 For example:
 
-~~~text
+```text
 Event
   |
   v
@@ -1009,7 +1009,7 @@ Every few minutes:
   |
   v
 Check volume / freshness / anomalies
-~~~
+```
 
 Streaming quality often combines immediate validation with continuous monitoring.
 
@@ -1021,11 +1021,11 @@ Late data is data that arrives after the expected processing time.
 
 Consider an event that occurred at 09:00 but arrives at 09:20.
 
-~~~text
+```text
 Event time:      09:00
 Arrival time:    09:20
 Processing time: 09:21
-~~~
+```
 
 The event may still be valid.
 
@@ -1047,7 +1047,7 @@ Reconciliation compares two sources or stages to determine whether they agree.
 
 For example:
 
-~~~text
+```text
 Source system
 Records: 100,000
 Amount: 50,000,000
@@ -1055,7 +1055,7 @@ Amount: 50,000,000
 Pipeline output
 Records: 99,950
 Amount: 49,800,000
-~~~
+```
 
 The difference requires investigation.
 
@@ -1079,7 +1079,7 @@ Data pipelines also need visibility into the data itself.
 
 For example:
 
-~~~text
+```text
 System health
     +
     |
@@ -1087,7 +1087,7 @@ System health
     +-- Metrics
     +-- Traces
     +-- Data quality
-~~~
+```
 
 A pipeline can be technically healthy while producing unhealthy data.
 
@@ -1176,9 +1176,9 @@ A broken quality check can create false confidence.
 
 For example, suppose a test checks:
 
-~~~text
+```text
 invalid_count == 0
-~~~
+```
 
 but the query accidentally ignores half of the table.
 
@@ -1268,14 +1268,14 @@ Consider a generic payment-event pipeline.
 
 An incoming event might conceptually contain:
 
-~~~text
+```text
 event_id
 account_id
 amount
 currency
 occurred_at
 event_type
-~~~
+```
 
 Possible quality rules could be:
 
@@ -1300,7 +1300,7 @@ The actual rules for a real payment system must come from its data contract and 
 
 A practical pipeline can organize quality checks like this:
 
-~~~text
+```text
                 Source
                   |
                   v
@@ -1324,7 +1324,7 @@ A practical pipeline can organize quality checks like this:
              |
              v
          Warehouse
-~~~
+```
 
 This design separates normal processing from failed data.
 
