@@ -19,7 +19,7 @@ This is called a backfill.
 
 A backfill sounds simple:
 
-~~~text
+```text
 read old data
      |
      v
@@ -27,7 +27,7 @@ process it
      |
      v
 write the result
-~~~
+```
 
 In production, it is much more complicated.
 
@@ -84,7 +84,7 @@ The normal pipeline is now working correctly.
 
 You could run the pipeline again over January:
 
-~~~text
+```text
 January data
      |
      v
@@ -92,7 +92,7 @@ normal pipeline
      |
      v
 target
-~~~
+```
 
 But this can create problems.
 
@@ -110,7 +110,7 @@ The historical operation therefore needs its own controlled design.
 
 A better approach is:
 
-~~~text
+```text
 historical source
        |
        v
@@ -127,7 +127,7 @@ write safely
        |
        v
 verify
-~~~
+```
 
 ---
 
@@ -141,18 +141,18 @@ Systems change over time.
 
 A pipeline may originally calculate:
 
-~~~text
+```text
 amount
-~~~
+```
 
 Later, a new requirement adds:
 
-~~~text
+```text
 amount
 currency
 exchange_rate
 base_amount
-~~~
+```
 
 Historical records may not contain the new calculated value.
 
@@ -160,7 +160,7 @@ A backfill can process older records using the new logic.
 
 Another example:
 
-~~~text
+```text
 Bug introduced
       |
       v
@@ -174,7 +174,7 @@ Backfill affected period
       |
       v
 Verify corrected results
-~~~
+```
 
 ---
 
@@ -204,18 +204,18 @@ Backfill and replay are related but not identical.
 
 Replay usually means processing existing records again through a pipeline.
 
-~~~text
+```text
 existing records
       |
       v
 process again
-~~~
+```
 
 ### Backfill
 
 Backfill usually means intentionally processing a defined historical range or population to populate or correct data.
 
-~~~text
+```text
 historical range
       |
       v
@@ -223,13 +223,13 @@ backfill processing
       |
       v
 target
-~~~
+```
 
 There can be overlap.
 
 For example:
 
-~~~text
+```text
 historical records
       |
       v
@@ -237,7 +237,7 @@ backfill job
       |
       v
 replay processing
-~~~
+```
 
 The operational difference is the purpose and scope.
 
@@ -247,7 +247,7 @@ The operational difference is the purpose and scope.
 
 A retry deals with a failed operation.
 
-~~~text
+```text
 record
   |
   v
@@ -258,16 +258,16 @@ temporary failure
   |
   v
 retry
-~~~
+```
 
 A backfill is an intentional historical operation.
 
-~~~text
+```text
 January 1 -> January 31
           |
           v
        backfill
-~~~
+```
 
 Do not use retries as a substitute for backfill planning.
 
@@ -277,7 +277,7 @@ Do not use retries as a substitute for backfill planning.
 
 A simple architecture looks like this:
 
-~~~text
+```text
                  Historical Source
                        |
                        v
@@ -307,7 +307,7 @@ A simple architecture looks like this:
               |
               v
            completed
-~~~
+```
 
 The backfill should have a clear lifecycle.
 
@@ -346,32 +346,32 @@ The first important step is defining exactly what the backfill will process.
 
 For example:
 
-~~~text
+```text
 start = 2026-01-01
 end   = 2026-02-01
-~~~
+```
 
 This should normally be treated as a bounded range.
 
 A common pattern is:
 
-~~~text
+```text
 timestamp >= start
 AND
 timestamp < end
-~~~
+```
 
 This is often safer than using an inclusive end timestamp because adjacent ranges can then be processed without overlap.
 
 For example:
 
-~~~text
+```text
 Batch A:
 2026-01-01 <= timestamp < 2026-02-01
 
 Batch B:
 2026-02-01 <= timestamp < 2026-03-01
-~~~
+```
 
 The ranges meet cleanly.
 
@@ -381,9 +381,9 @@ The ranges meet cleanly.
 
 Do not define a backfill as:
 
-~~~text
+```text
 process old records
-~~~
+```
 
 That is too vague.
 
@@ -399,12 +399,12 @@ Define:
 
 For example:
 
-~~~text
+```text
 source = transaction_events
 date >= 2026-01-01
 date < 2026-02-01
 status = completed
-~~~
+```
 
 This is a generic example.
 
@@ -418,23 +418,23 @@ Before modifying anything, run the selection as a read-only query.
 
 First determine:
 
-~~~text
+```text
 number of records
-~~~
+```
 
 Then inspect:
 
-~~~text
+```text
 minimum timestamp
 maximum timestamp
 sample records
 distinct sources
 distinct statuses
-~~~
+```
 
 For example:
 
-~~~text
+```text
 Expected range:
 2026-01-01 -> 2026-02-01
 
@@ -446,7 +446,7 @@ Minimum:
 
 Maximum:
 2026-01-31 23:59
-~~~
+```
 
 These numbers are examples only.
 
@@ -478,7 +478,7 @@ For serious production systems, it can be useful to represent the backfill itsel
 
 A generic backfill run may contain:
 
-~~~text
+```text
 backfill_id
 name
 source
@@ -492,7 +492,7 @@ total_records
 processed_records
 failed_records
 checkpoint
-~~~
+```
 
 This is a **generic example**.
 
@@ -508,7 +508,7 @@ The important idea is:
 
 A backfill can have states such as:
 
-~~~text
+```text
 planned
    |
    v
@@ -527,7 +527,7 @@ running
    +----> completed
    |
    +----> cancelled
-~~~
+```
 
 These are generic example states.
 
@@ -541,7 +541,7 @@ Do not process millions of records in one transaction unless the system is speci
 
 Instead:
 
-~~~text
+```text
 1,000,000 records
 
 batch 1 -> 10,000
@@ -549,7 +549,7 @@ batch 2 -> 10,000
 batch 3 -> 10,000
 ...
 batch 100 -> 10,000
-~~~
+```
 
 Batch size should balance:
 
@@ -572,23 +572,23 @@ Suppose a backfill processes 500,000 records in one transaction.
 
 If it fails near the end:
 
-~~~text
+```text
 500,000 records
       |
       X
 failure
-~~~
+```
 
 You may lose a large amount of work.
 
 With smaller batches:
 
-~~~text
+```text
 10,000 -> complete
 10,000 -> complete
 10,000 -> complete
 10,000 -> failure
-~~~
+```
 
 Only the affected batch needs recovery.
 
@@ -602,15 +602,15 @@ A checkpoint records how far the backfill has progressed.
 
 For example:
 
-~~~text
+```text
 last_processed_id = 500000
-~~~
+```
 
 Or:
 
-~~~text
+```text
 last_processed_timestamp = 2026-01-15T12:00:00
-~~~
+```
 
 Or another stable cursor.
 
@@ -618,15 +618,15 @@ The checkpoint should be based on a deterministic ordering.
 
 For example:
 
-~~~text
+```text
 ORDER BY id
-~~~
+```
 
 or:
 
-~~~text
+```text
 ORDER BY occurred_at, id
-~~~
+```
 
 The second pattern is useful when timestamps can be identical.
 
@@ -656,37 +656,37 @@ Do not advance the checkpoint before the corresponding batch is safely completed
 
 Suppose records are ordered by ID:
 
-~~~text
+```text
 1
 2
 3
 ...
 10000
-~~~
+```
 
 Batch 1:
 
-~~~text
+```text
 IDs 1-10000
-~~~
+```
 
 After successful processing:
 
-~~~text
+```text
 checkpoint = 10000
-~~~
+```
 
 Next run:
 
-~~~text
+```text
 IDs > 10000
-~~~
+```
 
 If the worker crashes while processing IDs 10001-20000, the checkpoint remains:
 
-~~~text
+```text
 10000
-~~~
+```
 
 The next execution can safely resume from there, assuming the processing operation is idempotent.
 
@@ -698,7 +698,7 @@ A checkpoint alone does not guarantee correctness.
 
 Suppose:
 
-~~~text
+```text
 process batch
      |
      v
@@ -709,7 +709,7 @@ worker crashes
      |
      v
 checkpoint not updated
-~~~
+```
 
 The batch may be processed again.
 
@@ -717,13 +717,13 @@ Therefore backfills also need idempotency.
 
 The relationship is:
 
-~~~text
+```text
 checkpoint
     +
 idempotent processing
     =
 safe resume
-~~~
+```
 
 ---
 
@@ -733,16 +733,16 @@ A backfill should ideally be safe to run more than once.
 
 For example:
 
-~~~text
+```text
 backfill batch
      |
      v
 upsert target
-~~~
+```
 
 or:
 
-~~~text
+```text
 backfill batch
      |
      v
@@ -750,7 +750,7 @@ unique key
      |
      v
 duplicate prevented
-~~~
+```
 
 The correct approach depends on the target model.
 
@@ -772,25 +772,25 @@ A backfill may need to:
 
 ### Insert missing records
 
-~~~text
+```text
 source
   |
   v
 target
-~~~
+```
 
 ### Update existing records
 
-~~~text
+```text
 old target
     |
     v
 recalculated result
-~~~
+```
 
 ### Replace a historical partition
 
-~~~text
+```text
 old partition
      |
      v
@@ -798,7 +798,7 @@ rebuild
      |
      v
 replace
-~~~
+```
 
 The correct strategy depends on the target's meaning.
 
@@ -812,18 +812,18 @@ Transactions should usually be scoped to manageable units.
 
 For example:
 
-~~~text
+```text
 begin
   process batch
   write target
 commit
-~~~
+```
 
 If the batch fails:
 
-~~~text
+```text
 rollback
-~~~
+```
 
 Then the batch can be retried or investigated.
 
@@ -837,7 +837,7 @@ A backfill can compete with the normal pipeline.
 
 For example:
 
-~~~text
+```text
 normal workers
        |
        v
@@ -845,7 +845,7 @@ normal workers
        ^
        |
 backfill workers
-~~~
+```
 
 Both may consume:
 
@@ -885,9 +885,9 @@ Backfills can create large read workloads.
 
 For example:
 
-~~~text
+```text
 SELECT millions of historical rows
-~~~
+```
 
 This can affect normal queries.
 
@@ -927,17 +927,17 @@ Be careful if historical processing calls external APIs.
 
 Suppose the backfill processes:
 
-~~~text
+```text
 1,000,000 historical records
-~~~
+```
 
 and each record calls an API.
 
 This can create:
 
-~~~text
+```text
 1,000,000 API requests
-~~~
+```
 
 The external system may have rate limits.
 
@@ -962,15 +962,15 @@ Examples of dangerous side effects include:
 
 A common pattern is to separate:
 
-~~~text
+```text
 historical calculation
-~~~
+```
 
 from:
 
-~~~text
+```text
 real-time side effects
-~~~
+```
 
 If external effects are required, they should be explicitly designed and controlled.
 
@@ -982,11 +982,11 @@ Some systems introduce an explicit backfill mode.
 
 For example:
 
-~~~text
+```text
 normal mode
 backfill mode
 replay mode
-~~~
+```
 
 Backfill mode can change behavior such as:
 
@@ -1008,7 +1008,7 @@ Backfills often happen after schema changes.
 
 For example:
 
-~~~text
+```text
 new column added
       |
       v
@@ -1016,7 +1016,7 @@ historical rows do not have derived value
       |
       v
 backfill
-~~~
+```
 
 Before running the backfill, verify:
 
@@ -1034,24 +1034,24 @@ Schema changes and backfills should be planned together.
 
 Suppose version 1 of a transformation produced:
 
-~~~text
+```text
 result_v1
-~~~
+```
 
 Version 2 produces:
 
-~~~text
+```text
 result_v2
-~~~
+```
 
 A backfill should make the processing version clear.
 
 For example:
 
-~~~text
+```text
 backfill_run
 processing_version = v2
-~~~
+```
 
 This helps explain why historical results differ from older results.
 
@@ -1065,7 +1065,7 @@ Historical records may not match today's schema.
 
 For example:
 
-~~~text
+```text
 2023 record:
 field_a
 field_b
@@ -1074,7 +1074,7 @@ field_b
 field_a
 field_b
 field_c
-~~~
+```
 
 The backfill must decide how older records map to the current model.
 
@@ -1096,24 +1096,24 @@ A backfill may discover that some source data is missing.
 
 For example:
 
-~~~text
+```text
 expected:
 January 1 -> January 31
 
 available:
 January 1 -> January 25
-~~~
+```
 
 Do not report the backfill as complete simply because all available records were processed.
 
 Track:
 
-~~~text
+```text
 expected range
 available range
 processed range
 missing range
-~~~
+```
 
 Missing data is a data-quality problem that should be visible.
 
@@ -1125,7 +1125,7 @@ Sometimes data arrives after the original historical window.
 
 For example:
 
-~~~text
+```text
 January data
     |
     v
@@ -1133,7 +1133,7 @@ backfill runs
     |
     v
 late January record arrives
-~~~
+```
 
 The system needs a policy for this.
 
@@ -1152,19 +1152,19 @@ The correct approach depends on the pipeline.
 
 Instead of:
 
-~~~text
+```text
 January -> December
-~~~
+```
 
 consider:
 
-~~~text
+```text
 January
 February
 March
 ...
 December
-~~~
+```
 
 This provides smaller units of work.
 
@@ -1185,7 +1185,7 @@ For large production backfills, it can be useful to have a control record.
 
 A generic structure might track:
 
-~~~text
+```text
 backfill_id
 range_start
 range_end
@@ -1197,7 +1197,7 @@ failed_count
 started_at
 updated_at
 completed_at
-~~~
+```
 
 This is a **generic example**.
 
@@ -1211,7 +1211,7 @@ The purpose is operational visibility.
 
 A useful progress view might show:
 
-~~~text
+```text
 Backfill: January 2026
 
 Total:
@@ -1228,7 +1228,7 @@ Remaining:
 
 Progress:
 65%
-~~~
+```
 
 These values are examples only.
 
@@ -1244,35 +1244,35 @@ A backfill can fail at several levels.
 
 ### Record-level failure
 
-~~~text
+```text
 one record fails
-~~~
+```
 
 The batch may continue if the design supports isolation.
 
 ### Batch-level failure
 
-~~~text
+```text
 batch fails
-~~~
+```
 
 The batch can be retried or investigated.
 
 ### Infrastructure failure
 
-~~~text
+```text
 database unavailable
 worker crash
 network outage
-~~~
+```
 
 The backfill should stop or pause safely.
 
 ### Logic failure
 
-~~~text
+```text
 new transformation is incorrect
-~~~
+```
 
 The backfill may need to be stopped immediately.
 
@@ -1311,7 +1311,7 @@ A dry run may:
 
 For example:
 
-~~~text
+```text
 DRY RUN
 
 Range:
@@ -1325,7 +1325,7 @@ Expected target changes:
 
 Validation failures:
 120
-~~~
+```
 
 These values are examples only.
 
@@ -1337,7 +1337,7 @@ A dry run should not modify production data.
 
 Before a large backfill:
 
-~~~text
+```text
 1,000,000 records
         |
         v
@@ -1345,7 +1345,7 @@ first test
         |
         v
 100 records
-~~~
+```
 
 Verify:
 
@@ -1361,7 +1361,7 @@ Then increase gradually.
 
 For example:
 
-~~~text
+```text
 100
   ->
 1,000
@@ -1369,7 +1369,7 @@ For example:
 10,000
   ->
 100,000
-~~~
+```
 
 The actual progression depends on the system.
 
@@ -1383,35 +1383,35 @@ Useful checks include:
 
 ### Count reconciliation
 
-~~~text
+```text
 source count
 vs
 target count
-~~~
+```
 
 ### Key reconciliation
 
-~~~text
+```text
 source IDs
 vs
 target IDs
-~~~
+```
 
 ### Aggregate reconciliation
 
-~~~text
+```text
 source total amount
 vs
 target total amount
-~~~
+```
 
 ### Time-range reconciliation
 
-~~~text
+```text
 source min/max timestamp
 vs
 target min/max timestamp
-~~~
+```
 
 Counts alone may not prove correctness.
 
@@ -1423,7 +1423,7 @@ In addition to aggregate checks, inspect individual records.
 
 For example:
 
-~~~text
+```text
 source record
       |
       v
@@ -1431,7 +1431,7 @@ expected transformation
       |
       v
 target record
-~~~
+```
 
 Check:
 
@@ -1449,13 +1449,13 @@ A backfill can have the correct row count and still contain incorrect values.
 
 Suppose:
 
-~~~text
+```text
 source:
 1,000,000
 
 target:
 999,700
-~~~
+```
 
 Do not simply mark the backfill completed.
 
@@ -1482,7 +1482,7 @@ Backfill processing can also produce quarantine records.
 
 For example:
 
-~~~text
+```text
 historical records
       |
       v
@@ -1491,15 +1491,15 @@ backfill
       +---- valid ----> target
       |
       +---- invalid --> quarantine
-~~~
+```
 
 The backfill should report both:
 
-~~~text
+```text
 processed successfully
 processed to quarantine
 failed unexpectedly
-~~~
+```
 
 Do not hide quarantined records inside a generic failure count.
 
@@ -1511,7 +1511,7 @@ Backfill and replay can work together.
 
 For example:
 
-~~~text
+```text
 historical source
       |
       v
@@ -1523,7 +1523,7 @@ replay processing
       +---- success
       |
       +---- quarantine
-~~~
+```
 
 Recipe 9 covered replay.
 
@@ -1537,13 +1537,13 @@ This chapter combines those ideas into a larger historical operation.
 
 Suppose the worker crashes at:
 
-~~~text
+```text
 650,000 / 1,000,000
-~~~
+```
 
 A safe recovery flow is:
 
-~~~text
+```text
 read backfill state
       |
       v
@@ -1554,7 +1554,7 @@ verify target state
       |
       v
 resume next safe batch
-~~~
+```
 
 Do not simply restart from zero unless the operation is known to be safe and efficient.
 
@@ -1589,7 +1589,7 @@ Operators should be able to stop a backfill safely.
 
 A cancellation flow might be:
 
-~~~text
+```text
 running
    |
    v
@@ -1600,7 +1600,7 @@ finish current safe unit
    |
    v
 cancelled
-~~~
+```
 
 Do not abruptly terminate a process in the middle of a critical transaction if a graceful stop is possible.
 
@@ -1627,7 +1627,7 @@ A backfill can still overload a system at night.
 
 Monitor at least:
 
-~~~text
+```text
 records processed
 records remaining
 records failed
@@ -1639,7 +1639,7 @@ database load
 queue depth
 replication lag
 API rate limits
-~~~
+```
 
 The exact metrics depend on the architecture.
 
@@ -1676,7 +1676,7 @@ The goal is to detect when the backfill is no longer behaving as expected.
 
 A practical workflow is:
 
-~~~text
+```text
 1. Define the reason
         |
         v
@@ -1714,7 +1714,7 @@ A practical workflow is:
         |
         v
 13. Document outcome
-~~~
+```
 
 This should be treated as an operational change, not a casual script execution.
 
@@ -1739,9 +1739,9 @@ Use controlled batches.
 
 A query such as:
 
-~~~text
+```text
 process all old records
-~~~
+```
 
 is dangerous.
 
@@ -2001,7 +2001,7 @@ A backfill is controlled historical processing.
 
 The basic model is:
 
-~~~text
+```text
 define scope
      |
      v
@@ -2024,7 +2024,7 @@ reconcile results
      |
      v
 verify
-~~~
+```
 
 The most important lessons are:
 
