@@ -10,7 +10,7 @@ These recipes are intentionally practical. Each recipe starts with a small worki
 
 1. [Create an Ingestion Pipeline](17-create-an-ingestion-pipeline.md)
 2. [Create a Staging Layer](18-create-a-staging-layer.md)
-3. Validate Incoming Data
+3. [Validate Incoming Data](19-validate-incoming-data.md)
 4. Add Idempotency
 5. Add Deduplication
 6. Add Processing Status
