@@ -1170,7 +1170,7 @@ Before modifying an unfamiliar Data Engineering repository, ask:
 
 # What You Learned
 
-In this chapter, you learned:
+In this recipe, you learned:
 
 - Repository investigation is a core Data Engineering skill.
 - The goal is to build a mental model before changing code.
@@ -1191,23 +1191,3 @@ The main lesson is:
 **Before changing an existing pipeline, understand how the repository actually works. The fastest engineer is often not the one who starts coding first, but the one who finds the correct execution path first.**
 
 ---
-
-# Recipe Preview
-
-The next chapters will turn repository investigation into focused techniques.
-
-You will learn how to:
-
-- Find the entry point of an unfamiliar pipeline.
-- Locate database access code.
-- Find and understand migrations.
-- Locate and read the most useful tests.
-- Understand configuration.
-- Understand Docker-based environments.
-- Understand CI/CD workflows.
-
-The next chapter focuses on the first of these tasks:
-
-**Chapter 10 — Finding the Entry Point.**
-
-We will learn how to trace a repository from the command that starts the system to the code that actually performs the pipeline work.
