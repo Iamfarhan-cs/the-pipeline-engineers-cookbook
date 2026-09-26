@@ -1396,4 +1396,18 @@ That leads to idempotency.
 
 ## Next Recipe
 
-**Next: Chapter 20 — Add Idempotency**
+**Next: Chapter 20 — Add Idempotency**## Production Tools You Should Know
+
+These tools solve or provide production implementations of concepts covered in this recipe. Learn what the tool provides, but understand the underlying problem first.
+
+| Tool | What to know |
+|---|---|
+| **Pydantic** | Programmatic Python data validation and typed boundaries. |
+| **Great Expectations** | Data validation and expectation-based quality checks. |
+| **Soda** | Data quality checks and monitoring. |
+
+> These are reference tools for recognition and vocabulary, not substitutes for understanding the engineering mechanism.
+
+---
+
+
