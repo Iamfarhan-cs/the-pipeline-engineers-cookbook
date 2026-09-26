@@ -1753,6 +1753,260 @@ When dead-letter volume increases:
 
 ---
 
+
+## Implementation Lab — Runnable Dead-Letter / DQ Lifecycle
+
+The implementation below creates a small dead-letter lifecycle with stable failure codes, explicit states, repair, validation, bounded replay, and idempotent completion.
+
+### 1. Failure and lifecycle models
+
+```python
+# src/dead_letter.py
+from dataclasses import dataclass
+from enum import Enum
+
+
+class State(str, Enum):
+    DETECTED = "DETECTED"
+    QUARANTINED = "QUARANTINED"
+    INVESTIGATING = "INVESTIGATING"
+    REPAIRABLE = "REPAIRABLE"
+    REJECTED = "REJECTED"
+    REPAIRED = "REPAIRED"
+    REPLAY_PENDING = "REPLAY_PENDING"
+    REPLAYING = "REPLAYING"
+    SUCCESS = "SUCCESS"
+    FAILED = "FAILED"
+
+
+@dataclass
+class DeadLetter:
+    event_id: str
+    payload: dict
+    failure_code: str
+    state: State = State.DETECTED
+    attempts: int = 0
+```
+
+### 2. Validation and classification
+
+```python
+REQUIRED_FIELDS = {"event_id", "amount", "currency"}
+
+
+def validate(payload: dict) -> list[str]:
+    errors = []
+
+    missing = REQUIRED_FIELDS - payload.keys()
+    if missing:
+        errors.append("REQUIRED_FIELD_MISSING")
+
+    if "amount" in payload and not isinstance(payload["amount"], (int, float)):
+        errors.append("TYPE_ERROR")
+
+    if "currency" in payload and payload["currency"] not in {"EUR", "USD", "GBP"}:
+        errors.append("DOMAIN_ERROR")
+
+    return errors
+
+
+def classify(payload: dict) -> list[DeadLetter]:
+    failures = validate(payload)
+
+    return [
+        DeadLetter(
+            event_id=payload.get("event_id", "UNKNOWN"),
+            payload=payload.copy(),
+            failure_code=code,
+            state=State.QUARANTINED,
+        )
+        for code in failures
+    ]
+```
+
+### 3. PostgreSQL dead-letter table
+
+```sql
+CREATE TABLE dead_letter_events (
+    dead_letter_id UUID PRIMARY KEY,
+    event_id       TEXT NOT NULL,
+    failure_code   TEXT NOT NULL,
+    state          TEXT NOT NULL,
+    payload        JSONB NOT NULL,
+    attempts       INTEGER NOT NULL DEFAULT 0,
+    first_seen_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_dead_letter_state
+    ON dead_letter_events (state);
+
+CREATE INDEX idx_dead_letter_failure_code
+    ON dead_letter_events (failure_code);
+```
+
+### 4. Repair
+
+Repair must be deterministic and auditable.
+
+```python
+def repair_currency(dlq: DeadLetter, default_currency: str) -> bool:
+    if dlq.failure_code != "REQUIRED_FIELD_MISSING":
+        return False
+
+    if "currency" in dlq.payload:
+        return False
+
+    dlq.payload["currency"] = default_currency
+    dlq.state = State.REPAIRED
+    return True
+```
+
+Do not repair a value merely because it makes validation pass. The repair rule must be justified by the business contract.
+
+### 5. Revalidate before replay
+
+```python
+def prepare_replay(dlq: DeadLetter) -> None:
+    errors = validate(dlq.payload)
+
+    if errors:
+        dlq.state = State.FAILED
+        raise ValueError(f"Still invalid: {errors}")
+
+    dlq.state = State.REPLAY_PENDING
+```
+
+### 6. Bounded, idempotent replay
+
+```python
+def replay(records: list[DeadLetter], limit: int = 100) -> int:
+    processed = 0
+
+    for dlq in records:
+        if processed >= limit:
+            break
+
+        if dlq.state == State.SUCCESS:
+            continue
+
+        if dlq.state != State.REPLAY_PENDING:
+            continue
+
+        dlq.state = State.REPLAYING
+        dlq.attempts += 1
+
+        # Replace this with the real idempotent sink operation.
+        dlq.state = State.SUCCESS
+        processed += 1
+
+    return processed
+```
+
+### 7. Tests
+
+```python
+# tests/test_dead_letter.py
+import pytest
+from src.dead_letter import (
+    DeadLetter,
+    State,
+    classify,
+    prepare_replay,
+    replay,
+    repair_currency,
+    validate,
+)
+
+
+def test_invalid_record_is_quarantined():
+    failures = classify({"event_id": "e1", "amount": 10})
+
+    assert failures
+    assert failures[0].state == State.QUARANTINED
+    assert failures[0].failure_code == "REQUIRED_FIELD_MISSING"
+
+
+def test_repair_then_replay():
+    record = DeadLetter(
+        event_id="e1",
+        payload={"event_id": "e1", "amount": 10},
+        failure_code="REQUIRED_FIELD_MISSING",
+        state=State.QUARANTINED,
+    )
+
+    assert repair_currency(record, "EUR")
+    prepare_replay(record)
+
+    assert record.state == State.REPLAY_PENDING
+    assert replay([record]) == 1
+    assert record.state == State.SUCCESS
+
+
+def test_invalid_repair_is_blocked():
+    record = DeadLetter(
+        event_id="e1",
+        payload={"event_id": "e1", "amount": "bad"},
+        failure_code="TYPE_ERROR",
+        state=State.QUARANTINED,
+    )
+
+    with pytest.raises(ValueError):
+        prepare_replay(record)
+
+
+def test_replay_is_idempotent():
+    record = DeadLetter(
+        event_id="e1",
+        payload={"event_id": "e1", "amount": 10, "currency": "EUR"},
+        failure_code="TEST",
+        state=State.REPLAY_PENDING,
+    )
+
+    assert replay([record]) == 1
+    assert replay([record]) == 0
+    assert record.state == State.SUCCESS
+```
+
+### 8. Intentional failure drill
+
+Change:
+
+```python
+if errors:
+    dlq.state = State.FAILED
+```
+
+to:
+
+```python
+if False:
+    dlq.state = State.FAILED
+```
+
+Now invalid data can enter replay.
+
+The test must fail.
+
+Restore validation and prove:
+
+```text
+invalid
+  ↓
+quarantine
+  ↓
+repair
+  ↓
+revalidate
+  ↓
+replay
+  ↓
+success
+```
+
+The dead-letter system is complete only when every transition is explicit and auditable.
+
+
 ## 59. Definition of Done
 
 - [ ] Data-quality rules are explicitly defined.
