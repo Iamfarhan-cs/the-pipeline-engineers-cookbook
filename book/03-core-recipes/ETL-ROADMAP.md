@@ -70,7 +70,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | E34 | [Incremental Database Extraction](E34-incremental-database-extraction.md) |
 | E35 | [Watermark-Based Extraction](E35-watermark-based-extraction.md) |
 | E36 | [Timestamp-Based Extraction](E36-timestamp-based-extraction.md) |
-| E37 | ID-Based Extraction |
+| E37 | [ID-Based Extraction](E37-id-based-extraction.md) |
 | E38 | High-Watermark Management |
 | E39 | Database CDC |
 | E40 | Transaction Log CDC |
