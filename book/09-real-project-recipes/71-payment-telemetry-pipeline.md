@@ -1,4 +1,4 @@
-# ask 1 — Frontend Telemetry Event Boundary
+# Task 1 — Frontend Telemetry Event Boundary
 
 ## 1. Task Overview
 
