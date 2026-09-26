@@ -230,7 +230,7 @@ Basic control:
 
 PostgreSQL example:
 
-~~~sql
+```sql
 WITH source AS (
     SELECT COUNT(*) AS count
     FROM source_events
@@ -246,7 +246,7 @@ SELECT
     source.count - target.count AS difference
 FROM source
 CROSS JOIN target;
-~~~
+```
 
 Count reconciliation is a useful first signal, not proof of correctness.
 
@@ -284,25 +284,25 @@ Use a stable business identifier such as:
 
 Find source records missing from target:
 
-~~~sql
+```sql
 SELECT s.transaction_id
 FROM source_transactions AS s
 LEFT JOIN target_transactions AS t
     ON t.transaction_id = s.transaction_id
 WHERE s.settlement_date = DATE '2026-09-26'
   AND t.transaction_id IS NULL;
-~~~
+```
 
 Find target records absent from source:
 
-~~~sql
+```sql
 SELECT t.transaction_id
 FROM target_transactions AS t
 LEFT JOIN source_transactions AS s
     ON s.transaction_id = t.transaction_id
 WHERE t.settlement_date = DATE '2026-09-26'
   AND s.transaction_id IS NULL;
-~~~
+```
 
 These two result sets classify the difference as source-only and target-only.
 
@@ -312,7 +312,7 @@ These two result sets classify the difference as source-only and target-only.
 
 A full outer join can classify both sides in one result:
 
-~~~sql
+```sql
 SELECT
     COALESCE(s.transaction_id, t.transaction_id) AS transaction_id,
     CASE
@@ -323,7 +323,7 @@ SELECT
 FROM source_transactions AS s
 FULL OUTER JOIN target_transactions AS t
     ON t.transaction_id = s.transaction_id;
-~~~
+```
 
 For large tables, restrict the comparison to the exact reconciliation scope and ensure the join keys are indexed appropriately.
 
@@ -333,14 +333,14 @@ For large tables, restrict the comparison to the exact reconciliation scope and 
 
 Every expected ID can exist and the target can still be wrong because an ID occurs multiple times.
 
-~~~sql
+```sql
 SELECT
     transaction_id,
     COUNT(*) AS occurrences
 FROM target_transactions
 GROUP BY transaction_id
 HAVING COUNT(*) > 1;
-~~~
+```
 
 If the business key must be unique:
 
@@ -372,7 +372,7 @@ Compare fields such as:
 
 Example:
 
-~~~sql
+```sql
 SELECT
     s.transaction_id,
     s.amount AS source_amount,
@@ -387,7 +387,7 @@ WHERE s.settlement_date = DATE '2026-09-26'
       s.amount IS DISTINCT FROM t.amount
       OR s.currency IS DISTINCT FROM t.currency
   );
-~~~
+```
 
 PostgreSQL's `IS DISTINCT FROM` is important because it compares NULL values safely.
 
@@ -429,7 +429,7 @@ Useful controls include:
 
 Example:
 
-~~~sql
+```sql
 SELECT
     COUNT(*) AS record_count,
     SUM(amount) AS total_amount,
@@ -437,7 +437,7 @@ SELECT
     MAX(amount) AS max_amount
 FROM source_transactions
 WHERE settlement_date = DATE '2026-09-26';
-~~~
+```
 
 Run equivalent controls on the target.
 
@@ -465,7 +465,7 @@ Total count matches, but status mapping differs.
 
 Example query:
 
-~~~sql
+```sql
 SELECT
     status,
     COUNT(*) AS record_count
@@ -473,7 +473,7 @@ FROM source_transactions
 WHERE settlement_date = DATE '2026-09-26'
 GROUP BY status
 ORDER BY status;
-~~~
+```
 
 Compare the grouped result with the target.
 
@@ -1303,7 +1303,7 @@ Start with the cheapest useful control and add depth according to risk.
 
 A useful result record:
 
-~~~text
+```text
 reconciliation_run_id
 source_dataset
 target_dataset
@@ -1321,11 +1321,11 @@ amount_difference
 status
 started_at
 completed_at
-~~~
+```
 
 Failure example:
 
-~~~text
+```text
 source_count = 100000
 target_count = 99700
 missing = 300
@@ -1334,11 +1334,11 @@ duplicates = 0
 changed = 0
 amount_difference = -12500
 status = FAIL
-~~~
+```
 
 After recovery:
 
-~~~text
+```text
 source_count = 100000
 target_count = 100000
 missing = 0
@@ -1347,7 +1347,7 @@ duplicates = 0
 changed = 0
 amount_difference = 0
 status = PASS
-~~~
+```
 
 ---
 
