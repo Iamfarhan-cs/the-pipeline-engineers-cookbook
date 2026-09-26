@@ -68,7 +68,217 @@ with:
 
 Each stage has a different responsibility.
 
-## 3. Bucket, Prefix, Key
+## 3. Implementation — Build the Mechanism
+
+Before using a cloud SDK, build the extraction contract in plain Python.
+
+The important state is not only the object key. It is the object identity plus metadata and durable processing state.
+
+### 3.1 Object identity
+
+```python
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass(frozen=True)
+class ObjectRef:
+    bucket: str
+    key: str
+    version_id: Optional[str]
+    etag: Optional[str]
+    size: int
+```
+
+Do not use the key alone when an object can be replaced.
+
+### 3.2 Idempotent object processing
+
+```python
+def object_identity(ref: ObjectRef) -> tuple:
+    return (ref.bucket, ref.key, ref.version_id, ref.etag)
+
+def should_process(ref: ObjectRef, processed: set[tuple]) -> bool:
+    return object_identity(ref) not in processed
+
+def mark_complete(ref: ObjectRef, processed: set[tuple]) -> None:
+    processed.add(object_identity(ref))
+```
+
+The production version should store this state durably rather than in an in-memory set.
+
+### 3.3 Paginated discovery
+
+```python
+def discover_objects(list_page, prefix: str):
+    continuation = None
+
+    while True:
+        objects, continuation = list_page(
+            prefix=prefix,
+            continuation=continuation,
+        )
+
+        for obj in objects:
+            yield obj
+
+        if continuation is None:
+            break
+```
+
+The extractor processes one page at a time instead of assuming that a bucket listing fits in memory.
+
+### 3.4 Streaming object content
+
+```python
+def stream_lines(byte_stream):
+    buffer = b''
+
+    for chunk in byte_stream:
+        buffer += chunk
+
+        while b'\n' in buffer:
+            line, buffer = buffer.split(b'\n', 1)
+            yield line
+
+    if buffer:
+        yield buffer
+```
+
+For very large objects, use a provider streaming body or buffered reader so memory remains bounded.
+
+### 3.5 End-to-end extraction contract
+
+```python
+def extract_objects(objects, processed, read_object, persist_record):
+    for ref in objects:
+        if not should_process(ref, processed):
+            continue
+
+        body = read_object(ref)
+        try:
+            for line in stream_lines(body):
+                record = parse_record(line)
+                persist_record(record)
+
+            # Advance the checkpoint only after persistence succeeds.
+            mark_complete(ref, processed)
+        finally:
+            body.close()
+
+def parse_record(line: bytes) -> dict:
+    import json
+    return json.loads(line)
+```
+
+The critical ordering is:
+
+```text
+READ → PARSE → PERSIST → MARK COMPLETE
+```
+
+### 3.6 Production S3 adapter
+
+```python
+import boto3
+
+s3 = boto3.client('s3')
+
+def list_s3_objects(bucket: str, prefix: str):
+    paginator = s3.get_paginator('list_objects_v2')
+
+    for page in paginator.paginate(Bucket=bucket, Prefix=prefix):
+        for item in page.get('Contents', []):
+            yield item
+
+def get_s3_metadata(bucket: str, key: str):
+    response = s3.head_object(Bucket=bucket, Key=key)
+    return {
+        'size': response['ContentLength'],
+        'etag': response.get('ETag'),
+        'version_id': response.get('VersionId'),
+        'content_type': response.get('ContentType'),
+        'last_modified': response.get('LastModified'),
+    }
+
+def stream_s3_object(bucket: str, key: str):
+    response = s3.get_object(Bucket=bucket, Key=key)
+    return response['Body']
+```
+
+The SDK is only the source adapter. The pipeline still owns identity, readiness, parsing, persistence, checkpointing, and recovery.
+
+### 3.7 Safe S3 extraction skeleton
+
+```python
+def extract_s3_prefix(bucket, prefix, processed):
+    for item in list_s3_objects(bucket, prefix):
+        key = item['Key']
+        metadata = get_s3_metadata(bucket, key)
+
+        ref = ObjectRef(
+            bucket=bucket,
+            key=key,
+            version_id=metadata['version_id'],
+            etag=metadata['etag'],
+            size=metadata['size'],
+        )
+
+        if not should_process(ref, processed):
+            continue
+
+        body = stream_s3_object(bucket, key)
+        try:
+            for line in stream_lines(body):
+                persist_record(parse_record(line))
+
+            mark_complete(ref, processed)
+        finally:
+            body.close()
+```
+
+### 3.8 Test the mechanism without cloud credentials
+
+```python
+def test_duplicate_object_is_skipped():
+    processed = set()
+    ref = ObjectRef('raw', 'payments/001.jsonl', 'v1', 'etag-1', 100)
+
+    assert should_process(ref, processed)
+    mark_complete(ref, processed)
+    assert not should_process(ref, processed)
+
+def test_replaced_object_is_not_the_same_identity():
+    processed = set()
+    old = ObjectRef('raw', 'payments/001.jsonl', 'v1', 'etag-1', 100)
+    new = ObjectRef('raw', 'payments/001.jsonl', 'v2', 'etag-2', 120)
+
+    mark_complete(old, processed)
+    assert should_process(new, processed)
+```
+
+These tests prove that duplicate processing is suppressed while replacement under the same key is detected.
+
+### 3.9 Implementation rule
+
+Keep this boundary:
+
+```text
+OBJECT STORAGE SDK
+        ↓
+SOURCE ADAPTER
+        ↓
+OBJECT EXTRACTION CONTRACT
+        ↓
+PARSER
+        ↓
+PERSISTENCE
+        ↓
+CHECKPOINT
+```
+
+This makes the mechanism testable locally and portable across object-storage providers.
+
+## 4. Bucket, Prefix, Key
 
 Object storage commonly uses:
 
