@@ -59,7 +59,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | E29 | [API Partial Failure](E29-api-partial-failure.md) |
 | E30 | [API Deduplication](E30-api-deduplication.md) |
 | E31 | [API Extraction Resume](E31-api-extraction-resume.md) |
-| E32 | API Extraction Auditing |
+| E32 | [API Extraction Auditing](E32-api-extraction-auditing.md) |
 
 ## Category 02 — Database Extraction
 
