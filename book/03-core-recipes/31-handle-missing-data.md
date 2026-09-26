@@ -1857,6 +1857,205 @@ The objective is to make unexplained data loss visible.
 
 ---
 
+
+## Implementation Lab — Runnable Missing-Data Detection and Recovery
+
+This implementation compares expected IDs with observed IDs, identifies missing records, distinguishes a genuinely empty period from an incomplete period, and performs bounded recovery.
+
+### 1. Completeness functions
+
+```python
+# src/missing_data.py
+from dataclasses import dataclass
+from datetime import datetime, timezone
+
+
+@dataclass(frozen=True)
+class CompletenessResult:
+    expected: int
+    observed: int
+    missing_ids: set[str]
+    extra_ids: set[str]
+    complete: bool
+
+
+def reconcile_ids(expected_ids: set[str], observed_ids: set[str]) -> CompletenessResult:
+    missing = expected_ids - observed_ids
+    extra = observed_ids - expected_ids
+
+    return CompletenessResult(
+        expected=len(expected_ids),
+        observed=len(observed_ids),
+        missing_ids=missing,
+        extra_ids=extra,
+        complete=not missing and not extra,
+    )
+
+
+def classify_partition(
+    expected_count: int,
+    observed_count: int,
+    source_declared_empty: bool,
+) -> str:
+    if expected_count == 0 and source_declared_empty:
+        return "VALID_EMPTY"
+
+    if observed_count == expected_count:
+        return "COMPLETE"
+
+    return "INCOMPLETE"
+
+
+def missing_windows(expected_hours: list[int], observed_hours: set[int]) -> list[int]:
+    return [hour for hour in expected_hours if hour not in observed_hours]
+```
+
+### 2. Tests
+
+```python
+# tests/test_missing_data.py
+from src.missing_data import (
+    reconcile_ids,
+    classify_partition,
+    missing_windows,
+)
+
+
+def test_complete_dataset():
+    result = reconcile_ids({"a", "b", "c"}, {"a", "b", "c"})
+
+    assert result.complete is True
+    assert result.missing_ids == set()
+    assert result.extra_ids == set()
+
+
+def test_missing_ids_are_explicit():
+    result = reconcile_ids({"a", "b", "c"}, {"a", "c"})
+
+    assert result.complete is False
+    assert result.missing_ids == {"b"}
+
+
+def test_extra_ids_are_detected():
+    result = reconcile_ids({"a", "b"}, {"a", "b", "x"})
+
+    assert result.complete is False
+    assert result.extra_ids == {"x"}
+
+
+def test_empty_partition_is_not_missing_data():
+    assert classify_partition(0, 0, True) == "VALID_EMPTY"
+
+
+def test_missing_partition_is_incomplete():
+    assert classify_partition(100, 0, False) == "INCOMPLETE"
+
+
+def test_missing_time_window():
+    assert missing_windows([9, 10, 11, 12], {9, 11, 12}) == [10]
+```
+
+### 3. PostgreSQL completeness accounting
+
+Do not rely only on a final row count. Store the accounting result.
+
+```sql
+CREATE TABLE pipeline_completeness (
+    run_id              UUID PRIMARY KEY,
+    expected_count      BIGINT NOT NULL,
+    observed_count      BIGINT NOT NULL,
+    missing_count       BIGINT NOT NULL,
+    extra_count         BIGINT NOT NULL,
+    status              TEXT NOT NULL,
+    checked_at          TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+Example calculation:
+
+```sql
+SELECT
+    COUNT(*) AS observed_count,
+    COUNT(DISTINCT event_id) AS distinct_event_count
+FROM staged_events
+WHERE run_id = $1;
+```
+
+### 4. Recovery by missing ID
+
+Recovery should be bounded to the missing scope.
+
+```python
+def recover_missing_ids(
+    missing_ids: set[str],
+    source: dict[str, dict],
+    destination: dict[str, dict],
+) -> int:
+    recovered = 0
+
+    for event_id in missing_ids:
+        if event_id not in source:
+            continue
+
+        # Idempotent insert/update.
+        if event_id not in destination:
+            destination[event_id] = source[event_id]
+            recovered += 1
+
+    return recovered
+```
+
+Test it:
+
+```python
+def test_recovery_is_idempotent():
+    source = {"a": {"amount": 10}, "b": {"amount": 20}}
+    destination = {"a": {"amount": 10}}
+
+    missing = {"b"}
+
+    assert recover_missing_ids(missing, source, destination) == 1
+    assert recover_missing_ids(missing, source, destination) == 0
+    assert set(destination) == {"a", "b"}
+```
+
+### 5. Break the pipeline intentionally
+
+Delete one destination record.
+
+Run completeness reconciliation.
+
+Expected:
+
+```text
+expected = 3
+observed = 2
+missing = 1
+status = INCOMPLETE
+```
+
+Recover only the missing ID, rerun reconciliation, and require:
+
+```text
+missing = 0
+status = COMPLETE
+```
+
+This is the core production loop:
+
+```text
+measure
+  ↓
+identify missing scope
+  ↓
+recover bounded scope
+  ↓
+reconcile
+  ↓
+close
+```
+
+
 ## 61. Definition of Done
 
 The recipe is complete when:
