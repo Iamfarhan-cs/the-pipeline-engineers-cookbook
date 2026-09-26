@@ -10,7 +10,12 @@ The book is written as a practical guide for learning how to design, build, test
 
 ## Book structure
 
+The cookbook uses **one continuous recipe sequence**. Recipe numbers never restart when a new part begins.
+
 ### Part I — Foundations
+
+Recipes 1–8 establish the mental model required to understand data pipelines.
+
 1. How Data Pipelines Work
 2. How Events Move Through a Pipeline
 3. Batch vs Streaming
@@ -21,6 +26,9 @@ The book is written as a practical guide for learning how to design, build, test
 8. Pipeline Observability
 
 ### Part II — Repository Investigation
+
+Recipes 9–16 teach how to investigate an existing Data Engineering system before changing it.
+
 9. How to Read a Data Engineering Repository
 10. Finding the Entry Point
 11. Finding Database Code
@@ -30,89 +38,123 @@ The book is written as a practical guide for learning how to design, build, test
 15. Understanding Docker
 16. Understanding CI/CD
 
-### Part III — Core Recipes
+### Part III — Core Pipeline Recipes
+
+Recipes 17–35 build production pipeline mechanisms in beginner-to-production order.
+
 17. Create an Ingestion Pipeline
 18. Create a Staging Layer
 19. Validate Incoming Data
-20. Add Idempotency
-21. Add Deduplication
-22. Add Processing Status
-23. Add Error Handling
+20. Add Error Handling
+21. Add Processing Status
+22. Add Idempotency
+23. Add Deduplication
 24. Add Retry Logic
-25. Replay / Reprocessing
-26. Quarantine Failed Data
-27. Backfill Historical Data
-28. Incremental Processing
-29. Checkpointing
+25. Quarantine Failed Data
+26. Replay / Reprocessing
+27. Incremental Processing
+28. Checkpointing
+29. Backfill Historical Data
+30. Handle Late Data
+31. Handle Missing Data
+32. Data Reconciliation
+33. Handle Schema Changes
+34. Handle Backpressure
+35. Dead-Letter / Data-Quality Lifecycle
 
 ### Part IV — Data Storage
-30. PostgreSQL Pipeline
-31. Raw Data Storage
-32. Data Modeling
-33. Fact Tables
-34. Dimension Tables
-35. Slowly Changing Dimensions
-36. Indexing
-37. Partitioning
+
+The next production recipes continue from **Recipe 36**.
+
+36. PostgreSQL Pipeline
+37. Raw Data Storage
+38. Data Modeling
+39. Fact Tables
+40. Dimension Tables
+41. Slowly Changing Dimensions
+42. Indexing
+43. Partitioning
 
 ### Part V — Streaming
-38. Kafka Fundamentals
-39. Producer
-40. Consumer
-41. Consumer Groups
-42. Offsets
-43. Replay
-44. Dead-Letter Topics
-45. Kafka → PostgreSQL
-46. Kafka → Warehouse
+
+44. Kafka Fundamentals
+45. Producer
+46. Consumer
+47. Consumer Groups
+48. Offsets
+49. Replay
+50. Dead-Letter Topics
+51. Kafka → PostgreSQL
+52. Kafka → Warehouse
 
 ### Part VI — Orchestration
-47. Airflow Fundamentals
-48. First DAG
-49. Dependencies
-50. Retries
-51. Backfills
-52. Scheduling
-53. Sensors
-54. Production DAG
+
+53. Airflow Fundamentals
+54. First DAG
+55. Dependencies
+56. Retries
+57. Backfills
+58. Scheduling
+59. Sensors
+60. Production DAG
 
 ### Part VII — Data Quality
-55. Completeness
-56. Uniqueness
-57. Validity
-58. Referential Integrity
-59. Freshness
-60. Anomaly Detection
-61. Data Quality Framework
+
+61. Completeness
+62. Uniqueness
+63. Validity
+64. Referential Integrity
+65. Freshness
+66. Anomaly Detection
+67. Data Quality Framework
 
 ### Part VIII — Production
-62. Logging
-63. Metrics
-64. Tracing
-65. Alerting
-66. Monitoring
-67. Security
-68. PII Handling
-69. Schema Evolution
-70. Data Contracts
+
+68. Logging
+69. Metrics
+70. Tracing
+71. Alerting
+72. Monitoring
+73. Security
+74. PII Handling
+75. Schema Evolution
+76. Data Contracts
 
 ### Part IX — Real Project Recipes
-71. Payment Telemetry Pipeline
-72. Sanctions Intelligence Pipeline
-73. API → PostgreSQL
-74. PostgreSQL → Warehouse
-75. Event Replay System
-76. End-to-End Production Pipeline
+
+77. Payment Telemetry Pipeline
+78. Sanctions Intelligence Pipeline
+79. API → PostgreSQL
+80. PostgreSQL → Warehouse
+81. Event Replay System
+82. End-to-End Production Pipeline
 
 ### Part X — Troubleshooting
-77. Database Errors
-78. Migration Errors
-79. Duplicate Events
-80. Failed Jobs
-81. Missing Data
-82. Late Data
-83. Schema Mismatch
-84. Pipeline Recovery
+
+83. Database Errors
+84. Migration Errors
+85. Duplicate Events
+86. Failed Jobs
+87. Missing Data
+88. Late Data
+89. Schema Mismatch
+90. Pipeline Recovery
+
+## Current Recipe Sequence
+
+```text
+Recipes 01–08
+Foundations
+        ↓
+Recipes 09–16
+Repository Investigation
+        ↓
+Recipes 17–35
+Core Pipeline Engineering
+        ↓
+Recipe 36+
+Advanced Production Data Engineering
+```
 
 ## Core engineering cycle
 
