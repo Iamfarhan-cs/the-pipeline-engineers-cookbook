@@ -1670,4 +1670,18 @@ We will cover:
 
 The key question will be:
 
-> When something fails, how does the pipeline decide what to do next?
+> When something fails, how does the pipeline decide what to do next?## Production Tools You Should Know
+
+These tools solve or provide production implementations of concepts covered in this recipe. Learn what the tool provides, but understand the underlying problem first.
+
+| Tool | What to know |
+|---|---|
+| **Apache Airflow** | Task and run state management. |
+| **Dagster** | Asset and run status with observable orchestration. |
+| **Prefect** | Flow/task state and failure tracking. |
+
+> These are reference tools for recognition and vocabulary, not substitutes for understanding the engineering mechanism.
+
+---
+
+
