@@ -119,6 +119,7 @@ PROVE YOU ARE DONE
 | [E61 — Large File Streaming](E61-large-file-streaming.md) | Process files larger than memory using bounded streaming, batching, backpressure, and restart-safe checkpoints |
 | [E62 — Multi-File Extraction](E62-multi-file-extraction.md) | Group, process, reconcile, retry, and recover multi-file deliveries with durable file and delivery state |
 | [E63 — Duplicate File Detection](E63-duplicate-file-detection.md) | Detect duplicate observations, duplicate content, replay, and replacements without losing valid corrections |
+| [E64 — Missing File Detection](E64-missing-file-detection.md) | Determine when required files are truly missing using durable expectations, deadlines, calendars, dependencies, and idempotent incidents |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
