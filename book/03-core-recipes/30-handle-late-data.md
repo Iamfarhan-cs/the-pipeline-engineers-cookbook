@@ -1514,6 +1514,198 @@ The key is to define the semantics before changing the implementation.
 
 ---
 
+
+## Implementation Lab — Runnable Late-Data Handler
+
+The following example implements a small event processor that separates **event time** from **processing time**, detects late events, updates a windowed aggregate, and keeps an audit trail.
+
+### 1. Project structure
+
+```text
+late-data/
+├── src/
+│   └── late_data.py
+└── tests/
+    └── test_late_data.py
+```
+
+### 2. Event model
+
+```python
+# src/late_data.py
+from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
+from collections import defaultdict
+
+
+@dataclass(frozen=True)
+class Event:
+    event_id: str
+    occurred_at: datetime
+    amount: int
+
+
+@dataclass
+class ProcessingResult:
+    event_id: str
+    status: str
+    window: str
+
+
+class LateDataProcessor:
+    def __init__(self, allowed_lateness: timedelta):
+        self.allowed_lateness = allowed_lateness
+        self.max_event_time: datetime | None = None
+        self.aggregates: dict[str, int] = defaultdict(int)
+        self.seen: set[str] = set()
+        self.audit: list[dict] = []
+
+    def watermark(self) -> datetime | None:
+        if self.max_event_time is None:
+            return None
+        return self.max_event_time - self.allowed_lateness
+
+    def window_key(self, timestamp: datetime) -> str:
+        return timestamp.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:00:00Z")
+
+    def process(self, event: Event) -> ProcessingResult:
+        if event.event_id in self.seen:
+            return ProcessingResult(event.event_id, "DUPLICATE", self.window_key(event.occurred_at))
+
+        if self.max_event_time is None or event.occurred_at > self.max_event_time:
+            self.max_event_time = event.occurred_at
+
+        watermark = self.watermark()
+        window = self.window_key(event.occurred_at)
+
+        if watermark is not None and event.occurred_at < watermark:
+            status = "TOO_LATE"
+            self.audit.append({
+                "event_id": event.event_id,
+                "status": status,
+                "watermark": watermark.isoformat(),
+            })
+            return ProcessingResult(event.event_id, status, window)
+
+        self.seen.add(event.event_id)
+        self.aggregates[window] += event.amount
+
+        status = "LATE" if watermark and event.occurred_at < self.max_event_time else "ON_TIME"
+        self.audit.append({
+            "event_id": event.event_id,
+            "status": status,
+            "window": window,
+        })
+        return ProcessingResult(event.event_id, status, window)
+```
+
+### 3. Unit tests
+
+```python
+# tests/test_late_data.py
+from datetime import datetime, timedelta, timezone
+from src.late_data import Event, LateDataProcessor
+
+
+BASE = datetime(2026, 9, 26, 12, 0, tzinfo=timezone.utc)
+
+
+def test_on_time_event_is_accepted():
+    p = LateDataProcessor(timedelta(minutes=10))
+
+    result = p.process(Event("e1", BASE, 100))
+
+    assert result.status == "ON_TIME"
+    assert sum(p.aggregates.values()) == 100
+
+
+def test_event_inside_allowed_lateness_is_accepted():
+    p = LateDataProcessor(timedelta(minutes=10))
+    p.process(Event("e1", BASE + timedelta(minutes=20), 100))
+
+    result = p.process(Event("e2", BASE + timedelta(minutes=15), 50))
+
+    assert result.status == "LATE"
+    assert sum(p.aggregates.values()) == 150
+
+
+def test_event_beyond_allowed_lateness_is_not_silently_accepted():
+    p = LateDataProcessor(timedelta(minutes=10))
+    p.process(Event("e1", BASE + timedelta(minutes=30), 100))
+
+    result = p.process(Event("e2", BASE, 50))
+
+    assert result.status == "TOO_LATE"
+    assert sum(p.aggregates.values()) == 100
+
+
+def test_duplicate_late_event_does_not_double_count():
+    p = LateDataProcessor(timedelta(minutes=10))
+    event = Event("e1", BASE, 100)
+
+    p.process(event)
+    p.process(event)
+
+    assert sum(p.aggregates.values()) == 100
+```
+
+### 4. Database representation
+
+For production storage, keep event-time and processing-time separately:
+
+```sql
+CREATE TABLE payment_events (
+    event_id       TEXT PRIMARY KEY,
+    occurred_at    TIMESTAMPTZ NOT NULL,
+    processed_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+    amount         NUMERIC NOT NULL,
+    late_status    TEXT NOT NULL
+        CHECK (late_status IN ('ON_TIME', 'LATE', 'TOO_LATE', 'DUPLICATE'))
+);
+
+CREATE INDEX idx_payment_events_occurred_at
+    ON payment_events (occurred_at);
+```
+
+### 5. Intentionally break it
+
+Change:
+
+```python
+if watermark is not None and event.occurred_at < watermark:
+```
+
+to:
+
+```python
+if False:
+```
+
+Run the late-event test.
+
+The test must fail because a too-late event is now accepted.
+
+Restore the condition and run the tests again.
+
+### 6. Recovery exercise
+
+Insert an event that was classified as `TOO_LATE` into a controlled recovery set. Reprocess it with an explicit correction/replay operation. Verify:
+
+```text
+original event
+    ↓
+recovery decision
+    ↓
+reprocess
+    ↓
+aggregate corrected
+    ↓
+reconciliation passes
+```
+
+The important lesson is that late-data handling is not just timestamp comparison. It is **classification + bounded acceptance + correction + reconciliation**.
+
+
 ## 40. Definition of Done
 
 The late-data implementation is complete when:
