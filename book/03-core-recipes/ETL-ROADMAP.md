@@ -103,7 +103,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | E58 | [Parquet Extraction](E58-parquet-extraction.md) |
 | E59 | [Avro Extraction](E59-avro-extraction.md) |
 | E60 | [Compressed File Extraction](E60-compressed-file-extraction.md) |
-| E61 | Large File Streaming |
+| E61 | [Large File Streaming](E61-large-file-streaming.md) |
 | E62 | Multi-File Extraction |
 | E63 | Duplicate File Detection |
 | E64 | Missing File Detection |
