@@ -4797,3 +4797,897 @@ The frontend is now ready for the next pipeline stage, where the existing `telem
 The next stage should be implemented using the same principle:
 
 > **Discover only what is required for the next implementation step, then continue building the pipeline incrementally.**
+
+---
+
+# Payment Telemetry Pipeline — Backend Frontend Telemetry Ingestion
+
+## 1. Task Overview
+
+### Objective
+
+Implement the **backend ingestion layer** for frontend telemetry in the Payment Telemetry Pipeline.
+
+The objective was to create a dedicated, authenticated backend API that receives privacy-safe frontend telemetry events, validates them server-side, associates each event with the authenticated client, and stores the accepted events in PostgreSQL.
+
+The implementation follows the current project direction:
+
+```
+Frontend
+    ↓
+Authenticated Telemetry API
+    ↓
+PostgreSQL
+    ↓
+Future ETL / Analytics
+    ↓
+Grafana
+```
+
+No S3/MinIO or data-lake layer was introduced because the current telemetry volume is expected to be small and the agreed direction is PostgreSQL-first.
+
+---
+
+# 2. Implementation Sequence
+
+The implementation was performed in the following order.
+
+## Step 1 — Confirm frontend event contract
+
+Before implementing the backend, the frontend was checked to determine which telemetry events actually exist.
+
+The frontend currently emits exactly five events:
+
+```
+account_type_selected
+identity_verification_completed
+liveness_verification_started
+liveness_verification_completed
+onboarding_form_submitted
+```
+
+This list became the backend event allow-list.
+
+The backend was intentionally not designed to accept arbitrary event names.
+
+---
+
+## Step 2 — Investigate existing backend event systems
+
+Existing backend systems were inspected to determine whether telemetry should reuse an existing event mechanism.
+
+Two existing systems were specifically evaluated:
+
+### Tenant event/outbox system
+
+The existing `tenant_event`, `tenant_event_payload`, and `tenant_event_outbox` infrastructure is designed for domain/business events and webhook delivery.
+
+It was therefore not reused for browser telemetry.
+
+### Activity logs
+
+The existing activity log system is employee-oriented and contains operational metadata such as browser, OS, device, IP, and user-agent information.
+
+It was also not reused for product telemetry.
+
+### Result
+
+A dedicated telemetry ingestion path was chosen.
+
+---
+
+# 3. Database Implementation
+
+## Step 3 — Create telemetry migration
+
+Added:
+
+```
+db/migrations/000292_frontend_telemetry_events.up.sql
+db/migrations/000292_frontend_telemetry_events.down.sql
+```
+
+The migration version was changed from:
+
+```
+291
+```
+
+to:
+
+```
+292
+```
+
+The migration was applied successfully and verified as:
+
+```
+292 | false
+```
+
+where `false` means the migration is not dirty.
+
+---
+
+## Step 4 — Create PostgreSQL telemetry table
+
+Created:
+
+```
+public.frontend_telemetry_event
+```
+
+### Columns
+
+| Column | Purpose |
+| --- | --- |
+| `id` | Internal database UUID |
+| `event_id` | Frontend-generated unique event ID |
+| `user_id` | Authenticated client ID |
+| `event_name` | Telemetry event name |
+| `event_version` | Telemetry contract version |
+| `occurred_at` | Time the event occurred |
+| `route` | Frontend route |
+| `properties` | Telemetry properties stored as JSONB |
+| `received_at` | Server-side ingestion timestamp |
+
+### Database constraints
+
+The table enforces:
+
+- non-empty event name
+- event name maximum length of 100 characters
+- positive event version
+- non-empty route
+- route maximum length of 2048 characters
+- properties must be a JSON object
+- `event_id` must be unique
+- `user_id` must reference `public.user(id)`
+
+The user relationship uses:
+
+```
+ON DELETE RESTRICT
+```
+
+---
+
+## Step 5 — Add indexes
+
+Added indexes for expected telemetry queries:
+
+```
+(user_id, occurred_at DESC)
+(event_name, occurred_at DESC)
+(occurred_at DESC)
+```
+
+These support future queries involving:
+
+- user journeys
+- event history
+- event frequency
+- event trends
+- time-based analytics
+
+---
+
+# 4. DAO and Repository
+
+## Step 6 — Add DAO
+
+Created:
+
+```
+db/dao/frontend_telemetry.go
+```
+
+Added:
+
+```
+FrontendTelemetryEvent
+```
+
+The DAO represents the PostgreSQL telemetry record and maps the `properties` field to the existing JSONB mapping convention.
+
+---
+
+## Step 7 — Add repository
+
+Created:
+
+```
+db/repo/frontend_telemetry.go
+```
+
+Implemented:
+
+```
+CreateFrontendTelemetryEvent()
+```
+
+The repository uses:
+
+```
+ON CONFLICT DO NOTHING
+```
+
+for the unique `event_id`.
+
+### Why this fits here
+
+Idempotency belongs at the persistence boundary because the database is the final authority on whether an event already exists.
+
+This prevents duplicate rows if the same event is submitted more than once.
+
+---
+
+# 5. Request DTO and Validation
+
+## Step 8 — Create request DTO
+
+Created:
+
+```
+http/rq/frontend_telemetry.go
+```
+
+Added:
+
+```
+FrontendTelemetryEventRequest
+```
+
+The request contains:
+
+```
+event_id
+event_name
+event_version
+occurred_at
+route
+properties
+```
+
+---
+
+## Step 9 — Add request validation
+
+Validation was implemented before persistence.
+
+The request validates:
+
+### Event ID
+
+Must be a non-zero UUID.
+
+### Event name
+
+Must:
+
+- exist
+- not be empty
+- be no longer than 100 characters
+
+### Event version
+
+Must be greater than zero.
+
+### Occurred timestamp
+
+Must be present.
+
+### Route
+
+Must:
+
+- exist
+- not be empty
+- be no longer than 2048 characters
+
+### Properties
+
+Must:
+
+- be valid JSON
+- be a JSON object
+- be no larger than 16 KB
+
+---
+
+# 6. Property Contract
+
+## Step 10 — Enforce scalar telemetry properties
+
+The frontend telemetry contract allows only:
+
+```
+string
+number
+boolean
+null
+```
+
+The backend now enforces the same contract.
+
+### Valid example
+
+```json
+{
+  "account_type": "personal",
+  "step": 1,
+  "completed": true,
+  "optional": null
+}
+```
+
+### Rejected example — nested object
+
+```json
+{
+  "account": {
+    "type": "personal"
+  }
+}
+```
+
+### Rejected example — array
+
+```json
+{
+  "steps": [
+    "start",
+    "complete"
+  ]
+}
+```
+
+### Why this fits here
+
+This validation belongs at the request boundary because the backend must not rely exclusively on frontend validation.
+
+The backend is the final input boundary before data enters the telemetry dataset.
+
+---
+
+# 7. Event Allow-List
+
+## Step 11 — Add supported event names
+
+The backend was configured to accept only:
+
+```
+account_type_selected
+identity_verification_completed
+liveness_verification_started
+liveness_verification_completed
+onboarding_form_submitted
+```
+
+The supported event version is:
+
+```
+1
+```
+
+Unsupported event names and versions are rejected.
+
+### Why this fits here
+
+The allow-list belongs in backend business logic because it protects the stored telemetry dataset from arbitrary or accidental event types.
+
+It also keeps the backend contract synchronized with the currently implemented frontend measurement plan.
+
+---
+
+# 8. Authentication and User Attribution
+
+## Step 12 — Require authentication
+
+The endpoint was configured with:
+
+```
+AuthRequired: true
+```
+
+The backend obtains the authenticated client from the existing request context:
+
+```
+rq.GetClientFromContext(ctx)
+```
+
+The database `user_id` is taken from:
+
+```
+client.ID
+```
+
+### Important behavior
+
+The frontend does **not** provide the authoritative database `user_id`.
+
+The resulting flow is:
+
+```
+Frontend event
+      ↓
+Authenticated request
+      ↓
+Backend auth context
+      ↓
+Authenticated client
+      ↓
+client.ID
+      ↓
+frontend_telemetry_event.user_id
+```
+
+### Why this fits here
+
+Identity attribution belongs on the server because the authenticated backend context is authoritative.
+
+It prevents the client from claiming that telemetry belongs to another user.
+
+---
+
+# 9. Backend Business Logic
+
+## Step 13 — Implement ingestion logic
+
+Created:
+
+```
+logic/frontend_telemetry.go
+```
+
+Implemented:
+
+```
+IngestFrontendTelemetryEvent()
+```
+
+The final processing sequence is:
+
+```
+1. Get authenticated client
+2. Reject unauthenticated request
+3. Read request DTO
+4. Validate request
+5. Validate event version
+6. Validate event name
+7. Parse properties
+8. Obtain user ID from authenticated context
+9. Normalize event name and route
+10. Convert occurred_at to UTC
+11. Set received_at on the server
+12. Persist through repository
+```
+
+---
+
+# 10. API Implementation
+
+## Step 14 — Add dedicated API
+
+Created:
+
+```
+api/frontend_telemetry.go
+```
+
+API name:
+
+```
+FrontendTelemetry
+```
+
+Endpoint:
+
+```
+POST /frontend-telemetry
+```
+
+The endpoint requires authentication and delegates processing to:
+
+```
+IngestFrontendTelemetryEvent()
+```
+
+---
+
+## Step 15 — Register API at runtime
+
+Updated:
+
+```
+svc.go
+```
+
+Added:
+
+```
+api.NewFrontendTelemetry(businessLogic)
+```
+
+This makes the telemetry endpoint part of the running backend API definitions.
+
+---
+
+# 11. Normalization
+
+## Step 16 — Normalize event name and route
+
+The ingestion logic trims surrounding whitespace from:
+
+```
+event_name
+route
+```
+
+before storing them.
+
+### Why this fits here
+
+Normalization is performed at the storage boundary so that persisted telemetry has consistent values.
+
+The request validation itself uses a value receiver, so normalization was explicitly performed in the ingestion logic before creating the DAO record.
+
+---
+
+# 12. Testing
+
+## Step 17 — Add focused request tests
+
+Created:
+
+```
+http/rq/frontend_telemetry_test.go
+```
+
+Tests cover:
+
+- valid scalar properties
+- nested property rejection
+- array property rejection
+- invalid JSON
+- oversized properties
+- missing required event ID
+
+The focused test suite passed:
+
+```
+ok github.com/zolvat/svc/http/rq 0.215s
+```
+
+---
+
+## Step 18 — Compile verification
+
+Backend logic was formatted and compile-tested with:
+
+```bash
+go test ./logic -run '^$'
+```
+
+Result:
+
+```
+ok github.com/zolvat/svc/logic
+```
+
+---
+
+## Step 19 — Database integration test limitation
+
+A focused integration test was also created to verify that the authenticated client's ID is stored as the telemetry `user_id`.
+
+However, the existing Windows embedded PostgreSQL test harness failed during database setup with:
+
+```
+character with byte sequence 0xe2 0x86 0x92
+in encoding "UTF8" has no equivalent in encoding "WIN1252"
+```
+
+The failure occurs before the telemetry test itself executes.
+
+The running PostgreSQL container was separately verified as UTF-8.
+
+The shared embedded PostgreSQL test infrastructure was not modified because the encoding problem is an existing test-harness/environment issue rather than a telemetry implementation issue.
+
+---
+
+# 13. Edge Cases and Failure Handling
+
+## Unauthenticated request
+
+Rejected before processing.
+
+```
+authenticated client is required
+```
+
+## Missing event ID
+
+Rejected during request validation.
+
+## Unsupported event version
+
+Rejected by the business logic.
+
+## Unsupported event name
+
+Rejected by the backend allow-list.
+
+## Invalid JSON
+
+Rejected during request validation.
+
+## Nested property
+
+Rejected.
+
+## Array property
+
+Rejected.
+
+## Properties larger than 16 KB
+
+Rejected.
+
+## Duplicate event ID
+
+Handled by:
+
+```
+ON CONFLICT DO NOTHING
+```
+
+This prevents duplicate database records.
+
+## Database failure
+
+The ingestion logic returns an internal error rather than exposing the database failure details to the client.
+
+---
+
+# 14. Security and Privacy Considerations
+
+The implementation intentionally creates multiple privacy boundaries.
+
+### Server-side identity
+
+`user_id` is derived from authenticated backend context.
+
+### Event allow-list
+
+Only approved telemetry events can enter the dataset.
+
+### Property restrictions
+
+Only scalar values and `null` are allowed.
+
+### Payload size
+
+Properties are limited to 16 KB.
+
+### No application payload reuse
+
+Telemetry does not reuse arbitrary request or response bodies.
+
+### No tenant event reuse
+
+The business-event/outbox infrastructure is not used for frontend analytics.
+
+### No activity-log reuse
+
+Employee-oriented operational logging is not used as the telemetry store.
+
+### No S3/MinIO
+
+No unnecessary raw data lake or object-storage layer was introduced.
+
+---
+
+# 15. Performance Considerations
+
+The implementation is intentionally simple for the current expected telemetry volume.
+
+PostgreSQL is used as the ingestion store.
+
+Indexes were added for common access patterns:
+
+```
+user + occurred_at
+event_name + occurred_at
+occurred_at
+```
+
+Event insertion uses a single database record per telemetry event.
+
+Idempotency is handled by the unique `event_id` constraint and conflict-safe insertion.
+
+Batching and queueing were intentionally not introduced at this stage.
+
+---
+
+# 16. Data Flow
+
+## Before this task
+
+The frontend could generate telemetry events locally, but there was no generic production transport connecting those events to a backend telemetry dataset.
+
+```
+Frontend
+   ↓
+trackEvent()
+   ↓
+Browser CustomEvent
+```
+
+There was no completed generic ingestion path.
+
+---
+
+## After this task
+
+The backend ingestion path now exists:
+
+```
+Frontend
+   ↓
+Telemetry event
+   ↓
+POST /frontend-telemetry
+   ↓
+Authentication
+   ↓
+Request validation
+   ↓
+Event/version validation
+   ↓
+Property validation
+   ↓
+Server-side user attribution
+   ↓
+Repository
+   ↓
+PostgreSQL
+```
+
+The remaining missing connection is the frontend network transport.
+
+---
+
+# 17. Important Design Decisions
+
+| Decision | Why |
+| --- | --- |
+| Dedicated telemetry endpoint | Keeps telemetry separate from normal business APIs |
+| PostgreSQL storage | Matches current small-volume telemetry direction |
+| Server-side user ID | Prevents client-controlled identity attribution |
+| Event allow-list | Prevents arbitrary event types entering the dataset |
+| Version validation | Creates an explicit telemetry contract |
+| Scalar-only properties | Keeps telemetry predictable and privacy-safe |
+| 16 KB property limit | Prevents oversized telemetry payloads |
+| Unique event ID | Provides event-level idempotency |
+| `ON CONFLICT DO NOTHING` | Makes duplicate ingestion safe |
+| Dedicated DAO/repository | Keeps persistence concerns separate from API/business logic |
+| No tenant-event reuse | Existing system serves business events/webhooks, not browser analytics |
+| No activity-log reuse | Existing logs are employee-oriented and operational |
+| No S3/MinIO | Not required for the current small-volume PostgreSQL architecture |
+| Focused request tests | Allows validation testing without the problematic PostgreSQL harness |
+
+---
+
+# 18. Git Implementation State
+
+### Backend repository
+
+```
+Zolvat/svc
+```
+
+### Branch
+
+```
+feature/backend-telemetry
+```
+
+### Commit
+
+```
+09bcaa585
+```
+
+### Commit message
+
+```
+feat: add authenticated frontend telemetry ingestion
+```
+
+### Commit contents
+
+The commit added/modified 11 files covering:
+
+- API
+- DAO
+- migration
+- repository
+- request DTO
+- request tests
+- business logic
+- logic integration test
+- runtime registration
+- migration version
+
+The branch was successfully pushed to:
+
+```
+origin/feature/backend-telemetry
+```
+
+No pull request was created as part of this task.
+
+---
+
+# 19. Final Implementation State
+
+The backend frontend-telemetry ingestion layer is complete.
+
+Implemented:
+
+```
+Frontend telemetry contract       ✓
+Backend PostgreSQL table          ✓
+Database migration 292            ✓
+DAO                               ✓
+Repository                        ✓
+Authenticated API                 ✓
+Server-side user attribution      ✓
+Event allow-list                  ✓
+Event version validation          ✓
+Property validation               ✓
+Property size limit               ✓
+Event normalization               ✓
+Idempotent event storage          ✓
+Focused validation tests          ✓
+Compile verification              ✓
+Git commit                        ✓
+Remote branch pushed              ✓
+```
+
+The backend is now ready for the next phase:
+
+```
+Frontend trackEvent()
+        ↓
+Dedicated authenticated transport
+        ↓
+POST /frontend-telemetry
+        ↓
+Backend ingestion
+        ↓
+PostgreSQL
+```
+
+After end-to-end ingestion is verified, the project can move into the actual Data Engineering phase:
+
+```
+PostgreSQL ingestion
+        ↓
+Python ETL / ELT
+        ↓
+Staging
+        ↓
+Curated analytics tables
+        ↓
+Incremental processing
+        ↓
+Data quality checks
+        ↓
+Funnel / product metrics
+        ↓
+Grafana
+```
+
+The implementation deliberately stops at the backend ingestion boundary so the next phase can focus on connecting the frontend transport and then building the ETL pipeline
