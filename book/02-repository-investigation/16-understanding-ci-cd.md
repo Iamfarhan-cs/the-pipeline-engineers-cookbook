@@ -1276,7 +1276,7 @@ Before saying that you understand the repository's CI/CD setup, check:
 
 ## 45. What You Learned
 
-In this chapter, you learned how to investigate CI/CD as part of understanding a Data Engineering repository.
+In this recipe, you learned how to investigate CI/CD as part of understanding a Data Engineering repository.
 
 You learned how to:
 
