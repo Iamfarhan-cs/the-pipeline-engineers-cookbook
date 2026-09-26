@@ -1,4 +1,4 @@
-# Chapter 22 — Add Processing Status
+# Recipe 22 — Add Processing Status
 
 A pipeline needs to know more than whether a record exists.
 
