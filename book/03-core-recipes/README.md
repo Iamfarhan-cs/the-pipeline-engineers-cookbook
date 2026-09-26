@@ -49,46 +49,100 @@ OPERATE IT
 PROVE YOU ARE DONE
 ```
 
-## Recipe Collection
+## Learning Order
 
-### Ingestion and Data Boundaries
+The recipes are arranged in **beginner-to-production learning order**. Each recipe introduces a problem that prepares you for the next one.
 
-| Recipe | Topic | What you learn |
-|---|---|---|
-| [Recipe 17 — Create an Ingestion Pipeline](17-create-an-ingestion-pipeline.md) | Ingestion | Build a complete source-to-database pipeline. |
-| [Recipe 18 — Create a Staging Layer](18-create-a-staging-layer.md) | Staging | Create a durable boundary between ingestion and processing. |
-| [Recipe 19 — Validate Incoming Data](19-validate-incoming-data.md) | Validation | Detect invalid data before it reaches downstream processing. |
+### Stage 1 — Build the Pipeline
 
-### Reliability and Correctness
+| Recipe | Topic |
+|---|---|
+| [Recipe 17 — Create an Ingestion Pipeline](17-create-an-ingestion-pipeline.md) | Ingestion |
+| [Recipe 18 — Create a Staging Layer](18-create-a-staging-layer.md) | Staging |
+| [Recipe 19 — Validate Incoming Data](19-validate-incoming-data.md) | Validation |
 
-| Recipe | Topic | What you learn |
-|---|---|---|
-| [Recipe 20 — Add Idempotency](20-add-idempotency.md) | Idempotency | Make repeated delivery safe. |
-| [Recipe 21 — Add Deduplication](21-add-deduplication.md) | Deduplication | Detect and control duplicate logical records. |
-| [Recipe 22 — Add Processing Status](22-add-processing-status.md) | Processing state | Track what happened to each record. |
-| [Recipe 23 — Add Error Handling](23-add-error-handling.md) | Error handling | Classify failures and respond safely. |
-| [Recipe 24 — Add Retry Logic](24-add-retry-logic.md) | Retries | Retry transient failures without creating retry storms. |
-| [Recipe 25 — Replay / Reprocessing](25-replay-reprocessing.md) | Replay | Reprocess selected data safely and repeatedly. |
-| [Recipe 26 — Quarantine Failed Data](26-quarantine-failed-data.md) | Quarantine | Isolate failed records while preserving evidence for recovery. |
+### Stage 2 — Make the Pipeline Correct and Observable
 
-### Historical and Incremental Processing
+| Recipe | Topic |
+|---|---|
+| [Recipe 20 — Add Error Handling](20-add-error-handling.md) | Error handling |
+| [Recipe 21 — Add Processing Status](21-add-processing-status.md) | Processing state |
+| [Recipe 22 — Add Idempotency](22-add-idempotency.md) | Idempotency |
+| [Recipe 23 — Add Deduplication](23-add-deduplication.md) | Deduplication |
 
-| Recipe | Topic | What you learn |
-|---|---|---|
-| [Recipe 27 — Backfill Historical Data](27-backfill-historical-data.md) | Backfill | Process historical ranges safely without overwhelming the pipeline. |
-| [Recipe 28 — Incremental Processing](28-incremental-processing.md) | Incremental loads | Process only new or changed data using a durable progress boundary. |
-| [Recipe 29 — Checkpointing](29-checkpointing.md) | Checkpoints | Persist safe processing progress and recover after crashes. |
-| [Recipe 30 — Handle Late Data](30-handle-late-data.md) | Late data | Handle events that arrive after their expected processing window. |
-| [Recipe 31 — Handle Missing Data](31-handle-missing-data.md) | Completeness | Detect missing records, windows, files, or partitions and recover safely. |
-| [Recipe 32 — Data Reconciliation](32-data-reconciliation.md) | Reconciliation | Prove that source and target states agree according to defined controls. |
+### Stage 3 — Recover from Failure
 
-### Data Quality and Pipeline Evolution
+| Recipe | Topic |
+|---|---|
+| [Recipe 24 — Add Retry Logic](24-add-retry-logic.md) | Retries |
+| [Recipe 25 — Quarantine Failed Data](25-quarantine-failed-data.md) | Quarantine |
+| [Recipe 26 — Replay / Reprocessing](26-replay-reprocessing.md) | Replay |
 
-| Recipe | Topic | What you learn |
-|---|---|---|
-| [Recipe 33 — Dead-Letter / Data-Quality Lifecycle](33-dead-letter-dq-lifecycle.md) | DLQ / DQ lifecycle | Move failed data through detection, investigation, repair, replay, and final state. |
-| [Recipe 34 — Handle Schema Changes](34-handle-schema-changes.md) | Schema evolution | Detect schema changes and apply safe compatibility and migration patterns. |
-| [Recipe 35 — Handle Backpressure](35-handle-backpressure.md) | Backpressure | Detect downstream pressure, bound work, and recover without uncontrolled overload. |
+### Stage 4 — Process Data Efficiently
+
+| Recipe | Topic |
+|---|---|
+| [Recipe 27 — Incremental Processing](27-incremental-processing.md) | Incremental processing |
+| [Recipe 28 — Checkpointing](28-checkpointing.md) | Checkpoints |
+| [Recipe 29 — Backfill Historical Data](29-backfill-historical-data.md) | Backfill |
+
+### Stage 5 — Handle Real-World Data Problems
+
+| Recipe | Topic |
+|---|---|
+| [Recipe 30 — Handle Late Data](30-handle-late-data.md) | Late data |
+| [Recipe 31 — Handle Missing Data](31-handle-missing-data.md) | Completeness |
+| [Recipe 32 — Data Reconciliation](32-data-reconciliation.md) | Reconciliation |
+
+### Stage 6 — Evolve and Operate the Pipeline
+
+| Recipe | Topic |
+|---|---|
+| [Recipe 33 — Handle Schema Changes](33-handle-schema-changes.md) | Schema evolution |
+| [Recipe 34 — Handle Backpressure](34-handle-backpressure.md) | Backpressure |
+| [Recipe 35 — Dead-Letter / Data-Quality Lifecycle](35-dead-letter-dq-lifecycle.md) | DLQ / DQ lifecycle |
+
+## The Complete Learning Path
+
+```text
+17 Ingestion
+ ↓
+18 Staging
+ ↓
+19 Validation
+ ↓
+20 Error Handling
+ ↓
+21 Processing Status
+ ↓
+22 Idempotency
+ ↓
+23 Deduplication
+ ↓
+24 Retry Logic
+ ↓
+25 Quarantine
+ ↓
+26 Replay / Reprocessing
+ ↓
+27 Incremental Processing
+ ↓
+28 Checkpointing
+ ↓
+29 Backfill
+ ↓
+30 Late Data
+ ↓
+31 Missing Data
+ ↓
+32 Reconciliation
+ ↓
+33 Schema Changes
+ ↓
+34 Backpressure
+ ↓
+35 Dead-Letter / Data-Quality Lifecycle
+```
 
 ## Standard Recipe Structure
 
