@@ -1347,6 +1347,20 @@ When a schema change is detected:
 ---
 
 
+## Production Tools You Should Know
+
+These tools solve or provide production implementations of concepts covered in this recipe. Learn what the tool provides, but understand the underlying problem first.
+
+| Tool | What to know |
+|---|---|
+| **Confluent Schema Registry** | Central schema storage, compatibility checks, and versioning. |
+| **AWS Glue Schema Registry** | Managed schema registry and compatibility controls. |
+| **Apicurio Registry** | Open-source schema and artifact registry. |
+
+> These are reference tools for recognition and vocabulary, not substitutes for understanding the engineering mechanism.
+
+---
+
 ## Implementation Lab — Runnable Schema-Change Detection and Migration
 
 The implementation below creates a canonical schema representation, fingerprints it, diffs versions, validates payloads, and demonstrates an expand-and-contract database migration.
