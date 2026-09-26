@@ -75,7 +75,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | E39 | [Database CDC](E39-database-cdc.md) |
 | E40 | [Transaction Log CDC](E40-transaction-log-cdc.md) |
 | E41 | [Snapshot Extraction](E41-snapshot-extraction.md) |
-| E42 | Consistent Database Snapshots |
+| E42 | [Consistent Database Snapshots](E42-consistent-database-snapshots.md) |
 | E43 | Database Connection Pooling |
 | E44 | Database Extraction Batching |
 | E45 | Database Extraction Parallelism |
