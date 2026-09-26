@@ -1,4 +1,4 @@
-# Chapter 25 — Replay / Reprocessing
+# Recipe 25 — Replay / Reprocessing
 
 Sometimes retry is not enough.
 
