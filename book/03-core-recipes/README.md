@@ -55,20 +55,20 @@ PROVE YOU ARE DONE
 
 | Recipe | Topic |
 |---:|---|
-| [Recipe 1 — Create an Ingestion Pipeline](1-create-an-ingestion-pipeline.md) | Ingestion |
-| [Recipe 2 — Create a Staging Layer](2-create-a-staging-layer.md) | Staging |
-| [Recipe 3 — Validate Incoming Data](3-validate-incoming-data.md) | Boundary validation |
-| [Recipe 4 — Add Error Handling](4-add-error-handling.md) | Error classification |
-| [Recipe 5 — Add Processing Status](5-add-processing-status.md) | Processing state |
+| [Recipe 1 — Create an Ingestion Pipeline](01-create-an-ingestion-pipeline.md) | Ingestion |
+| [Recipe 2 — Create a Staging Layer](02-create-a-staging-layer.md) | Staging |
+| [Recipe 3 — Validate Incoming Data](03-validate-incoming-data.md) | Boundary validation |
+| [Recipe 4 — Add Error Handling](04-add-error-handling.md) | Error classification |
+| [Recipe 5 — Add Processing Status](05-add-processing-status.md) | Processing state |
 
 ### Stage 2 — Make Execution Safe
 
 | Recipe | Topic |
 |---:|---|
-| [Recipe 6 — Add Idempotency](6-add-idempotency.md) | Safe repeated execution |
-| [Recipe 7 — Add Deduplication](7-add-deduplication.md) | Duplicate records |
-| [Recipe 8 — Add Retry Logic](8-add-retry-logic.md) | Bounded retries |
-| [Recipe 9 — Quarantine Failed Data](9-quarantine-failed-data.md) | Failure isolation |
+| [Recipe 6 — Add Idempotency](06-add-idempotency.md) | Safe repeated execution |
+| [Recipe 7 — Add Deduplication](07-add-deduplication.md) | Duplicate records |
+| [Recipe 8 — Add Retry Logic](08-add-retry-logic.md) | Bounded retries |
+| [Recipe 9 — Quarantine Failed Data](09-quarantine-failed-data.md) | Failure isolation |
 | [Recipe 10 — Replay / Reprocessing](10-replay-reprocessing.md) | Controlled recovery |
 
 ### Stage 3 — Process Data Correctly and Efficiently
