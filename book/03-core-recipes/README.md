@@ -106,6 +106,7 @@ PROVE YOU ARE DONE
 | [Recipe 29 — Pipeline Logging](29-pipeline-logging.md) | Structured execution evidence and correlation |
 | [Recipe 30 — Pipeline Metrics](30-pipeline-metrics.md) | Measurable pipeline health, performance and data signals |
 | [Recipe 31 — Bottleneck Detection](31-bottleneck-detection.md) | Finding limiting pipeline constraints |
+| [Recipe 32 — Concurrency & Parallel Processing](32-concurrency-and-parallel-processing.md) | Controlled parallel execution and capacity management |
 
 ## Learning Order
 
@@ -172,7 +173,9 @@ PROVE YOU ARE DONE
    ↓
 31 Bottleneck Detection
    ↓
-32+
+32 Concurrency & Parallel Processing
+   ↓
+33+
 Future Core Recipes
 ~~~
 
