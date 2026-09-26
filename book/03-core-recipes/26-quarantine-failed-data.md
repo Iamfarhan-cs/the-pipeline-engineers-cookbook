@@ -1,4 +1,4 @@
-# Chapter 26 — Quarantine Failed Data
+# Recipe 26 — Quarantine Failed Data
 
 Not every failed record should be retried forever.
 
