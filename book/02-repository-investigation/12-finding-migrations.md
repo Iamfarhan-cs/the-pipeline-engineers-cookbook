@@ -1,4 +1,4 @@
-# Chapter 12 — Finding Migrations
+# Recipe 12 — Finding Migrations
 
 Database migrations are one of the most important parts of a Data Engineering repository.
 
