@@ -1,4 +1,4 @@
-# Recipe 13 — Finding Tests
+# Chapter 13 — Finding Tests
 
 Tests are one of the best sources of information in an unfamiliar Data Engineering repository.
 
