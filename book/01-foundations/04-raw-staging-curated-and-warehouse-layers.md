@@ -1,4 +1,4 @@
-# Recipe 4 — Raw, Staging, Curated and Warehouse Layers
+# Chapter 4 — Raw, Staging, Curated and Warehouse Layers
 
 A data pipeline usually has more than one place where data lives.
 
