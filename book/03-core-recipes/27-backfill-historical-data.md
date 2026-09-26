@@ -1,4 +1,4 @@
-# Chapter 27 — Backfill Historical Data
+# Recipe 27 — Backfill Historical Data
 
 A production pipeline usually processes new data as it arrives.
 
