@@ -2185,25 +2185,3 @@ The remaining questions turn a script into an engineering system.
 That distinction is the foundation of the recipes in Part III.
 
 ---
-
-## Next Recipe
-
-Direct ingestion is useful for learning, but production systems often benefit from separating incoming data from processed data.
-
-That gives us a controlled place to inspect, validate, retry, and process incoming records.
-
-Next: **Chapter 18 — Create a Staging Layer**## Production Tools You Should Know
-
-These tools solve or provide production implementations of concepts covered in this recipe. Learn what the tool provides, but understand the underlying problem first.
-
-| Tool | What to know |
-|---|---|
-| **Requests** | HTTP/API source communication from Python. |
-| **PostgreSQL** | Common durable destination for ingestion pipelines. |
-| **Docker Compose** | Reproducible local pipeline infrastructure. |
-
-> These are reference tools for recognition and vocabulary, not substitutes for understanding the engineering mechanism.
-
----
-
-.
