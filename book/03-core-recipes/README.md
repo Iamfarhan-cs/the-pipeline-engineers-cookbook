@@ -1,5 +1,7 @@
 # Part III — Core Pipeline Recipes
 
+> **ETL taxonomy:** See [ETL-ROADMAP.md](ETL-ROADMAP.md) for the complete Extract → Transform → Load recipe map and the cross-cutting production ETL taxonomy.
+
 Part III is the practical implementation section of the book.
 
 > **Important numbering rule:** Part III has its **own independent recipe sequence**. Core recipes start at **Recipe 1** and continue onward. Their numbers are separate from the chapter numbering used by the rest of the book.
@@ -225,3 +227,14 @@ A recipe is complete when you can independently:
 The goal is not to memorize recipes.
 
 The goal is to develop the ability to recognize and solve recurring Data Engineering problems independently.
+
+## ETL Learning Model
+
+The Core Recipes are now organized conceptually into four ETL domains:
+
+1. **Extract** — obtain data reliably from APIs, databases, files, queues, and SaaS systems.
+2. **Transform** — clean, validate, join, aggregate, enrich, model, and optimize data.
+3. **Load** — write data safely and efficiently into databases, warehouses, and storage systems.
+4. **Cross-Cutting Production ETL** — apply reliability, concurrency, observability, security, recovery, and operational controls across all three stages.
+
+The existing numbered recipes remain the implementation history and foundational reliability sequence. New ETL-specific recipes should follow the canonical taxonomy in `ETL-ROADMAP.md`.
