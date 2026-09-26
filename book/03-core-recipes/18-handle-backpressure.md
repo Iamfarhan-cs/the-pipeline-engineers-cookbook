@@ -599,13 +599,13 @@ If the producer can observe downstream pressure:
 
 Example pseudocode:
 
-~~~python
+```python
 while events:
     if downstream_has_capacity():
         send(events.pop())
     else:
         sleep(backoff_interval)
-~~~
+```
 
 The important property is:
 
@@ -621,19 +621,19 @@ A consumer can control how much work it pulls.
 
 Instead of:
 
-~~~python
+```python
 while True:
     batch = read_all_available()
     process(batch)
-~~~
+```
 
 Use bounded consumption:
 
-~~~python
+```python
 while True:
     batch = read_batch(max_records=500)
     process(batch)
-~~~
+```
 
 This prevents the consumer from loading an unbounded amount of work into memory.
 
@@ -866,13 +866,13 @@ An in-memory queue is especially dangerous.
 
 Example:
 
-~~~python
+```python
 events = []
 
 while True:
     events.extend(read_events())
     process(events)
-~~~
+```
 
 If processing falls behind, memory grows.
 
@@ -880,9 +880,9 @@ A safer design uses a bounded queue.
 
 Conceptually:
 
-~~~python
+```python
 queue = BoundedQueue(max_items=10_000)
-~~~
+```
 
 When full:
 
