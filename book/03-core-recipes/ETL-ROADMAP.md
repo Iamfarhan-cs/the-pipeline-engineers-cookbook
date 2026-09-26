@@ -97,7 +97,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | E52 | [File Completeness Detection](E52-file-completeness-detection.md) |
 | E53 | [File Validation — ETL Application](E53-file-validation-etl-application.md) |
 | E54 | [CSV Extraction — ETL Application](E54-csv-extraction-etl-application.md) |
-| E55 | JSON Extraction — ETL Application |
+| E55 | [JSON Extraction — ETL Application](E55-json-extraction-etl-application.md) |
 | E56 | JSONL Extraction |
 | E57 | XML Extraction — ETL Application |
 | E58 | Parquet Extraction |
