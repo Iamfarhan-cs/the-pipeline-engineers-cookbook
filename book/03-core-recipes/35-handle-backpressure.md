@@ -1842,6 +1842,300 @@ Production traffic contains bursts and dependency degradation.
 
 ---
 
+
+## Implementation Lab — Runnable Backpressure Controller
+
+This implementation demonstrates a bounded queue, producer blocking, consumer throughput, pressure metrics, and recovery. It is deliberately small enough to run locally and understand before applying the same ideas to Kafka, RabbitMQ, APIs, or database workers.
+
+### 1. Bounded queue
+
+```python
+# src/backpressure.py
+from dataclasses import dataclass
+from queue import Queue, Full, Empty
+from threading import Thread
+import time
+
+
+@dataclass
+class Metrics:
+    accepted: int = 0
+    completed: int = 0
+    blocked: int = 0
+
+
+class BackpressurePipeline:
+    def __init__(self, max_queue: int = 100):
+        self.queue = Queue(maxsize=max_queue)
+        self.metrics = Metrics()
+        self.running = True
+
+    def submit(self, event: dict, timeout: float = 0.1) -> bool:
+        try:
+            self.queue.put(event, timeout=timeout)
+            self.metrics.accepted += 1
+            return True
+        except Full:
+            self.metrics.blocked += 1
+            return False
+
+    def consume(self, processing_seconds: float = 0.01):
+        while self.running:
+            try:
+                event = self.queue.get(timeout=0.1)
+            except Empty:
+                continue
+
+            try:
+                time.sleep(processing_seconds)
+                self.metrics.completed += 1
+            finally:
+                self.queue.task_done()
+
+    def stop(self):
+        self.running = False
+
+    def backlog(self) -> int:
+        return self.queue.qsize()
+```
+
+### 2. Tests
+
+```python
+# tests/test_backpressure.py
+from src.backpressure import BackpressurePipeline
+
+
+def test_queue_is_bounded():
+    pipeline = BackpressurePipeline(max_queue=2)
+
+    assert pipeline.submit({"id": 1})
+    assert pipeline.submit({"id": 2})
+    assert pipeline.submit({"id": 3}, timeout=0) is False
+
+    assert pipeline.backlog() == 2
+    assert pipeline.metrics.blocked == 1
+
+
+def test_consumer_releases_queue_capacity():
+    pipeline = BackpressurePipeline(max_queue=1)
+
+    assert pipeline.submit({"id": 1})
+    assert pipeline.backlog() == 1
+
+    pipeline.queue.get_nowait()
+    pipeline.queue.task_done()
+
+    assert pipeline.submit({"id": 2}, timeout=0)
+```
+
+### 3. Producer/consumer rate experiment
+
+Run this small experiment:
+
+```python
+# examples/pressure_demo.py
+from src.backpressure import BackpressurePipeline
+from threading import Thread
+import time
+
+
+pipeline = BackpressurePipeline(max_queue=100)
+
+worker = Thread(
+    target=pipeline.consume,
+    kwargs={"processing_seconds": 0.01},
+    daemon=True,
+)
+worker.start()
+
+for i in range(500):
+    accepted = pipeline.submit({"id": i}, timeout=0)
+    if not accepted:
+        print("PRODUCER BLOCKED", i)
+
+    time.sleep(0.001)
+
+time.sleep(2)
+
+print("accepted =", pipeline.metrics.accepted)
+print("completed =", pipeline.metrics.completed)
+print("blocked =", pipeline.metrics.blocked)
+print("backlog =", pipeline.backlog())
+
+pipeline.stop()
+```
+
+The producer attempts roughly 1,000 events/sec while the consumer can process roughly 100 events/sec.
+
+The queue should fill and producer blocking should become visible.
+
+### 4. Calculate drain time
+
+```python
+def estimate_drain_time(
+    backlog: int,
+    arrival_rate: float,
+    processing_rate: float,
+) -> float | None:
+    net_drain_rate = processing_rate - arrival_rate
+
+    if net_drain_rate <= 0:
+        return None
+
+    return backlog / net_drain_rate
+```
+
+Test:
+
+```python
+assert estimate_drain_time(600_000, 4_000, 10_000) == 100.0
+assert estimate_drain_time(600_000, 8_000, 10_000) == 300.0
+assert estimate_drain_time(600_000, 10_000, 10_000) is None
+```
+
+### 5. Pressure state
+
+```python
+def pressure_state(
+    backlog: int,
+    oldest_age_seconds: float,
+    warning_backlog: int = 10_000,
+    critical_backlog: int = 100_000,
+) -> str:
+    if backlog >= critical_backlog or oldest_age_seconds >= 300:
+        return "CRITICAL"
+
+    if backlog >= warning_backlog or oldest_age_seconds >= 30:
+        return "PRESSURED"
+
+    if backlog > 0:
+        return "ELEVATED"
+
+    return "NORMAL"
+```
+
+### 6. PostgreSQL queue accounting
+
+For a database-backed worker, persist durable work state rather than relying on RAM:
+
+```sql
+CREATE TABLE work_queue (
+    event_id      TEXT PRIMARY KEY,
+    payload       JSONB NOT NULL,
+    status        TEXT NOT NULL
+        CHECK (status IN ('READY', 'PROCESSING', 'DONE', 'FAILED')),
+    available_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    claimed_at    TIMESTAMPTZ,
+    completed_at  TIMESTAMPTZ
+);
+
+CREATE INDEX idx_work_queue_ready
+    ON work_queue (available_at)
+    WHERE status = 'READY';
+```
+
+Claim a bounded batch:
+
+```sql
+WITH claimed AS (
+    SELECT event_id
+    FROM work_queue
+    WHERE status = 'READY'
+      AND available_at <= now()
+    ORDER BY available_at
+    FOR UPDATE SKIP LOCKED
+    LIMIT 100
+)
+UPDATE work_queue w
+SET
+    status = 'PROCESSING',
+    claimed_at = now()
+FROM claimed
+WHERE w.event_id = claimed.event_id
+RETURNING w.*;
+```
+
+This prevents one worker from claiming unlimited work.
+
+### 7. Intentional overload drill
+
+Configure:
+
+```text
+producer = 1,000 events/sec
+consumer  = 100 events/sec
+queue     = 100 events
+```
+
+Expected:
+
+```text
+queue fills
+    ↓
+producer blocks
+    ↓
+backpressure becomes visible
+    ↓
+no unlimited memory growth
+```
+
+Now increase consumer capacity to 2,000 events/sec.
+
+Expected:
+
+```text
+backlog drains
+    ↓
+pressure decreases
+    ↓
+state returns to NORMAL
+```
+
+### 8. Retry-amplification drill
+
+Add a simulated dependency failure:
+
+```python
+def call_dependency(event: dict) -> None:
+    raise TimeoutError("dependency timeout")
+```
+
+Do not write:
+
+```python
+while True:
+    try:
+        call_dependency(event)
+        break
+    except TimeoutError:
+        continue
+```
+
+That creates an uncontrolled retry loop.
+
+Use bounded retries:
+
+```python
+import random
+import time
+
+
+def call_with_backoff(operation, max_attempts: int = 5):
+    for attempt in range(max_attempts):
+        try:
+            return operation()
+        except TimeoutError:
+            if attempt == max_attempts - 1:
+                raise
+
+            delay = min(30, 2 ** attempt) + random.uniform(0, 0.5)
+            time.sleep(delay)
+```
+
+The combination of bounded queues, bounded concurrency, and bounded retries prevents pressure from becoming a feedback loop.
+
+
 ## 56. Definition of Done
 
 - [ ] Every major pipeline stage is mapped.
