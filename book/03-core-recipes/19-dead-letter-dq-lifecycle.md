@@ -359,7 +359,7 @@ Do not introduce object storage simply because it is fashionable. Use it when th
 
 A practical relational model could look like:
 
-~~~sql
+```sql
 CREATE TABLE dead_letter_records (
     dead_letter_id BIGSERIAL PRIMARY KEY,
     event_id TEXT NOT NULL,
@@ -376,7 +376,7 @@ CREATE TABLE dead_letter_records (
     resolved_at TIMESTAMPTZ,
     replayed_at TIMESTAMPTZ
 );
-~~~
+```
 
 This is only an example.
 
@@ -579,7 +579,7 @@ For production data-quality systems, capturing all relevant validation violation
 
 Example:
 
-~~~json
+```json
 {
   "failure_code": "DATA_QUALITY_FAILED",
   "violations": [
@@ -588,7 +588,7 @@ Example:
     "NEGATIVE_AMOUNT"
   ]
 }
-~~~
+```
 
 The choice should match downstream operational needs.
 
@@ -600,7 +600,7 @@ Instead of only returning TRUE/FALSE, return structured results.
 
 Example:
 
-~~~json
+```json
 {
   "valid": false,
   "violations": [
@@ -611,7 +611,7 @@ Example:
     }
   ]
 }
-~~~
+```
 
 This makes the validation layer reusable.
 
@@ -1173,13 +1173,13 @@ Do not create thresholds without understanding the dataset's normal behavior and
 
 Input:
 
-~~~json
+```json
 {
   "event_id": "E1",
   "amount": 100,
   "currency": "EUR"
 }
-~~~
+```
 
 Expected:
 
@@ -1193,12 +1193,12 @@ Expected:
 
 Input:
 
-~~~json
+```json
 {
   "amount": 100,
   "currency": "EUR"
 }
-~~~
+```
 
 Expected:
 
@@ -1213,13 +1213,13 @@ The original payload must remain recoverable.
 
 Input:
 
-~~~json
+```json
 {
   "event_id": "E2",
   "amount": 100,
   "currency": "XYZ"
 }
-~~~
+```
 
 Expected:
 
@@ -1592,13 +1592,13 @@ For an existing pipeline:
 
 Input:
 
-~~~json
+```json
 {
   "event_id": "PAY-1001",
   "amount": 250,
   "currency": "EURO"
 }
-~~~
+```
 
 Validation:
 
@@ -1648,7 +1648,7 @@ The important point is that the lifecycle has evidence at every step.
 
 ## 56. Example Lifecycle Record
 
-~~~text
+```text
 dead_letter_id = 5001
 event_id = PAY-1001
 
@@ -1668,7 +1668,7 @@ status:
 replay_attempts = 1
 replayed_at = <timestamp>
 resolved_at = <timestamp>
-~~~
+```
 
 A real implementation may normalize this into multiple audit tables rather than storing a state history in one row.
 
