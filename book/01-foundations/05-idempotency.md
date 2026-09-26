@@ -6,10 +6,10 @@ This sounds simple. In practice, it is one of the most important ideas in Data E
 
 Consider a pipeline that receives this event:
 
-~~~text
+```text
 event_id = 1001
 amount   = 250
-~~~
+```
 
 The pipeline processes it successfully.
 
@@ -17,13 +17,13 @@ Later, the same event is received again.
 
 If the pipeline inserts it again, the result may become:
 
-~~~text
+```text
 event_id = 1001
 amount   = 250
 
 event_id = 1001
 amount   = 250
-~~~
+```
 
 The pipeline processed the same input twice. This is a duplicate.
 
@@ -47,9 +47,9 @@ An operation is idempotent when repeating the same operation does not keep chang
 
 A simple mathematical idea is:
 
-~~~text
+```text
 f(f(x)) = f(x)
-~~~
+```
 
 In pipeline engineering, the idea is more practical.
 
@@ -57,7 +57,7 @@ Suppose an event should create one database record.
 
 First execution:
 
-~~~text
+```text
 Event A
    |
    v
@@ -65,11 +65,11 @@ Database
    |
    v
 One record
-~~~
+```
 
 Second execution of the same event:
 
-~~~text
+```text
 Event A
    |
    v
@@ -77,7 +77,7 @@ Database
    |
    v
 Still one record
-~~~
+```
 
 The second execution does not create another copy.
 
@@ -97,7 +97,7 @@ Without idempotency, a retry can turn a temporary failure into a data correctnes
 
 For example:
 
-~~~text
+```text
 Source
   |
   v
@@ -108,7 +108,7 @@ Database insert
   |
   X
 Response lost
-~~~
+```
 
 The database may have successfully inserted the record.
 
@@ -156,21 +156,21 @@ Deduplication identifies duplicate records or events.
 
 For example:
 
-~~~text
+```text
 Event A
 Event A
 Event B
 Event C
 Event C
-~~~
+```
 
 A deduplication process may reduce this to:
 
-~~~text
+```text
 Event A
 Event B
 Event C
-~~~
+```
 
 ## Idempotency
 
@@ -178,10 +178,10 @@ Idempotency makes repeated processing safe.
 
 For example:
 
-~~~text
+```text
 Process Event A
 Process Event A again
-~~~
+```
 
 The final state should still represent one intended processing result.
 
@@ -199,7 +199,7 @@ Duplicates can happen for many reasons.
 
 A request fails or times out and is retried.
 
-~~~text
+```text
 Attempt 1
    |
    X
@@ -207,7 +207,7 @@ Retry
    |
    v
 Attempt 2
-~~~
+```
 
 The first attempt may have already changed the destination.
 
@@ -215,7 +215,7 @@ The first attempt may have already changed the destination.
 
 A message may be delivered again.
 
-~~~text
+```text
 Message A
    |
    v
@@ -226,7 +226,7 @@ Processing acknowledgement lost
    |
    v
 Message A delivered again
-~~~
+```
 
 The consumer now sees the same message again.
 
@@ -234,7 +234,7 @@ The consumer now sees the same message again.
 
 A batch job may fail after processing part of its input.
 
-~~~text
+```text
 Records 1 2 3 4 5
           |
           v
@@ -248,7 +248,7 @@ Restart
           |
           v
 Process 1 2 3 4 5
-~~~
+```
 
 Records 1, 2, and 3 may be processed twice.
 
@@ -270,7 +270,7 @@ Distributed systems often have an uncomfortable situation: the client does not k
 
 For example:
 
-~~~text
+```text
 Client
   |
   | request
@@ -286,7 +286,7 @@ Network response lost
   |
   v
 Client thinks request failed
-~~~
+```
 
 The client retries.
 
@@ -308,33 +308,33 @@ That identifier is often the foundation of idempotency.
 
 For an event, it may be:
 
-~~~text
+```text
 event_id
-~~~
+```
 
 For a transaction, it may be:
 
-~~~text
+```text
 transaction_id
-~~~
+```
 
 For a source record, it may be:
 
-~~~text
+```text
 source_record_id
-~~~
+```
 
 For a file, it may be:
 
-~~~text
+```text
 file_id
-~~~
+```
 
 For a batch, it may be:
 
-~~~text
+```text
 batch_id
-~~~
+```
 
 The correct key depends on the system.
 
@@ -348,15 +348,15 @@ An **idempotency key** is an identifier used to recognize that a request or oper
 
 A generic request might contain:
 
-~~~text
+```text
 idempotency_key = abc-123
-~~~
+```
 
 The server can use that key to determine whether the operation has already been completed.
 
 For example:
 
-~~~text
+```text
 Request 1
 key = abc-123
    |
@@ -374,7 +374,7 @@ Already processed
    |
    v
 Return existing result
-~~~
+```
 
 The second request does not create another operation.
 
@@ -384,24 +384,24 @@ The second request does not create another operation.
 
 Event-driven pipelines often already have a useful identifier.
 
-~~~json
+```json
 {
   "event_id": "evt-1001",
   "event_name": "payment_created",
   "amount": 250
 }
-~~~
+```
 
 The event ID can be used to protect the destination from duplicate processing.
 
 A generic database design might use:
 
-~~~sql
+```sql
 CREATE TABLE processed_events (
     event_id TEXT PRIMARY KEY,
     processed_at TIMESTAMP NOT NULL
 );
-~~~
+```
 
 This is a generic example.
 
@@ -417,12 +417,12 @@ A database can enforce uniqueness.
 
 For example:
 
-~~~sql
+```sql
 CREATE TABLE payments (
     payment_id TEXT PRIMARY KEY,
     amount NUMERIC NOT NULL
 );
-~~~
+```
 
 If the pipeline attempts to insert the same payment twice, the database can reject the second insert because the primary key already exists.
 
@@ -436,7 +436,7 @@ Application-level checks can have race conditions.
 
 For example:
 
-~~~text
+```text
 Worker A: Does ID exist?
 Worker B: Does ID exist?
 
@@ -445,7 +445,7 @@ Worker B: No
 
 Worker A: Insert
 Worker B: Insert
-~~~
+```
 
 If there is no database uniqueness constraint, both workers may insert the record.
 
@@ -462,15 +462,15 @@ A common implementation is:
 
 Conceptually:
 
-~~~sql
+```sql
 SELECT 1
 FROM payments
 WHERE payment_id = 'pay-1001';
-~~~
+```
 
 Then:
 
-~~~sql
+```sql
 INSERT INTO payments (
     payment_id,
     amount
@@ -479,7 +479,7 @@ VALUES (
     'pay-1001',
     250
 );
-~~~
+```
 
 The problem is concurrency.
 
@@ -501,7 +501,7 @@ Depending on the database, the application can then use an atomic insert or upse
 
 A database may support an operation conceptually like:
 
-~~~sql
+```sql
 INSERT INTO payments (
     payment_id,
     amount
@@ -512,7 +512,7 @@ VALUES (
 )
 ON CONFLICT (payment_id)
 DO NOTHING;
-~~~
+```
 
 This is a PostgreSQL example.
 
@@ -522,11 +522,11 @@ If the record already exists, the second operation does nothing.
 
 The result is:
 
-~~~text
+```text
 First attempt  -> inserted
 Second attempt -> no duplicate
 Third attempt  -> no duplicate
-~~~
+```
 
 This is a common way to make inserts idempotent.
 
@@ -538,23 +538,23 @@ The exact SQL depends on the database.
 
 Sometimes the desired behavior is:
 
-~~~text
+```text
 First request:
 Create record
 
 Repeated request:
 Return the existing record
-~~~
+```
 
 Sometimes the desired behavior is:
 
-~~~text
+```text
 First request:
 Create record
 
 Repeated request:
 Update the existing record
-~~~
+```
 
 Both can be valid.
 
@@ -566,26 +566,26 @@ Idempotency is about the final intended result, not about one specific SQL techn
 
 Suppose a source sends customer status:
 
-~~~text
+```text
 customer_id = 100
 status = ACTIVE
-~~~
+```
 
 The pipeline receives the same event again.
 
 The desired final state may simply remain:
 
-~~~text
+```text
 customer_id = 100
 status = ACTIVE
-~~~
+```
 
 A later event may change it:
 
-~~~text
+```text
 customer_id = 100
 status = SUSPENDED
-~~~
+```
 
 Now the system needs to distinguish between:
 
@@ -602,29 +602,29 @@ Not every operation behaves the same way.
 
 Consider:
 
-~~~text
+```text
 Set balance to 100
-~~~
+```
 
 Repeating it can be idempotent:
 
-~~~text
+```text
 Set balance to 100
 Set balance to 100
-~~~
+```
 
 Now consider:
 
-~~~text
+```text
 Increase balance by 100
-~~~
+```
 
 Repeating it:
 
-~~~text
+```text
 Increase balance by 100
 Increase balance by 100
-~~~
+```
 
 produces a different result.
 
@@ -653,13 +653,13 @@ Suppose an event causes an email to be sent.
 
 If the event is processed twice:
 
-~~~text
+```text
 Event
   |
   +--> Email
   |
   +--> Email
-~~~
+```
 
 The user may receive two emails.
 
@@ -673,20 +673,20 @@ Therefore, idempotency must be considered across the entire operation.
 
 Suppose a pipeline calls another service:
 
-~~~text
+```text
 Pipeline
    |
    v
 External API
-~~~
+```
 
 The external API may support an idempotency key.
 
 For example:
 
-~~~text
+```text
 idempotency_key = evt-1001
-~~~
+```
 
 The pipeline sends the same key on retries.
 
@@ -715,11 +715,11 @@ Database transactions can help maintain correctness, but a transaction does not 
 
 Suppose the pipeline performs:
 
-~~~text
+```text
 1. Insert database record
 2. Call external API
 3. Commit
-~~~
+```
 
 If the external API succeeds but the transaction fails, a retry may call the external API again.
 
@@ -759,7 +759,7 @@ Batch jobs need idempotency too.
 
 Consider a batch:
 
-~~~text
+```text
 Batch 2026-09-26
 Records:
 A
@@ -767,7 +767,7 @@ B
 C
 D
 E
-~~~
+```
 
 The job processes A, B, and C, then fails.
 
@@ -779,9 +779,9 @@ A safer design uses a stable identity for each source record.
 
 For example:
 
-~~~text
+```text
 source_record_id
-~~~
+```
 
 Then the destination can enforce uniqueness.
 
@@ -793,11 +793,11 @@ Streaming systems face the same problem continuously.
 
 Suppose a consumer receives:
 
-~~~text
+```text
 Event 1
 Event 2
 Event 3
-~~~
+```
 
 It processes Event 3 but crashes before acknowledging it.
 
@@ -827,23 +827,23 @@ The pipeline needs to replay historical events.
 
 Without idempotency:
 
-~~~text
+```text
 Existing data
      +
 Replayed data
      =
 Potential duplicates
-~~~
+```
 
 With a suitable idempotent design:
 
-~~~text
+```text
 Existing data
      +
 Replayed data
      =
 Correct intended state
-~~~
+```
 
 This does not mean every replay is automatically safe.
 
@@ -910,13 +910,13 @@ Ask:
 
 For example:
 
-~~~text
+```text
 event_id
 transaction_id
 source_record_id
 file_id
 batch_id
-~~~
+```
 
 Do not assume timestamps are always unique.
 
@@ -964,7 +964,7 @@ Do not stop after implementing the logic.
 
 Run the same input again.
 
-~~~text
+```text
 Run 1
   |
   v
@@ -974,7 +974,7 @@ Run 2 with same input
   |
   v
 Same intended result
-~~~
+```
 
 Then test concurrency and failure cases where relevant.
 
@@ -984,26 +984,26 @@ Then test concurrency and failure cases where relevant.
 
 Suppose a pipeline receives:
 
-~~~text
+```text
 event_id = evt-1001
 customer_id = 42
 amount = 500
-~~~
+```
 
 A destination table might be:
 
-~~~sql
+```sql
 CREATE TABLE payment_events (
     event_id TEXT PRIMARY KEY,
     customer_id INTEGER NOT NULL,
     amount NUMERIC NOT NULL,
     processed_at TIMESTAMP NOT NULL
 );
-~~~
+```
 
 The processing operation might use:
 
-~~~sql
+```sql
 INSERT INTO payment_events (
     event_id,
     customer_id,
@@ -1018,7 +1018,7 @@ VALUES (
 )
 ON CONFLICT (event_id)
 DO NOTHING;
-~~~
+```
 
 This is a generic PostgreSQL example.
 
@@ -1040,17 +1040,17 @@ A **business key** identifies a business entity or event.
 
 For example:
 
-~~~text
+```text
 transaction_id = TX-1001
-~~~
+```
 
 An **idempotency key** identifies a particular operation or request.
 
 For example:
 
-~~~text
+```text
 request_id = REQ-5001
-~~~
+```
 
 Sometimes the same identifier can serve both purposes.
 
@@ -1058,7 +1058,7 @@ Sometimes it should not.
 
 Consider a retry:
 
-~~~text
+```text
 Request 1
 request_id = REQ-5001
 transaction_id = TX-1001
@@ -1066,7 +1066,7 @@ transaction_id = TX-1001
 Request 2
 request_id = REQ-5001
 transaction_id = TX-1001
-~~~
+```
 
 The same request key tells the service that this is a repeated operation.
 
@@ -1082,17 +1082,17 @@ Some systems only need to prevent duplicates within a limited period.
 
 For example:
 
-~~~text
+```text
 Keep idempotency keys for 24 hours
-~~~
+```
 
 Other systems need long-term uniqueness.
 
 For example:
 
-~~~text
+```text
 One transaction ID must never be processed twice.
-~~~
+```
 
 The retention period should be based on how long duplicates can realistically reappear.
 
@@ -1118,11 +1118,11 @@ The pipeline may need to derive identity from available fields.
 
 For example:
 
-~~~text
+```text
 source
 timestamp
 sequence
-~~~
+```
 
 could potentially form a composite key.
 
@@ -1130,9 +1130,9 @@ Another possibility is a deterministic fingerprint or checksum of the source pay
 
 For example:
 
-~~~text
+```text
 hash(source_payload)
-~~~
+```
 
 But this approach has limitations.
 
@@ -1154,11 +1154,11 @@ It does not guarantee that the data is correct.
 
 For example:
 
-~~~text
+```text
 Event A
 event_id = 1001
 amount = -999999
-~~~
+```
 
 The event may be unique.
 
@@ -1166,11 +1166,11 @@ But it may still be invalid.
 
 Therefore, a reliable pipeline usually needs both:
 
-~~~text
+```text
 Idempotency
 +
 Data Quality
-~~~
+```
 
 One protects processing behavior.
 The other protects data correctness.
@@ -1185,43 +1185,43 @@ Idempotency should be tested deliberately.
 
 Input:
 
-~~~text
+```text
 Event A
-~~~
+```
 
 Expected:
 
-~~~text
+```text
 One destination record
-~~~
+```
 
 ## Test 2 — Same input again
 
 Input:
 
-~~~text
+```text
 Event A
-~~~
+```
 
 Expected:
 
-~~~text
+```text
 Still one destination record
-~~~
+```
 
 ## Test 3 — Different input
 
 Input:
 
-~~~text
+```text
 Event B
-~~~
+```
 
 Expected:
 
-~~~text
+```text
 Two destination records
-~~~
+```
 
 ## Test 4 — Same input after restart
 
@@ -1229,9 +1229,9 @@ Stop the worker. Start it again. Process Event A again.
 
 Expected:
 
-~~~text
+```text
 No unintended duplicate
-~~~
+```
 
 ## Test 5 — Concurrent processing
 
@@ -1239,9 +1239,9 @@ Two workers receive the same event.
 
 Expected:
 
-~~~text
+```text
 One intended result
-~~~
+```
 
 This test is especially useful because simple check-then-insert logic can fail under concurrency.
 
@@ -1251,9 +1251,9 @@ Process historical input again.
 
 Expected:
 
-~~~text
+```text
 Predictable final state
-~~~
+```
 
 The exact expected behavior depends on whether the pipeline inserts, updates, replaces, or merges data.
 
@@ -1265,11 +1265,11 @@ The exact expected behavior depends on whether the pipeline inserts, updates, re
 
 For example:
 
-~~~text
+```text
 Retry 1 -> random ID A
 Retry 2 -> random ID B
 Retry 3 -> random ID C
-~~~
+```
 
 The pipeline now sees three different records.
 
