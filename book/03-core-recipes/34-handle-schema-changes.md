@@ -1346,6 +1346,249 @@ When a schema change is detected:
 
 ---
 
+
+## Implementation Lab — Runnable Schema-Change Detection and Migration
+
+The implementation below creates a canonical schema representation, fingerprints it, diffs versions, validates payloads, and demonstrates an expand-and-contract database migration.
+
+### 1. Canonical schema representation
+
+```python
+# src/schema_contract.py
+import hashlib
+import json
+
+
+def canonical_schema(fields: dict[str, dict]) -> str:
+    return json.dumps(fields, sort_keys=True, separators=(",", ":"))
+
+
+def fingerprint(fields: dict[str, dict]) -> str:
+    canonical = canonical_schema(fields)
+    return hashlib.sha256(canonical.encode()).hexdigest()
+
+
+def diff_schema(old: dict[str, dict], new: dict[str, dict]) -> dict:
+    old_keys = set(old)
+    new_keys = set(new)
+
+    added = sorted(new_keys - old_keys)
+    removed = sorted(old_keys - new_keys)
+    changed = {
+        key: {"old": old[key], "new": new[key]}
+        for key in old_keys & new_keys
+        if old[key] != new[key]
+    }
+
+    return {
+        "added": added,
+        "removed": removed,
+        "changed": changed,
+    }
+```
+
+### 2. Boundary validation
+
+```python
+SUPPORTED = {
+    1: {
+        "event_id": {"type": "string", "required": True},
+        "amount": {"type": "number", "required": True},
+        "currency": {"type": "string", "required": True},
+    },
+    2: {
+        "event_id": {"type": "string", "required": True},
+        "amount": {"type": "number", "required": True},
+        "currency": {"type": "string", "required": True},
+        "country": {"type": "string", "required": False},
+    },
+}
+
+
+def validate_payload(payload: dict, version: int) -> list[str]:
+    schema = SUPPORTED.get(version)
+    if schema is None:
+        return ["UNSUPPORTED_SCHEMA_VERSION"]
+
+    errors = []
+
+    for field, definition in schema.items():
+        if definition["required"] and field not in payload:
+            errors.append(f"REQUIRED_FIELD_MISSING:{field}")
+
+    if "amount" in payload and not isinstance(payload["amount"], (int, float)):
+        errors.append("TYPE_ERROR:amount")
+
+    return errors
+```
+
+### 3. Tests
+
+```python
+# tests/test_schema_contract.py
+from src.schema_contract import (
+    diff_schema,
+    fingerprint,
+    validate_payload,
+)
+
+
+def test_added_optional_field_is_detected():
+    old = {
+        "id": {"type": "string"},
+        "amount": {"type": "number"},
+    }
+    new = {
+        **old,
+        "country": {"type": "string", "required": False},
+    }
+
+    diff = diff_schema(old, new)
+
+    assert diff["added"] == ["country"]
+    assert diff["removed"] == []
+
+
+def test_type_change_is_detected():
+    old = {"amount": {"type": "number"}}
+    new = {"amount": {"type": "string"}}
+
+    diff = diff_schema(old, new)
+
+    assert "amount" in diff["changed"]
+
+
+def test_schema_fingerprint_changes():
+    old = {"id": {"type": "string"}}
+    new = {"id": {"type": "integer"}}
+
+    assert fingerprint(old) != fingerprint(new)
+
+
+def test_missing_required_field_fails():
+    errors = validate_payload(
+        {"event_id": "e1", "amount": 10},
+        version=1,
+    )
+
+    assert "REQUIRED_FIELD_MISSING:currency" in errors
+
+
+def test_unsupported_version_fails():
+    assert validate_payload({}, version=99) == ["UNSUPPORTED_SCHEMA_VERSION"]
+```
+
+### 4. PostgreSQL expand-and-contract example
+
+Unsafe:
+
+```sql
+ALTER TABLE customers DROP COLUMN customer_name;
+```
+
+Safer migration:
+
+```sql
+-- Expand
+ALTER TABLE customers
+    ADD COLUMN customer_first_name TEXT,
+    ADD COLUMN customer_last_name TEXT;
+```
+
+Backfill:
+
+```sql
+UPDATE customers
+SET
+    customer_first_name = split_part(customer_name, ' ', 1),
+    customer_last_name = NULLIF(
+        substring(customer_name from position(' ' in customer_name) + 1),
+        ''
+    )
+WHERE customer_first_name IS NULL;
+```
+
+Deploy application code that can read both representations.
+
+After validation and consumer migration:
+
+```sql
+-- Contract only after all consumers have migrated.
+ALTER TABLE customers
+    DROP COLUMN customer_name;
+```
+
+### 5. Schema-change incident drill
+
+Run:
+
+```python
+old = {
+    "amount": {"type": "number"},
+    "currency": {"type": "string"},
+}
+
+new = {
+    "amount": {"type": "string"},
+    "currency": {"type": "string"},
+}
+
+print(diff_schema(old, new))
+```
+
+Expected result:
+
+```text
+amount appears under changed
+```
+
+Now send:
+
+```json
+{"event_id": "e1", "amount": "100", "currency": "EUR"}
+```
+
+Version 1 must reject the payload.
+
+Repair the producer or add an explicit versioned transformation, then rerun the contract tests.
+
+### 6. Intentionally break the detector
+
+Change:
+
+```python
+if old[key] != new[key]
+```
+
+to:
+
+```python
+if False
+```
+
+The type-change test must fail.
+
+Restore the comparison.
+
+The critical production property is:
+
+```text
+schema changes
+    ↓
+detected
+    ↓
+classified
+    ↓
+compatibility decision
+    ↓
+safe migration or quarantine
+    ↓
+validation
+    ↓
+reconciliation
+```
+
+
 ## 51. Definition of Done
 
 - [ ] Producer schemas are known.
