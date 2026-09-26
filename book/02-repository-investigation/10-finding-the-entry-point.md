@@ -1,4 +1,4 @@
-# Recipe 10 — Finding the Entry Point
+# Chapter 10 — Finding the Entry Point
 
 Before you can understand what a Data Engineering repository does, you need to know where execution starts.
 
