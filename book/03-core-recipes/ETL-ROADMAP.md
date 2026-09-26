@@ -100,7 +100,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | E55 | [JSON Extraction — ETL Application](E55-json-extraction-etl-application.md) |
 | E56 | [JSONL Extraction](E56-jsonl-extraction.md) |
 | E57 | [XML Extraction — ETL Application](E57-xml-extraction-etl-application.md) |
-| E58 | Parquet Extraction |
+| E58 | [Parquet Extraction](E58-parquet-extraction.md) |
 | E59 | Avro Extraction |
 | E60 | Compressed File Extraction |
 | E61 | Large File Streaming |
