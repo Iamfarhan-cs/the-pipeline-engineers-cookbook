@@ -1,4 +1,4 @@
-# Chapter 9 — How to Read a Data Engineering Repository
+# Recipe 9 — How to Read a Data Engineering Repository
 
 Until now, we focused on how data pipelines work.
 
