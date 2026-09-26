@@ -1956,3 +1956,44 @@ These tools solve or provide production implementations of concepts covered in t
 ---
 
 
+
+
+## Implementation Lab — Durable Checkpoint
+
+### 1. Checkpoint model
+
+~~~python
+from dataclasses import dataclass
+
+@dataclass
+class Checkpoint:
+    position: int = 0
+
+class Worker:
+    def __init__(self):
+        self.checkpoint = Checkpoint()
+
+    def process_batch(self, events):
+        for event in events:
+            process(event)
+        self.checkpoint.position = events[-1]["position"]
+~~~
+
+### 2. Correct commit order
+
+The durable result must succeed before the checkpoint advances:
+
+read batch → process → commit durable result → advance checkpoint.
+
+### 3. Intentional failure drill
+
+Advance the checkpoint before the target commit, then crash. Observe the data-loss window.
+
+Restore the correct ordering.
+
+### 4. Recovery verification
+
+Move the checkpoint back to the last known durable position and reprocess. The target must remain correct through idempotent processing.
+
+---
+
