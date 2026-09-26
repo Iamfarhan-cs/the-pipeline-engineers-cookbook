@@ -1802,4 +1802,18 @@ We will cover:
 
 The key question will be:
 
-> How do we process a large historical dataset safely without damaging the normal production pipeline?
+> How do we process a large historical dataset safely without damaging the normal production pipeline?## Production Tools You Should Know
+
+These tools solve or provide production implementations of concepts covered in this recipe. Learn what the tool provides, but understand the underlying problem first.
+
+| Tool | What to know |
+|---|---|
+| **Great Expectations** | Validation failures and data-quality workflows. |
+| **Soda** | Data quality checks and failed-data detection. |
+| **Apache Kafka** | Dead-letter topic pattern for failed events. |
+
+> These are reference tools for recognition and vocabulary, not substitutes for understanding the engineering mechanism.
+
+---
+
+
