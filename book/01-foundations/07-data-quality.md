@@ -1,4 +1,4 @@
-# Recipe 7 — Data Quality
+# Chapter 7 — Data Quality
 
 A pipeline can run successfully and still produce bad data.
 
