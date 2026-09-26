@@ -50,7 +50,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | E20 | [API Timeouts](E20-api-timeouts.md) |
 | E21 | [API Backoff and Jitter](E21-api-backoff-and-jitter.md) |
 | E22 | [API Checkpointing](E22-api-checkpointing.md) |
-| E23 | API Incremental Extraction |
+| E23 | [API Incremental Extraction](E23-api-incremental-extraction.md) |
 | E24 | API Cursor-Based Extraction |
 | E25 | API Offset-Based Extraction |
 | E26 | API Token Refresh |
