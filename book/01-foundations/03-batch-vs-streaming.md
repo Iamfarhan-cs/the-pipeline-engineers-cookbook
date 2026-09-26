@@ -1,4 +1,4 @@
-# Chapter 3 — Batch vs Streaming
+# Recipe 3 — Batch vs Streaming
 
 A data pipeline usually processes data in one of two broad ways:
 
