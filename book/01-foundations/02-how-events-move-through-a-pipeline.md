@@ -42,7 +42,7 @@ An event is a record that describes something that happened.
 
 For example:
 
-~~~json
+```json
 {
   "event_id": "evt_1001",
   "event_name": "payment_created",
@@ -51,7 +51,7 @@ For example:
   "amount": 250.00,
   "currency": "EUR"
 }
-~~~
+```
 
 This event tells us several things:
 
@@ -69,21 +69,21 @@ The important idea is:
 
 For example:
 
-~~~text
+```text
 Customer creates account
         |
         v
 account_created event
-~~~
+```
 
 Or:
 
-~~~text
+```text
 Payment succeeds
         |
         v
 payment_succeeded event
-~~~
+```
 
 The application creates the event.
 
@@ -97,22 +97,22 @@ A database row might represent the **current state** of something.
 
 For example:
 
-~~~text
+```text
 payment_id = pay_1001
 status     = completed
 amount     = 250.00
-~~~
+```
 
 An event usually describes a **change or occurrence**.
 
 For example:
 
-~~~json
+```json
 {
   "event_name": "payment_completed",
   "payment_id": "pay_1001"
 }
-~~~
+```
 
 The database row tells us something about the current state.
 
@@ -124,13 +124,13 @@ A system may use both.
 
 For example:
 
-~~~text
+```text
 Application
    |
    +------------------> Database
    |
    +------------------> Event
-~~~
+```
 
 The database can hold the current state while the event can communicate a change to another system.
 
@@ -138,7 +138,7 @@ The database can hold the current state while the event can communicate a change
 
 Let's follow an event from creation to processing.
 
-~~~text
+```text
 Event Created
      |
      v
@@ -155,7 +155,7 @@ Event Processed
      |
      v
 Result Stored
-~~~
+```
 
 There can be more steps in a real system, but this gives us a useful starting point.
 
@@ -167,12 +167,12 @@ Some application or service decides that an event should exist.
 
 For example:
 
-~~~text
+```text
 Payment Completed
        |
        v
 Create payment_completed event
-~~~
+```
 
 The event should contain enough information for the receiving system to understand what happened.
 
@@ -200,7 +200,7 @@ Another system receives the event.
 
 For example:
 
-~~~text
+```text
 Producer
    |
    v
@@ -208,7 +208,7 @@ Event
    |
    v
 Consumer
-~~~
+```
 
 The consumer now needs to decide whether the event is valid and what should happen to it.
 
@@ -231,7 +231,7 @@ If the event is valid, the consumer performs the required work.
 
 For example:
 
-~~~text
+```text
 payment_completed
        |
        v
@@ -239,7 +239,7 @@ Update payment record
        |
        v
 Record processing result
-~~~
+```
 
 The processing depends on the system.
 
@@ -267,7 +267,7 @@ A consumer receives and processes events.
 
 A simple model is:
 
-~~~text
+```text
 Producer
    |
    v
@@ -275,11 +275,11 @@ Event
    |
    v
 Consumer
-~~~
+```
 
 For example:
 
-~~~text
+```text
 Payment Service
       |
       v
@@ -287,7 +287,7 @@ payment_created
       |
       v
 Transaction Service
-~~~
+```
 
 The payment service is the producer.
 
@@ -307,12 +307,12 @@ An event usually needs an identifier.
 
 For example:
 
-~~~json
+```json
 {
   "event_id": "evt_1001",
   "event_name": "payment_created"
 }
-~~~
+```
 
 Why?
 
@@ -320,11 +320,11 @@ Because the receiving system may need to distinguish one event from another.
 
 Imagine receiving:
 
-~~~text
+```text
 evt_1001
 evt_1002
 evt_1003
-~~~
+```
 
 The consumer can track them separately.
 
@@ -346,7 +346,7 @@ One of the most important things to understand about event processing is that re
 
 Consider:
 
-~~~text
+```text
 Producer
    |
    v
@@ -354,19 +354,19 @@ evt_1001
    |
    v
 Consumer
-~~~
+```
 
 The consumer processes it.
 
 Then, because of a retry or another delivery condition, the same event arrives again.
 
-~~~text
+```text
 Producer
    |
    +----> evt_1001 ----> Consumer
    |
    +----> evt_1001 ----> Consumer
-~~~
+```
 
 The consumer now sees the same event twice.
 
@@ -384,10 +384,10 @@ A well-designed system should answer this before production.
 
 Suppose an event means:
 
-~~~text
+```text
 payment_created
 amount = 250 EUR
-~~~
+```
 
 If the consumer processes it once, the result should be correct.
 
@@ -395,7 +395,7 @@ If the same event arrives again, the consumer should not incorrectly create anot
 
 A simplified approach is:
 
-~~~text
+```text
 Event
   |
   v
@@ -404,7 +404,7 @@ Check event_id
   +---- Already processed? ----> Ignore / safely handle
   |
   +---- New ------------------> Process
-~~~
+```
 
 The exact implementation depends on the system.
 
@@ -426,32 +426,32 @@ Another useful distinction is between **when an event happened** and **when a sy
 
 Imagine an event says:
 
-~~~text
+```text
 occurred_at = 10:00
-~~~
+```
 
 But the consumer does not receive it until:
 
-~~~text
+```text
 received_at = 10:03
-~~~
+```
 
 And processing finishes at:
 
-~~~text
+```text
 processed_at = 10:04
-~~~
+```
 
 These are different times.
 
 A simplified timeline is:
 
-~~~text
+```text
 10:00             10:03             10:04
   |                 |                 |
   v                 v                 v
 Occurred          Received          Processed
-~~~
+```
 
 This distinction becomes important when dealing with:
 
@@ -471,21 +471,21 @@ We will return to this idea later when we discuss late data and replay.
 
 Imagine three events:
 
-~~~text
+```text
 evt_1001
 evt_1002
 evt_1003
-~~~
+```
 
 You might expect them to arrive in that order.
 
 But a distributed system can sometimes produce:
 
-~~~text
+```text
 evt_1002
 evt_1001
 evt_1003
-~~~
+```
 
 Now the consumer has to decide whether order matters.
 
@@ -495,12 +495,12 @@ For others, it can be very important.
 
 For example, imagine:
 
-~~~text
+```text
 account_created
       |
       v
 account_verified
-~~~
+```
 
 If account_verified is processed before account_created, the consumer may not have the state it expects.
 
@@ -520,7 +520,7 @@ But many useful event models contain some common information.
 
 For example:
 
-~~~json
+```json
 {
   "event_id": "evt_1001",
   "event_name": "payment_created",
@@ -532,7 +532,7 @@ For example:
     "currency": "EUR"
   }
 }
-~~~
+```
 
 Here we have:
 
@@ -579,13 +579,13 @@ That agreement is an **event contract**.
 
 For example, a producer might promise that every payment_created event contains:
 
-~~~text
+```text
 event_id
 payment_id
 amount
 currency
 occurred_at
-~~~
+```
 
 The consumer can then build its processing around that contract.
 
@@ -604,24 +604,24 @@ Without an agreed contract, producers and consumers can easily become incompatib
 
 Suppose the original event looks like:
 
-~~~json
+```json
 {
   "payment_id": "pay_1001",
   "amount": 250.00,
   "currency": "EUR"
 }
-~~~
+```
 
 Later, the producer changes it:
 
-~~~json
+```json
 {
   "payment_id": "pay_1001",
   "amount": 250.00,
   "currency": "EUR",
   "payment_method": "card"
 }
-~~~
+```
 
 Adding a field may be harmless if the consumer does not require it.
 
@@ -639,7 +639,7 @@ We will study schema evolution and data contracts in the production section of t
 
 Imagine:
 
-~~~text
+```text
 Producer
    |
    v
@@ -647,7 +647,7 @@ Event
    |
    X
 Consumer unavailable
-~~~
+```
 
 The producer has generated the event, but the consumer cannot process it.
 
@@ -677,7 +677,7 @@ The consumer may receive an event successfully but fail while processing it.
 
 For example:
 
-~~~text
+```text
 Event
   |
   v
@@ -688,7 +688,7 @@ Processing
   |
   X
 Error
-~~~
+```
 
 The failure could happen because:
 
@@ -751,13 +751,13 @@ A better approach may be to record or quarantine it.
 
 The general idea is:
 
-~~~text
+```text
 Failure
    |
    +---- Temporary ----> Retry
    |
    +---- Permanent ----> Record / Quarantine
-~~~
+```
 
 The actual implementation depends on the system.
 
@@ -769,7 +769,7 @@ This is often called an **acknowledgement** or **ack**.
 
 A simplified flow is:
 
-~~~text
+```text
 Event
   |
   v
@@ -783,7 +783,7 @@ Success
   |
   v
 Acknowledge
-~~~
+```
 
 The important question is:
 
@@ -793,7 +793,7 @@ If it acknowledges too early, the event might be considered complete even though
 
 For example:
 
-~~~text
+```text
 Receive Event
      |
      v
@@ -804,7 +804,7 @@ Process
      |
      X
    ERROR
-~~~
+```
 
 Now the system may believe the event was handled even though it was not.
 
@@ -856,7 +856,7 @@ Suppose a consumer receives an event and needs to update PostgreSQL.
 
 A simplified flow might be:
 
-~~~text
+```text
 Event
   |
   v
@@ -867,7 +867,7 @@ Update Database
   |
   v
 Record Processing
-~~~
+```
 
 What happens if the database update succeeds but recording the processing state fails?
 
@@ -879,7 +879,7 @@ A carefully designed transaction can sometimes make multiple related database op
 
 For example:
 
-~~~text
+```text
 Begin Transaction
        |
        v
@@ -890,7 +890,7 @@ Record Processing State
        |
        v
 Commit
-~~~
+```
 
 If something fails before the commit, the transaction may be rolled back.
 
@@ -906,7 +906,7 @@ One of the most useful properties of event-based systems is the ability to proce
 
 Imagine:
 
-~~~text
+```text
 Stored Event
      |
      v
@@ -914,13 +914,13 @@ Processing Logic
      |
      v
 Result
-~~~
+```
 
 Later, the processing logic is corrected.
 
 The same event may be processed again:
 
-~~~text
+```text
 Stored Event
      |
      v
@@ -928,7 +928,7 @@ Corrected Processing Logic
      |
      v
 New Result
-~~~
+```
 
 This is **replay** or **reprocessing**.
 
@@ -950,7 +950,7 @@ That brings us back to idempotency.
 
 Let's combine the ideas from this chapter.
 
-~~~text
+```text
                 Event Created
                      |
                      v
@@ -977,7 +977,7 @@ Let's combine the ideas from this chapter.
                             |
                             v
                          Success
-~~~
+```
 
 A production system may add:
 
@@ -1002,20 +1002,20 @@ A customer places an order.
 
 The application creates:
 
-~~~json
+```json
 {
   "event_id": "evt_2001",
   "event_name": "order_created",
   "order_id": "ord_5001",
   "occurred_at": "2026-09-26T10:30:00Z"
 }
-~~~
+```
 
 The event is sent to another service.
 
 The flow is:
 
-~~~text
+```text
 Customer
    |
    v
@@ -1032,7 +1032,7 @@ Order Consumer
    |
    v
 PostgreSQL
-~~~
+```
 
 Now consider different situations.
 
@@ -1040,7 +1040,7 @@ Now consider different situations.
 
 The event arrives and is processed successfully.
 
-~~~text
+```text
 order_created
      |
      v
@@ -1054,19 +1054,19 @@ Store
      |
      v
 Success
-~~~
+```
 
 ### Duplicate case
 
 The same event arrives twice.
 
-~~~text
+```text
 evt_2001
    |
    +----> Process
    |
    +----> Already processed
-~~~
+```
 
 The second delivery should not incorrectly create another order effect.
 
@@ -1074,7 +1074,7 @@ The second delivery should not incorrectly create another order effect.
 
 The event is valid, but PostgreSQL is unavailable.
 
-~~~text
+```text
 evt_2001
    |
    v
@@ -1088,7 +1088,7 @@ PostgreSQL
    |
    X
 Failure
-~~~
+```
 
 The system needs a recovery strategy.
 
@@ -1096,7 +1096,7 @@ The system needs a recovery strategy.
 
 The event is missing a required field.
 
-~~~text
+```text
 Event
   |
   v
@@ -1107,13 +1107,13 @@ Invalid
   |
   v
 Failure / Quarantine
-~~~
+```
 
 ### Replay
 
 Later, the processing logic changes.
 
-~~~text
+```text
 Stored Event
      |
      v
@@ -1121,7 +1121,7 @@ New Processing Logic
      |
      v
 New Result
-~~~
+```
 
 The same event can become useful again if the system has preserved the information required for replay.
 
@@ -1232,7 +1232,7 @@ An event describes something that happened.
 
 An event can move through several stages:
 
-~~~text
+```text
 Created
   |
   v
@@ -1249,7 +1249,7 @@ Processed
   |
   v
 Stored
-~~~
+```
 
 Reliable event processing requires more than receiving the message.
 
