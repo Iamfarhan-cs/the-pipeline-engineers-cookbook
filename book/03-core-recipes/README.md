@@ -106,6 +106,9 @@ PROVE YOU ARE DONE
 |---:|---|
 | [E49 — File Discovery](E49-file-discovery.md) | Discover, identify, register, and safely hand off files |
 | [E50 — File Naming Conventions](E50-file-naming-conventions.md) | Deterministic file identity and naming contracts |
+| [E51 — File Arrival Detection](E51-file-arrival-detection.md) | Detect expected deliveries and classify on-time, late, or unexpected arrivals |
+| [E52 — File Completeness Detection](E52-file-completeness-detection.md) | Prove all required members of a file delivery are present |
+| [E53 — File Validation — ETL Application](E53-file-validation-etl-application.md) | Validate file integrity, structure, format, and extraction readiness |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
