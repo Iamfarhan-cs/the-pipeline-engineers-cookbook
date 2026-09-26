@@ -1200,7 +1200,7 @@ If these questions do not have clear answers, the design probably needs more inv
 
 # What You Learned
 
-In this chapter, you learned:
+In this recipe, you learned:
 
 - Batch processing handles data in groups.
 - Streaming processing handles data continuously.
@@ -1217,29 +1217,3 @@ The main lesson is simple:
 **Choose the processing model based on the data and the requirement, not because one architecture sounds more advanced.**
 
 ---
-
-# Recipe Preview
-
-Later in the book, these ideas will become implementation recipes.
-
-You will learn how to:
-
-- Build batch ingestion pipelines.
-- Build continuous event processing.
-- Define batch boundaries.
-- Track processing progress.
-- Handle failed batches.
-- Retry failed events.
-- Replay data safely.
-- Handle duplicate events.
-- Process late data.
-- Add checkpointing.
-- Monitor pipeline health.
-
-The next chapter moves from processing style to **data layers**.
-
-We will look at the difference between:
-
-**Raw → Staging → Curated → Warehouse**
-
-Understanding these layers is one of the most useful foundations for designing maintainable data pipelines.
