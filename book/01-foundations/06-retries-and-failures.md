@@ -37,7 +37,7 @@ A failure happens when a pipeline cannot complete an operation as expected.
 
 For example:
 
-~~~text
+```text
 Source
   |
   v
@@ -48,7 +48,7 @@ Validate
   |
   X
 Failure
-~~~
+```
 
 The failure may happen at any stage.
 
@@ -103,7 +103,7 @@ For these failures, retrying can be useful.
 
 For example:
 
-~~~text
+```text
 Request
   |
   X
@@ -117,7 +117,7 @@ Retry
   |
   v
 Success
-~~~
+```
 
 ---
 
@@ -138,9 +138,9 @@ Examples include:
 
 Consider:
 
-~~~text
+```text
 amount = "not-a-number"
-~~~
+```
 
 Retrying the same value ten times does not make it numeric.
 
@@ -186,7 +186,7 @@ A retry strategy therefore needs:
 
 A simple retry process looks like:
 
-~~~text
+```text
 Start
   |
   v
@@ -203,7 +203,7 @@ Attempt operation
                          |
                          v
                        Retry
-~~~
+```
 
 The pipeline should not blindly retry every error.
 
@@ -215,13 +215,13 @@ A retry policy normally limits how many times an operation can be attempted.
 
 For example:
 
-~~~text
+```text
 Attempt 1 -> failure
 Attempt 2 -> failure
 Attempt 3 -> failure
 Attempt 4 -> failure
 Stop
-~~~
+```
 
 The number is a policy decision.
 
@@ -246,15 +246,15 @@ Backoff means increasing the waiting time between retry attempts.
 
 Instead of:
 
-~~~text
+```text
 Retry immediately
 Retry immediately
 Retry immediately
-~~~
+```
 
 the pipeline can use:
 
-~~~text
+```text
 Attempt 1 -> fail
      |
      v
@@ -269,7 +269,7 @@ Attempt 3 -> fail
      |
      v
     wait even longer
-~~~
+```
 
 The exact delay depends on the retry policy.
 
@@ -281,12 +281,12 @@ A common strategy is exponential backoff.
 
 A simplified example could be:
 
-~~~text
+```text
 Retry 1 -> wait 1 second
 Retry 2 -> wait 2 seconds
 Retry 3 -> wait 4 seconds
 Retry 4 -> wait 8 seconds
-~~~
+```
 
 The delay grows after each failure.
 
@@ -302,12 +302,12 @@ If many workers fail at the same time and all retry using exactly the same sched
 
 For example:
 
-~~~text
+```text
 Worker A -> retry at 10:01:00
 Worker B -> retry at 10:01:00
 Worker C -> retry at 10:01:00
 Worker D -> retry at 10:01:00
-~~~
+```
 
 This can create another traffic spike.
 
@@ -315,12 +315,12 @@ This can create another traffic spike.
 
 For example:
 
-~~~text
+```text
 Worker A -> 10:01:01
 Worker B -> 10:01:03
 Worker C -> 10:01:00
 Worker D -> 10:01:04
-~~~
+```
 
 The exact jitter algorithm depends on the system.
 
@@ -372,7 +372,7 @@ A good client should respect the API's documented rate-limit behavior.
 
 Conceptually:
 
-~~~text
+```text
 Request
   |
   v
@@ -383,7 +383,7 @@ Wait
   |
   v
 Retry
-~~~
+```
 
 Retrying too aggressively can extend the problem.
 
@@ -423,7 +423,7 @@ A deadlock can happen when transactions wait for each other.
 
 A simplified example:
 
-~~~text
+```text
 Transaction A locks Row 1
 Transaction B locks Row 2
 
@@ -431,7 +431,7 @@ Transaction A waits for Row 2
 Transaction B waits for Row 1
 
 Deadlock
-~~~
+```
 
 Some databases detect the deadlock and abort one transaction.
 
@@ -473,11 +473,11 @@ The retry boundary should match the operation's failure boundary.
 
 Suppose the pipeline processes events individually:
 
-~~~text
+```text
 Event A -> success
 Event B -> failure
 Event C -> success
-~~~
+```
 
 If Event B fails because of a temporary problem, the pipeline may retry only Event B.
 
@@ -493,7 +493,7 @@ Some operations are naturally batch-oriented.
 
 For example:
 
-~~~text
+```text
 Read file
   |
   v
@@ -501,7 +501,7 @@ Process complete file
   |
   X
 Failure
-~~~
+```
 
 Retrying the whole file may be reasonable.
 
@@ -523,23 +523,23 @@ The application retries.
 
 Without idempotency:
 
-~~~text
+```text
 Attempt 1 -> write
 Attempt 2 -> write again
              |
              v
           duplicate
-~~~
+```
 
 With idempotency:
 
-~~~text
+```text
 Attempt 1 -> write
 Attempt 2 -> same operation
              |
              v
           safe result
-~~~
+```
 
 This is why retry logic should not be designed separately from idempotency.
 
@@ -549,7 +549,7 @@ This is why retry logic should not be designed separately from idempotency.
 
 Suppose a pipeline does this:
 
-~~~text
+```text
 Begin transaction
     |
     v
@@ -557,7 +557,7 @@ Write data
     |
     v
 Commit
-~~~
+```
 
 If the transaction fails before commit, the application may retry the transaction.
 
@@ -573,7 +573,7 @@ External APIs make retries more difficult.
 
 Suppose:
 
-~~~text
+```text
 Pipeline
    |
    v
@@ -584,7 +584,7 @@ Operation succeeds
    |
    X
 Response lost
-~~~
+```
 
 The pipeline does not know whether the operation succeeded.
 
@@ -604,7 +604,7 @@ Streaming consumers often need to retry failed messages.
 
 A simplified flow is:
 
-~~~text
+```text
 Message
   |
   v
@@ -615,7 +615,7 @@ Failure
   |
   v
 Retry
-~~~
+```
 
 But the consumer must also decide what happens when retries are exhausted.
 
@@ -638,7 +638,7 @@ A **poison message** is a message that repeatedly fails processing.
 
 For example:
 
-~~~text
+```text
 Message A
    |
    v
@@ -652,7 +652,7 @@ Retry -> failure
    |
    v
 Retry -> failure
-~~~
+```
 
 If the consumer keeps retrying forever, it may never make progress.
 
@@ -676,7 +676,7 @@ A dead-letter destination stores messages that could not be processed successful
 
 A conceptual flow is:
 
-~~~text
+```text
 Event
   |
   v
@@ -690,7 +690,7 @@ Retry limit reached
   |
   v
 Dead-letter destination
-~~~
+```
 
 The purpose is not to hide the failure.
 
@@ -766,7 +766,7 @@ A circuit breaker is a pattern that can temporarily stop calls to a failing depe
 
 A simplified model is:
 
-~~~text
+```text
 Normal
   |
   v
@@ -786,7 +786,7 @@ Recovery check
   |
   v
 Requests allowed again
-~~~
+```
 
 The goal is to prevent an unhealthy dependency from receiving a continuous stream of requests.
 
@@ -821,7 +821,7 @@ A pipeline often benefits from explicit processing states.
 
 For example:
 
-~~~text
+```text
 RECEIVED
    |
    v
@@ -838,7 +838,7 @@ PROCESSING
                            |
                            v
                        QUARANTINED
-~~~
+```
 
 The exact state names are system-specific.
 
@@ -852,9 +852,9 @@ One of the hardest problems is partial processing.
 
 Suppose a batch contains five records:
 
-~~~text
+```text
 A B C D E
-~~~
+```
 
 The pipeline processes A, B, and C.
 
@@ -862,9 +862,9 @@ Then it fails.
 
 The destination now contains:
 
-~~~text
+```text
 A B C
-~~~
+```
 
 When the pipeline restarts, it must know what to do with A, B, and C.
 
@@ -886,7 +886,7 @@ This is why failure behavior should be designed before production deployment.
 
 Consider a generic API ingestion pipeline.
 
-~~~text
+```text
 API
  |
  v
@@ -903,7 +903,7 @@ Write PostgreSQL
  |
  v
 Mark batch complete
-~~~
+```
 
 Now imagine the API returns a timeout.
 
@@ -988,11 +988,11 @@ A retry policy should therefore have a practical budget.
 
 For example:
 
-~~~text
+```text
 Maximum attempts = 5
 Maximum delay = 60 seconds
 Maximum total retry time = 5 minutes
-~~~
+```
 
 These values are only examples.
 
