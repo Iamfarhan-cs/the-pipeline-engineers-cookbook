@@ -49,7 +49,7 @@ A database investigation should connect the application code to the actual datab
 
 A useful mental model is:
 
-~~~text
+```text
 Pipeline entry point
        |
        v
@@ -69,7 +69,7 @@ PostgreSQL
        |
        v
 Table / index / constraint
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -126,9 +126,9 @@ Common patterns include:
 
 For PostgreSQL, generic code may conceptually look like:
 
-~~~python
+```python
 connection = connect(database_url)
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -146,11 +146,11 @@ This distinction is important.
 
 A connection module may only do this:
 
-~~~text
+```text
 Create connection
 Create pool
 Return client
-~~~
+```
 
 It may contain no business queries at all.
 
@@ -204,7 +204,7 @@ Some projects use a repository or data-access layer.
 
 Conceptually:
 
-~~~text
+```text
 Service
   |
   v
@@ -212,7 +212,7 @@ Repository
   |
   v
 Database
-~~~
+```
 
 The repository layer may contain functions such as:
 
@@ -235,12 +235,12 @@ An ORM maps application objects to database structures.
 
 For example, a model may represent a table:
 
-~~~text
+```text
 Application model
        |
        v
 Database table
-~~~
+```
 
 A model may define:
 
@@ -264,9 +264,9 @@ Migrations, manual SQL, extensions, and deployment history can create difference
 
 Suppose you find a function called:
 
-~~~text
+```text
 save_event()
-~~~
+```
 
 Do not stop there.
 
@@ -289,7 +289,7 @@ The actual write path is what matters when changing database behavior.
 
 A generic insert path may look like:
 
-~~~text
+```text
 Event
   |
   v
@@ -303,7 +303,7 @@ INSERT
   |
   v
 Commit
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -317,7 +317,7 @@ A bug may occur before the query, inside the query, or after the query.
 
 An update path may look like:
 
-~~~text
+```text
 Existing record
       |
       v
@@ -331,7 +331,7 @@ UPDATE
       |
       v
 Commit
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -339,7 +339,7 @@ Updates are especially important when a pipeline uses processing states.
 
 For example:
 
-~~~text
+```text
 RECEIVED
    |
    v
@@ -347,7 +347,7 @@ PROCESSING
    |
    v
 COMPLETED
-~~~
+```
 
 Find where those state changes are written.
 
@@ -368,7 +368,7 @@ Look for:
 
 Conceptually:
 
-~~~text
+```text
 BEGIN
   |
   v
@@ -379,11 +379,11 @@ Operation B
   |
   v
 COMMIT
-~~~
+```
 
 If an operation fails:
 
-~~~text
+```text
 BEGIN
   |
   v
@@ -394,7 +394,7 @@ Operation B
   |
   X
 ROLLBACK
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -410,7 +410,7 @@ One of the most useful questions is:
 
 Consider:
 
-~~~text
+```text
 BEGIN
   |
   +-- insert raw record
@@ -418,11 +418,11 @@ BEGIN
   +-- write audit record
   |
 COMMIT
-~~~
+```
 
 That is different from:
 
-~~~text
+```text
 insert raw record
     |
 COMMIT
@@ -430,7 +430,7 @@ COMMIT
 update processing state
     |
 COMMIT
-~~~
+```
 
 The failure and recovery behavior can be very different.
 
@@ -448,7 +448,7 @@ A pool allows multiple operations to reuse a controlled set of database connecti
 
 Conceptually:
 
-~~~text
+```text
 Workers
   |
   +----+----+----+
@@ -458,7 +458,7 @@ Workers
              |
              v
           Database
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -500,7 +500,7 @@ Once you find a database operation, identify the actual table.
 
 For example:
 
-~~~text
+```text
 store_event()
     |
     v
@@ -508,7 +508,7 @@ INSERT
     |
     v
 telemetry_event
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -539,13 +539,13 @@ Ask:
 
 For example:
 
-~~~text
+```text
                  +-- ingestion worker
                  |
 table <----------+-- replay job
                  |
                  +-- backfill job
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -577,9 +577,9 @@ A schema change that looks harmless to one writer may break a downstream reader.
 
 Database investigation therefore includes both sides:
 
-~~~text
+```text
 Writers ---> Table ---> Readers
-~~~
+```
 
 ---
 
@@ -605,22 +605,22 @@ Then inspect later migrations that changed the table.
 
 Suppose the current table contains:
 
-~~~text
+```text
 event_id
 status
 created_at
-~~~
+```
 
 That tells you the current shape.
 
 But migration history may tell you:
 
-~~~text
+```text
 Migration 1 -> table created
 Migration 2 -> status added
 Migration 3 -> index added
 Migration 4 -> constraint changed
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -644,9 +644,9 @@ Search for:
 
 For example, if the pipeline frequently searches by:
 
-~~~text
+```text
 event_id
-~~~
+```
 
 you should determine whether the database has an appropriate lookup structure.
 
@@ -672,7 +672,7 @@ These constraints may be important parts of the pipeline's data quality and idem
 
 For example:
 
-~~~text
+```text
 Application
     |
     v
@@ -680,7 +680,7 @@ Database constraint
     |
     v
 Stored data
-~~~
+```
 
 A constraint can protect the database even if an application code path misses a validation check.
 
@@ -692,13 +692,13 @@ Foreign keys show relationships between tables.
 
 For example:
 
-~~~text
+```text
 customers
     |
     | customer_id
     v
 orders
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -726,7 +726,7 @@ But if they exist, application code may not contain the complete behavior.
 
 For example:
 
-~~~text
+```text
 Application INSERT
        |
        v
@@ -734,7 +734,7 @@ Database trigger
        |
        v
 Audit table
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -766,21 +766,21 @@ A unit test may mock the database.
 
 Conceptually:
 
-~~~text
+```text
 Function
   |
   v
 Mock database
-~~~
+```
 
 An integration test may use a real database:
 
-~~~text
+```text
 Function
   |
   v
 Real PostgreSQL
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -835,7 +835,7 @@ Suppose the task is:
 
 Start with:
 
-~~~text
+```text
 event arrives
      |
      v
@@ -852,7 +852,7 @@ SQL
      |
      v
 table
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -866,13 +866,13 @@ If you cannot explain the path, keep investigating.
 
 Suppose the error is:
 
-~~~text
+```text
 duplicate key violation
-~~~
+```
 
 Trace backward:
 
-~~~text
+```text
 Database error
      |
      v
@@ -886,7 +886,7 @@ Processing function
      |
      v
 Input event
-~~~
+```
 
 Then ask:
 
@@ -905,7 +905,7 @@ This connects the database error to pipeline behavior.
 
 A common database investigation problem is code that does:
 
-~~~text
+```text
 Check if record exists
         |
         v
@@ -913,18 +913,18 @@ Record does not exist
         |
         v
 Insert record
-~~~
+```
 
 This looks safe.
 
 But two workers can execute the check at the same time.
 
-~~~text
+```text
 Worker A -> check -> not found
 Worker B -> check -> not found
 Worker A -> insert
 Worker B -> insert
-~~~
+```
 
 Depending on the schema and operation, this can produce duplicate data or a constraint error.
 
@@ -938,13 +938,13 @@ An upsert combines insert and conflict handling into one database operation.
 
 Conceptually:
 
-~~~text
+```text
 Insert
   |
   +---- no conflict ----> store
   |
   +---- conflict -------> update / ignore
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -964,7 +964,7 @@ When investigating retry behavior, always find the transaction boundary.
 
 Consider:
 
-~~~text
+```text
 BEGIN
   |
   v
@@ -972,7 +972,7 @@ INSERT
   |
   v
 COMMIT
-~~~
+```
 
 If the insert fails before commit, retrying the transaction may be safe depending on the operation.
 
@@ -1016,13 +1016,13 @@ If too many operations hold connections for too long, new operations may wait or
 
 Conceptually:
 
-~~~text
+```text
 Worker A -> connection 1
 Worker B -> connection 2
 Worker C -> connection 3
 Worker D -> waiting
 Worker E -> waiting
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -1063,14 +1063,14 @@ Database queries should normally use parameterized values rather than building S
 
 Conceptually:
 
-~~~text
+```text
 SQL template
     +
 Parameters
     |
     v
 Database driver
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -1157,7 +1157,7 @@ After investigation, create a simple map.
 
 **GENERIC EXAMPLE**
 
-~~~text
+```text
 Pipeline
    |
    v
@@ -1181,7 +1181,7 @@ Table
    |
    v
 Related tables
-~~~
+```
 
 This gives you a compact model of the database path.
 
