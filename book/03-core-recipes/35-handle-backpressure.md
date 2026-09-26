@@ -1843,6 +1843,20 @@ Production traffic contains bursts and dependency degradation.
 ---
 
 
+## Production Tools You Should Know
+
+These tools solve or provide production implementations of concepts covered in this recipe. Learn what the tool provides, but understand the underlying problem first.
+
+| Tool | What to know |
+|---|---|
+| **Apache Kafka** | Durable buffering, partitions, consumer groups, and lag. |
+| **Apache Flink** | Streaming backpressure and flow coordination. |
+| **RabbitMQ** | Queue-based flow control and consumer prefetch. |
+
+> These are reference tools for recognition and vocabulary, not substitutes for understanding the engineering mechanism.
+
+---
+
 ## Implementation Lab — Runnable Backpressure Controller
 
 This implementation demonstrates a bounded queue, producer blocking, consumer throughput, pressure metrics, and recovery. It is deliberately small enough to run locally and understand before applying the same ideas to Kafka, RabbitMQ, APIs, or database workers.
