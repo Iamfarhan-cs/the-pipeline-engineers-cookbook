@@ -2,37 +2,31 @@
 
 This is the canonical taxonomy for the ETL portion of The Pipeline Engineer's Cookbook.
 
-The goal is not to collect random tools or tutorials. Every recipe should teach a reusable Data Engineering mechanism through:
+The roadmap separates **general pipeline mechanisms** from **ETL-specific applications**. Existing Core Recipes teach the mechanism once. ETL recipes apply that mechanism to specific extraction, transformation, or loading problems.
 
-    PROBLEM
-       ↓
-    REASONING
-       ↓
-    IMPLEMENT
-       ↓
-    TEST
-       ↓
-    OBSERVE
-       ↓
-    BREAK
-       ↓
-    RECOVER
-       ↓
-    OPERATE
+## Architecture
 
-## ETL Architecture
-
+    FOUNDATIONS
+         ↓
+    CORE PIPELINE MECHANISMS
+         ↓
     EXTRACT
-       ↓
+         ↓
     TRANSFORM
-       ↓
+         ↓
     LOAD
-       ↓
-    PRODUCTION ETL
+         ↓
+    CROSS-CUTTING PRODUCTION ETL
+         ↓
+    END-TO-END PROJECTS
 
-The **Extract**, **Transform**, and **Load** groups teach the mechanics of moving and changing data.
+### The distinction
 
-The **Cross-Cutting Production** group teaches the reliability, performance, observability, security, and operational mechanisms that apply across ETL.
+- **Core Recipes** teach reusable engineering mechanisms.
+- **ETL Recipes** teach how those mechanisms are applied to specific ETL problems.
+- **Cross-Cutting Recipes** cover production capabilities that are not already adequately taught by the Core Recipes.
+
+Do not duplicate a mechanism just because it appears in another ETL category.
 
 ---
 
@@ -62,30 +56,32 @@ The **Cross-Cutting Production** group teaches the reliability, performance, obs
 
 | ID | Recipe |
 |---|---|
-| E16 | API Authentication |
-| E17 | API Pagination |
-| E18 | API Rate Limits |
-| E19 | API Retries |
-| E20 | API Timeouts |
-| E21 | API Backoff and Jitter |
-| E22 | API Checkpointing |
+| E16 | API Authentication — ETL Application |
+| E17 | API Pagination — ETL Application |
+| E18 | API Rate Limits — ETL Application |
+| E19 | API Retries — ETL Application |
+| E20 | API Timeouts — ETL Application |
+| E21 | API Backoff and Jitter — ETL Application |
+| E22 | API Checkpointing — ETL Application |
 | E23 | API Incremental Extraction |
 | E24 | API Cursor-Based Extraction |
 | E25 | API Offset-Based Extraction |
 | E26 | API Token Refresh |
 | E27 | API Response Validation |
-| E28 | API Schema Changes |
+| E28 | API Schema Changes — ETL Application |
 | E29 | API Partial Failure |
-| E30 | API Deduplication |
-| E31 | API Extraction Resume |
+| E30 | API Deduplication — ETL Application |
+| E31 | API Extraction Resume — ETL Application |
 | E32 | API Extraction Auditing |
+
+These recipes must assume the reader already understands the corresponding general mechanisms from the Core Recipes. They should focus on API-specific implementation details and failure modes.
 
 ## C. Database Extraction
 
 | ID | Recipe |
 |---|---|
 | E33 | Full Database Extraction |
-| E34 | Incremental Database Extraction |
+| E34 | Incremental Database Extraction — ETL Application |
 | E35 | Watermark-Based Extraction |
 | E36 | Timestamp-Based Extraction |
 | E37 | ID-Based Extraction |
@@ -99,9 +95,9 @@ The **Cross-Cutting Production** group teaches the reliability, performance, obs
 | E45 | Database Extraction Parallelism |
 | E46 | Extracting Large Tables Safely |
 | E47 | Handling Source Database Load |
-| E48 | Source Schema Evolution |
+| E48 | Source Schema Evolution — ETL Application |
 
-## D. File Extraction
+## D. File and Object Extraction
 
 | ID | Recipe |
 |---|---|
@@ -109,11 +105,11 @@ The **Cross-Cutting Production** group teaches the reliability, performance, obs
 | E50 | File Naming Conventions |
 | E51 | File Arrival Detection |
 | E52 | File Completeness Detection |
-| E53 | File Validation |
-| E54 | CSV Extraction |
-| E55 | JSON Extraction |
+| E53 | File Validation — ETL Application |
+| E54 | CSV Extraction — ETL Application |
+| E55 | JSON Extraction — ETL Application |
 | E56 | JSONL Extraction |
-| E57 | XML Extraction |
+| E57 | XML Extraction — ETL Application |
 | E58 | Parquet Extraction |
 | E59 | Avro Extraction |
 | E60 | Compressed File Extraction |
@@ -122,6 +118,8 @@ The **Cross-Cutting Production** group teaches the reliability, performance, obs
 | E63 | Duplicate File Detection |
 | E64 | Missing File Detection |
 | E65 | Late File Detection |
+
+File and object recipes should focus on source-specific mechanics. Generic idempotency, retries, checkpointing, and failure recovery should be referenced rather than rewritten.
 
 ---
 
@@ -165,7 +163,7 @@ The **Cross-Cutting Production** group teaches the reliability, performance, obs
 | T27 | Ranking |
 | T28 | Running Totals |
 | T29 | Moving Windows |
-| T30 | Deduplication with Window Functions |
+| T30 | Deduplication with Window Functions — Transform Application |
 | T31 | Pivoting |
 | T32 | Unpivoting |
 
@@ -184,7 +182,7 @@ The **Cross-Cutting Production** group teaches the reliability, performance, obs
 | T41 | Statistical Anomaly Detection |
 | T42 | Data Quality Scoring |
 | T43 | Invalid Record Handling |
-| T44 | Quarantine During Transformation |
+| T44 | Quarantine During Transformation — Transform Application |
 
 ## D. Advanced Transformations
 
@@ -201,9 +199,9 @@ The **Cross-Cutting Production** group teaches the reliability, performance, obs
 | T53 | Sessionization |
 | T54 | Event Aggregation |
 | T55 | Event-Time Transformation |
-| T56 | Late-Event Handling |
+| T56 | Late-Event Handling — Transform Application |
 | T57 | Stateful Transformation |
-| T58 | Incremental Transformation |
+| T58 | Incremental Transformation — Transform Application |
 | T59 | Change-Based Transformation |
 | T60 | Data Enrichment from Reference Data |
 | T61 | Lookup Transformations |
@@ -257,8 +255,8 @@ The **Cross-Cutting Production** group teaches the reliability, performance, obs
 | L15 | Database COPY |
 | L16 | Batch Size Selection |
 | L17 | Chunked Loading |
-| L18 | Transactional Loading |
-| L19 | Atomic Loading |
+| L18 | Transactional Loading — Load Application |
+| L19 | Atomic Loading — Load Application |
 | L20 | Upsert with ON CONFLICT |
 | L21 | MERGE-Based Loading |
 | L22 | Loading into Staging Tables |
@@ -282,22 +280,22 @@ The **Cross-Cutting Production** group teaches the reliability, performance, obs
 | L35 | Late-Arriving Dimensions |
 | L36 | Late-Arriving Facts |
 | L37 | Warehouse MERGE |
-| L38 | Warehouse Reconciliation |
+| L38 | Warehouse Reconciliation — Load Application |
 
 ## D. Load Reliability
 
 | ID | Recipe |
 |---|---|
-| L39 | Idempotent Loading |
-| L40 | Duplicate Prevention |
-| L41 | Load Retry |
-| L42 | Partial Load Failure |
-| L43 | Failed Batch Recovery |
-| L44 | Load Checkpointing |
-| L45 | Load Reprocessing |
-| L46 | Load Rollback |
-| L47 | Load Validation |
-| L48 | Source-to-Target Reconciliation |
+| L39 | Idempotent Loading — Load Application |
+| L40 | Duplicate Prevention — Load Application |
+| L41 | Load Retry — Load Application |
+| L42 | Partial Load Failure — Load Application |
+| L43 | Failed Batch Recovery — Load Application |
+| L44 | Load Checkpointing — Load Application |
+| L45 | Load Reprocessing — Load Application |
+| L46 | Load Rollback — Load Application |
+| L47 | Load Validation — Load Application |
+| L48 | Source-to-Target Reconciliation — Load Application |
 | L49 | Exactly-Once-Like Loading |
 | L50 | Ambiguous Load Outcomes |
 
@@ -320,115 +318,145 @@ The **Cross-Cutting Production** group teaches the reliability, performance, obs
 
 # Part IV — CROSS-CUTTING PRODUCTION ETL
 
-These mechanisms apply to Extract, Transform, and Load.
+Cross-cutting recipes are reserved for production capabilities that are genuinely broader than a single ETL implementation and are not already adequately covered by the Core Recipes.
+
+## A. Production Architecture and Operations
 
 | ID | Recipe |
 |---|---|
-| X01 | Pipeline Idempotency |
-| X02 | Deduplication |
-| X03 | Retry Design |
-| X04 | Error Classification |
-| X05 | Dead-Letter Queues |
-| X06 | Quarantine |
-| X07 | Replay |
-| X08 | Reprocessing |
-| X09 | Checkpointing |
-| X10 | Incremental Processing |
-| X11 | Backfills |
-| X12 | Late Data |
-| X13 | Missing Data |
-| X14 | Schema Evolution |
+| X01 | Pipeline Run Tracking — Production Application |
+| X02 | Structured Logging — Production Application |
+| X03 | Pipeline Metrics — Production Application |
+| X04 | Data Lineage |
+| X05 | Data Observability |
+| X06 | Freshness Monitoring |
+| X07 | SLA/SLO Management |
+| X08 | Alerting |
+| X09 | Pipeline Security |
+| X10 | Secrets Management |
+| X11 | Access Control |
+| X12 | Auditability |
+| X13 | Disaster Recovery |
+
+## B. Data Contracts and Evolution
+
+| ID | Recipe |
+|---|---|
+| X14 | Schema Evolution — Cross-Pipeline Application |
 | X15 | Data Contracts |
 | X16 | Contract Testing |
-| X17 | Transactions |
-| X18 | Atomicity |
-| X19 | Partial Failure |
-| X20 | Rate Limiting |
-| X21 | Backpressure |
-| X22 | Concurrency |
-| X23 | Pipeline Orchestration |
-| X24 | Pipeline Run Tracking |
-| X25 | Structured Logging |
-| X26 | Pipeline Metrics |
-| X27 | Bottleneck Detection |
-| X28 | Data Lineage |
-| X29 | Data Observability |
-| X30 | Freshness Monitoring |
-| X31 | SLA/SLO Management |
-| X32 | Alerting |
-| X33 | Pipeline Security |
-| X34 | Secrets Management |
-| X35 | Access Control |
-| X36 | Auditability |
-| X37 | Disaster Recovery |
-| X38 | Pipeline CI/CD |
-| X39 | Pipeline Deployment |
-| X40 | Pipeline Rollback |
 
----
+## C. Delivery and Lifecycle
 
-# Existing Recipes — Mapping
+| ID | Recipe |
+|---|---|
+| X17 | Pipeline CI/CD |
+| X18 | Pipeline Deployment |
+| X19 | Pipeline Rollback |
 
-The existing sequential recipes remain valid learning material. They are now classified into the ETL taxonomy rather than discarded.
+## Intentionally Removed as Duplicates
 
-| Existing Recipe | Primary ETL Classification |
+The following old X recipes are no longer standalone roadmap slots because the general mechanism is already taught by the Core Recipes:
+
+| Old Recipe | Covered By |
+|---|---|
+| X01 Pipeline Idempotency | Core Recipe 06 |
+| X02 Deduplication | Core Recipe 07 |
+| X03 Retry Design | Core Recipe 08 |
+| X04 Error Classification | Core Recipe 04 |
+| X05 Dead-Letter Queues | Core Recipe 19 |
+| X06 Quarantine | Core Recipe 09 |
+| X07 Replay | Core Recipe 10 |
+| X08 Reprocessing | Core Recipe 10 |
+| X09 Checkpointing | Core Recipe 12 |
+| X10 Incremental Processing | Core Recipe 11 |
+| X11 Backfills | Core Recipe 13 |
+| X12 Late Data | Core Recipe 14 |
+| X13 Missing Data | Core Recipe 15 |
+| X17 Transactions | Core Recipe 21 |
+| X18 Atomicity | Core Recipe 21 |
+| X19 Partial Failure | Core Recipe 24 |
+| X20 Rate Limiting | Core Recipe 25 |
+| X21 Backpressure | Core Recipe 18 |
+| X22 Concurrency | Core Recipe 32 |
+| X23 Pipeline Orchestration | Core Recipe 27 |
+| X24 Pipeline Run Tracking | Retained as X01 for production ETL application |
+| X25 Structured Logging | Retained as X02 for production ETL application |
+| X26 Pipeline Metrics | Retained as X03 for production ETL application |
+| X27 Bottleneck Detection | Core Recipe 31 |
+
+## Existing Core Recipes — Classification
+
+The existing sequential recipes remain valid learning material. They are the foundational mechanisms and are not deleted or replaced by this roadmap.
+
+| Existing Recipe | Classification |
 |---:|---|
-| 1 — Create an Ingestion Pipeline | Extract foundation |
-| 2 — Create a Staging Layer | Extract → Transform boundary |
-| 3 — Validate Incoming Data | Extract / Transform quality |
-| 4 — Add Error Handling | Cross-cutting |
-| 5 — Add Processing Status | Cross-cutting |
-| 6 — Add Idempotency | X01 |
-| 7 — Add Deduplication | X02 |
-| 8 — Add Retry Logic | X03 |
-| 9 — Quarantine Failed Data | X06 |
-| 10 — Replay / Reprocessing | X07 / X08 |
-| 11 — Incremental Processing | X10 |
-| 12 — Checkpointing | X09 |
-| 13 — Backfill Historical Data | X11 |
-| 14 — Handle Late Data | X12 |
-| 15 — Handle Missing Data | X13 |
-| 16 — Data Reconciliation | Load / X29 |
-| 17 — Handle Schema Changes | X14 |
-| 18 — Handle Backpressure | X21 |
-| 19 — Dead-Letter / Data-Quality Lifecycle | X05 / data quality |
-| 20 — Boundary Validation | Extract / Transform / Load boundaries |
-| 21 — Transactions & Atomicity | X17 / X18 |
-| 22 — Bulk Loading | Load |
-| 23 — Batch Size & Chunking | Load / Transform performance |
-| 24 — Partial Failure | X19 |
-| 25 — Rate Limiting | X20 |
-| 26 — Network Failure | Extract / Load reliability |
-| 27 — Pipeline Orchestration & Scheduling | X23 |
-| 28 — Pipeline Run Tracking | X24 |
-| 29 — Pipeline Logging | X25 |
-| 30 — Pipeline Metrics | X26 |
-| 31 — Bottleneck Detection | X27 |
-| 32 — Concurrency & Parallel Processing | X22 |
+| 01 — Create an Ingestion Pipeline | Core mechanism / Extract foundation |
+| 02 — Create a Staging Layer | Core mechanism / Extract → Transform boundary |
+| 03 — Validate Incoming Data | Core mechanism / Data quality boundary |
+| 04 — Add Error Handling | Core mechanism / Failure handling |
+| 05 — Add Processing Status | Core mechanism / State management |
+| 06 — Add Idempotency | Core mechanism / Idempotency |
+| 07 — Add Deduplication | Core mechanism / Deduplication |
+| 08 — Add Retry Logic | Core mechanism / Retry design |
+| 09 — Quarantine Failed Data | Core mechanism / Quarantine |
+| 10 — Replay / Reprocessing | Core mechanism / Replay and reprocessing |
+| 11 — Incremental Processing | Core mechanism / Incremental processing |
+| 12 — Checkpointing | Core mechanism / Checkpointing |
+| 13 — Backfill Historical Data | Core mechanism / Backfills |
+| 14 — Handle Late Data | Core mechanism / Late data |
+| 15 — Handle Missing Data | Core mechanism / Missing data |
+| 16 — Data Reconciliation | Core mechanism / Reconciliation |
+| 17 — Handle Schema Changes | Core mechanism / Schema evolution |
+| 18 — Handle Backpressure | Core mechanism / Backpressure |
+| 19 — Dead-Letter / Data-Quality Lifecycle | Core mechanism / DLQ and quality lifecycle |
+| 20 — Boundary Validation | Core mechanism / Boundary validation |
+| 21 — Transactions & Atomicity | Core mechanism / Transactions and atomicity |
+| 22 — Bulk Loading | Core mechanism / Bulk loading |
+| 23 — Batch Size & Chunking | Core mechanism / Batching and chunking |
+| 24 — Partial Failure | Core mechanism / Partial failure |
+| 25 — Rate Limiting | Core mechanism / Rate limiting |
+| 26 — Network Failure | Core mechanism / Network failure |
+| 27 — Pipeline Orchestration & Scheduling | Core mechanism / Orchestration |
+| 28 — Pipeline Run Tracking | Core mechanism / Run tracking |
+| 29 — Pipeline Logging | Core mechanism / Logging |
+| 30 — Pipeline Metrics | Core mechanism / Metrics |
+| 31 — Bottleneck Detection | Core mechanism / Bottleneck analysis |
+| 32 — Concurrency & Parallel Processing | Core mechanism / Concurrency |
 
-## Important Rule
+## How Specialized Recipes Should Work
 
-Do **not** duplicate an existing recipe merely because the same concept appears in an ETL category.
+Example:
 
-For example:
+    Core Recipe 06 — Add Idempotency
+                ↓
+    E30 — API Deduplication / identity application
+                ↓
+    L39 — Idempotent Loading / database application
 
-- Existing Recipe 6 teaches general idempotency.
-- A future API recipe may apply idempotency specifically to API extraction.
-- A future load recipe may apply idempotency specifically to database loading.
+The Core Recipe teaches the general mechanism. The specialized ETL recipe teaches the source- or destination-specific implementation, constraints, and failure modes.
 
-The specialized recipe should teach the **ETL-specific application**, not repeat the entire general mechanism.
+Another example:
+
+    Core Recipe 12 — Checkpointing
+                ↓
+    E22 — API Checkpointing
+                ↓
+    E38 — High-Watermark Management
+                ↓
+    L44 — Load Checkpointing
+
+Specialized recipes must not reproduce the entire Core Recipe. They should reference the prerequisite mechanism and spend their detail on ETL-specific behavior.
 
 ---
 
 # Recommended Learning Order
 
-The cookbook should now progress as:
-
     FOUNDATIONS
          ↓
     REPOSITORY INVESTIGATION
          ↓
-    EXISTING CORE RELIABILITY RECIPES
+    CORE PIPELINE MECHANISMS
          ↓
     EXTRACT
          ↓
@@ -440,27 +468,13 @@ The cookbook should now progress as:
          ↓
     END-TO-END ETL PROJECTS
 
-The first three ETL implementation tracks are:
+Within each ETL section, recipes should move from simple mechanics to failure-aware and performance-aware implementations.
 
-    EXTRACT
-    E01 → E65
-
-    TRANSFORM
-    T01 → T75
-
-    LOAD
-    L01 → L60
-
-Then:
-
-    PRODUCTION ETL
-    X01 → X40
-
-This gives the cookbook a clear path from learning how data enters a system to transforming it, loading it, and operating the complete pipeline safely.
+---
 
 # Recipe Standard
 
-Every new ETL recipe must answer:
+Every ETL recipe must answer:
 
 1. What real production problem does this solve?
 2. How do I recognize that problem?
