@@ -30,7 +30,7 @@ Typical SaaS extraction problems include:
 
 The production boundary is:
 
-~~~text
+```text
 SAAS PLATFORM
       ↓
 AUTHENTICATE
@@ -46,7 +46,7 @@ PERSIST RAW / STAGING DATA
 ADVANCE SYNC STATE
       ↓
 NEXT RESOURCE / PAGE
-~~~
+```
 
 ## 2. SaaS Is Not One Dataset
 
@@ -54,7 +54,7 @@ A SaaS platform usually exposes multiple related resources.
 
 Example:
 
-~~~text
+```text
 CUSTOMERS
    ├── ORDERS
    ├── PAYMENTS
@@ -62,7 +62,7 @@ CUSTOMERS
 
 PRODUCTS
    └── ORDER ITEMS
-~~~
+```
 
 Do not assume one API endpoint represents the complete source.
 
@@ -111,13 +111,13 @@ SaaS APIs commonly use:
 
 Keep credentials outside source code.
 
-~~~python
+```python
 import os
 
 CLIENT_ID = os.environ["SAAS_CLIENT_ID"]
 CLIENT_SECRET = os.environ["SAAS_CLIENT_SECRET"]
 REFRESH_TOKEN = os.environ["SAAS_REFRESH_TOKEN"]
-~~~
+```
 
 Never log access tokens or refresh tokens.
 
@@ -125,7 +125,7 @@ Never log access tokens or refresh tokens.
 
 Short-lived tokens require refresh handling.
 
-~~~text
+```text
 ACCESS TOKEN
      ↓
 EXPIRED
@@ -135,7 +135,7 @@ REFRESH TOKEN
 NEW ACCESS TOKEN
      ↓
 CONTINUE EXTRACTION
-~~~
+```
 
 A token refresh failure is different from a transient API timeout. Classify authentication failures explicitly.
 
@@ -143,7 +143,7 @@ A token refresh failure is different from a transient API timeout. Classify auth
 
 Make the resource being synchronized explicit.
 
-~~~python
+```python
 def extract_resource(client, resource, params):
     response = client.get(
         f"/{resource}",
@@ -152,7 +152,7 @@ def extract_resource(client, resource, params):
 
     response.raise_for_status()
     return response.json()
-~~~
+```
 
 A production implementation should additionally validate the response contract, retry transient failures, and preserve synchronization state.
 
@@ -171,7 +171,7 @@ Do not assume one pagination mechanism applies to the entire platform.
 
 Generic loop:
 
-~~~python
+```python
 def paginate(fetch_page):
     cursor = None
 
@@ -185,7 +185,7 @@ def paginate(fetch_page):
 
         if cursor is None:
             break
-~~~
+```
 
 Detailed pagination mechanics are covered by E02. This recipe focuses on applying those mechanics to SaaS synchronization.
 
@@ -195,7 +195,7 @@ Full extraction is often expensive.
 
 A common pattern is:
 
-~~~text
+```text
 FIRST RUN
    ↓
 FULL HISTORY
@@ -205,7 +205,7 @@ CHECKPOINT
 INCREMENTAL RUNS
    ↓
 UPDATED RECORDS
-~~~
+```
 
 Possible incremental fields include:
 
@@ -221,21 +221,21 @@ Prefer a vendor-provided change cursor or sequence when it is reliable and suppo
 
 Suppose the last successful watermark is:
 
-~~~text
+```text
 2026-09-26T10:00:00Z
-~~~
+```
 
 Do not blindly request:
 
-~~~text
+```text
 updated_at > 10:00:00Z
-~~~
+```
 
 If timestamps have limited precision, records sharing the boundary timestamp may be skipped.
 
 Use an overlap window when appropriate:
 
-~~~text
+```text
 LAST WATERMARK
       ↓
 OVERLAP WINDOW
@@ -245,7 +245,7 @@ RE-READ RECENT RECORDS
 DEDUPLICATE
       ↓
 ADVANCE WATERMARK
-~~~
+```
 
 The overlap size should be based on the vendor's timestamp precision and consistency behavior.
 
@@ -255,7 +255,7 @@ Do not advance the watermark merely because the API returned a page.
 
 Safe sequence:
 
-~~~text
+```text
 REQUEST DATA
     ↓
 VALIDATE
@@ -265,7 +265,7 @@ PERSIST
 VERIFY
     ↓
 ADVANCE WATERMARK
-~~~
+```
 
 If persistence fails, the watermark must not move past unpersisted data.
 
@@ -275,13 +275,13 @@ SaaS records are usually mutable.
 
 Example:
 
-~~~text
+```text
 DAY 1
 order status = pending
 
 DAY 2
 order status = completed
-~~~
+```
 
 Extracting only newly created records can produce stale downstream state.
 
@@ -308,13 +308,13 @@ If deletion is important, explicitly document how the vendor exposes it.
 
 Example:
 
-~~~json
+```json
 {
   "id": "customer-123",
   "deleted": true,
   "deleted_at": "2026-09-26T12:00:00Z"
 }
-~~~
+```
 
 Persist deletion state rather than silently dropping the record.
 
@@ -336,7 +336,7 @@ Choose based on vendor capabilities and business requirements.
 
 Preserve the vendor response before aggressive transformation when practical.
 
-~~~text
+```text
 SAAS API
    ↓
 RAW RESPONSE
@@ -344,7 +344,7 @@ RAW RESPONSE
 STAGING
    ↓
 CURATED MODEL
-~~~
+```
 
 Raw preservation helps with debugging, replay, schema evolution, vendor disputes, and historical reconstruction.
 
@@ -356,7 +356,7 @@ Many SaaS platforms allow customer-defined fields.
 
 Example:
 
-~~~json
+```json
 {
   "id": "customer-123",
   "name": "Example Ltd",
@@ -365,7 +365,7 @@ Example:
     "account_segment": "enterprise"
   }
 }
-~~~
+```
 
 Custom fields may differ between tenants or accounts.
 
@@ -375,11 +375,11 @@ Do not hard-code a custom-field schema without understanding how the source mana
 
 A SaaS integration may serve multiple accounts:
 
-~~~text
+```text
 TENANT A → API
 TENANT B → API
 TENANT C → API
-~~~
+```
 
 Each tenant may have:
 
@@ -397,13 +397,13 @@ Do not use one global watermark for unrelated tenants.
 
 Prefer:
 
-~~~text
+```text
 (tenant_id, resource) → sync state
-~~~
+```
 
 Example:
 
-~~~sql
+```sql
 CREATE TABLE saas_sync_state (
     tenant_id TEXT NOT NULL,
     resource_name TEXT NOT NULL,
@@ -411,7 +411,7 @@ CREATE TABLE saas_sync_state (
     updated_at TIMESTAMPTZ NOT NULL,
     PRIMARY KEY (tenant_id, resource_name)
 );
-~~~
+```
 
 ## 19. Rate Limits
 
@@ -431,16 +431,16 @@ Do not assume every tenant or endpoint has the same limit.
 
 A provider may return:
 
-~~~text
+```text
 HTTP 429
 Retry-After: 30
-~~~
+```
 
 When the provider supplies Retry-After, respect it when appropriate.
 
 Generic strategy:
 
-~~~text
+```text
 REQUEST
   ↓
 429
@@ -448,7 +448,7 @@ REQUEST
 WAIT
   ↓
 RETRY
-~~~
+```
 
 ## 21. API Version Changes
 
@@ -482,13 +482,13 @@ When resources reference one another, extraction order may matter.
 
 Example:
 
-~~~text
+```text
 CUSTOMERS
    ↓
 ORDERS
    ↓
 PAYMENTS
-~~~
+```
 
 But independent resources can often be extracted concurrently.
 
@@ -500,7 +500,7 @@ Many SaaS systems provide both webhooks and APIs.
 
 A useful architecture is:
 
-~~~text
+```text
 WEBHOOKS
    ↓
 NEAR-REAL-TIME CHANGES
@@ -510,7 +510,7 @@ RAW / STAGING
 API
    ↓
 INITIAL LOAD + RECONCILIATION
-~~~
+```
 
 Webhooks alone may not provide complete historical coverage. API extraction can provide reconciliation and backfill.
 
@@ -518,7 +518,7 @@ Webhooks alone may not provide complete historical coverage. API extraction can 
 
 Periodic reconciliation can detect missing records:
 
-~~~text
+```text
 SAAS SOURCE COUNT / STATE
           ↓
 COMPARE
@@ -526,7 +526,7 @@ COMPARE
 DESTINATION COUNT / STATE
           ↓
 INVESTIGATE DIFFERENCES
-~~~
+```
 
 Reconciliation is especially useful when the vendor does not provide strong deletion semantics.
 
@@ -534,18 +534,18 @@ Reconciliation is especially useful when the vendor does not provide strong dele
 
 Checkpoint dimensions may include:
 
-~~~text
+```text
 tenant
 resource
 cursor
 watermark
 page state
 API version
-~~~
+```
 
 Example:
 
-~~~sql
+```sql
 CREATE TABLE saas_checkpoint (
     tenant_id TEXT NOT NULL,
     resource_name TEXT NOT NULL,
@@ -554,7 +554,7 @@ CREATE TABLE saas_checkpoint (
     updated_at TIMESTAMPTZ NOT NULL,
     PRIMARY KEY (tenant_id, resource_name)
 );
-~~~
+```
 
 Only advance the checkpoint after the corresponding data is safely persisted.
 
@@ -590,7 +590,7 @@ Test at least:
 
 ## 28. Example Unit Tests
 
-~~~python
+```python
 def test_overlap_window_allows_boundary_reread():
     previous = "2026-09-26T10:00:00Z"
     request_from = "2026-09-26T09:59:00Z"
@@ -615,13 +615,13 @@ def test_updated_record_is_not_treated_as_new_record():
     updated_at = "2026-09-26T10:00:00Z"
 
     assert updated_at > created_at
-~~~
+```
 
 ## 29. Observability
 
 Track:
 
-~~~text
+```text
 saas_requests_total
 saas_requests_failed_total
 saas_records_received_total
@@ -636,11 +636,11 @@ saas_processing_duration_seconds
 saas_checkpoint_advances_total
 saas_reconciliation_mismatch_total
 saas_cursor_expired_total
-~~~
+```
 
 Useful log fields:
 
-~~~text
+```text
 tenant_id
 resource
 api_version
@@ -651,7 +651,7 @@ attempt
 http_status
 processing_status
 error_type
-~~~
+```
 
 Do not log access tokens or sensitive SaaS payloads by default.
 
@@ -796,7 +796,7 @@ SaaS extraction is fundamentally about **synchronizing a mutable external system
 
 The core pattern is:
 
-~~~text
+```text
 DISCOVER CONTRACT
       ↓
 AUTHENTICATE
@@ -814,7 +814,7 @@ ADVANCE CHECKPOINT
 RECONCILE
       ↓
 REPEAT
-~~~
+```
 
 The most important rule is:
 
