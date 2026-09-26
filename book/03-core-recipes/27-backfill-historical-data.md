@@ -2081,4 +2081,18 @@ We will cover:
 
 The key question will be:
 
-> How do we process only the new or changed data without missing records or processing the same data unnecessarily?
+> How do we process only the new or changed data without missing records or processing the same data unnecessarily?## Production Tools You Should Know
+
+These tools solve or provide production implementations of concepts covered in this recipe. Learn what the tool provides, but understand the underlying problem first.
+
+| Tool | What to know |
+|---|---|
+| **Apache Airflow** | Scheduling and controlling historical backfills. |
+| **Apache Spark** | Large-scale historical recomputation. |
+| **dbt** | Targeted model backfills and incremental rebuilds. |
+
+> These are reference tools for recognition and vocabulary, not substitutes for understanding the engineering mechanism.
+
+---
+
+
