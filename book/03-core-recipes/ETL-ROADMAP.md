@@ -46,7 +46,7 @@ The **Cross-Cutting Production** group teaches the reliability, performance, obs
 | E02 | [Extract Data from Paginated APIs](E02-extract-data-from-paginated-apis.md) |
 | E03 | [Extract Data from GraphQL APIs](E03-extract-data-from-graphql-apis.md) |
 | E04 | [Extract Data from Relational Databases](E04-extract-data-from-relational-databases.md) |
-| E05 | Extract Data from CSV Files |
+| E05 | [Extract Data from CSV Files](E05-extract-data-from-csv-files.md) |
 | E06 | Extract Data from JSON Files |
 | E07 | Extract Data from XML Files |
 | E08 | Extract Data from Excel Files |
