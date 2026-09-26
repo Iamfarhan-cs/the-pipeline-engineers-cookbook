@@ -77,7 +77,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | E41 | [Snapshot Extraction](E41-snapshot-extraction.md) |
 | E42 | [Consistent Database Snapshots](E42-consistent-database-snapshots.md) |
 | E43 | [Database Connection Pooling](E43-database-connection-pooling.md) |
-| E44 | Database Extraction Batching |
+| E44 | [Database Extraction Batching](E44-database-extraction-batching.md) |
 | E45 | Database Extraction Parallelism |
 | E46 | Extracting Large Tables Safely |
 | E47 | Handling Source Database Load |
