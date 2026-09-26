@@ -68,19 +68,19 @@ Without data-related signals, the problem may remain hidden.
 
 Observability helps turn this:
 
-~~~text
+```text
 Something seems wrong
-~~~
+```
 
 into this:
 
-~~~text
+```text
 Input volume dropped
 Database latency increased
 Retry count increased
 Processing lag increased
 Output freshness exceeded threshold
-~~~
+```
 
 Now the investigation has a starting point.
 
@@ -111,15 +111,15 @@ A log is a record of something that happened.
 
 For example:
 
-~~~text
+```text
 Started processing batch 123
-~~~
+```
 
 or:
 
-~~~text
+```text
 Failed to connect to database
-~~~
+```
 
 Logs are useful when investigating individual events or failures.
 
@@ -153,20 +153,20 @@ Plain text logs can be difficult to search.
 
 For example:
 
-~~~text
+```text
 Failed to process event 123 because database connection timed out
-~~~
+```
 
 A structured log can represent the same information as fields:
 
-~~~json
+```json
 {
   "event_id": "123",
   "operation": "process_event",
   "status": "failed",
   "error_type": "database_timeout"
 }
-~~~
+```
 
 **GENERIC EXAMPLE**
 
@@ -188,21 +188,21 @@ Common examples are:
 
 An informational message might say:
 
-~~~text
+```text
 INFO: batch processing started
-~~~
+```
 
 A warning might say:
 
-~~~text
+```text
 WARNING: retry attempt 3
-~~~
+```
 
 An error might say:
 
-~~~text
+```text
 ERROR: batch processing failed
-~~~
+```
 
 The exact logging framework and level names depend on the application.
 
@@ -257,17 +257,17 @@ A counter represents a value that increases as events occur.
 
 For example:
 
-~~~text
+```text
 records_processed_total
-~~~
+```
 
 Conceptually:
 
-~~~text
+```text
 10:00 -> 10,000
 11:00 -> 20,000
 12:00 -> 30,000
-~~~
+```
 
 The counter tells us that processing continued.
 
@@ -295,12 +295,12 @@ Examples include:
 
 For example:
 
-~~~text
+```text
 Queue depth
 10:00 -> 500
 10:10 -> 700
 10:20 -> 1,200
-~~~
+```
 
 A growing queue can indicate that processing is falling behind.
 
@@ -335,9 +335,9 @@ Engineers often care about the rate at which something is happening.
 
 For example:
 
-~~~text
+```text
 10,000 records processed
-~~~
+```
 
 does not tell us whether that happened in:
 
@@ -376,7 +376,7 @@ A trace follows a unit of work across multiple components.
 
 Consider:
 
-~~~text
+```text
 API
  |
  v
@@ -387,7 +387,7 @@ Worker
  |
  v
 PostgreSQL
-~~~
+```
 
 A trace can connect these operations as part of the same request or processing flow.
 
@@ -407,7 +407,7 @@ A trace is usually made up of smaller operations called spans.
 
 For example:
 
-~~~text
+```text
 Trace: process_event
   |
   +-- fetch_event
@@ -417,7 +417,7 @@ Trace: process_event
   +-- write_database
   |
   +-- publish_result
-~~~
+```
 
 Each span can contain information such as:
 
@@ -438,14 +438,14 @@ Logs, metrics, and traces become much more useful when they can be connected.
 
 For example:
 
-~~~text
+```text
 Trace ID
    |
    +---- API log
    +---- worker log
    +---- database span
    +---- processing metric
-~~~
+```
 
 A correlation identifier can help an engineer move from one signal to another.
 
@@ -461,7 +461,7 @@ Processing state is also important.
 
 For example:
 
-~~~text
+```text
 RECEIVED
    |
    v
@@ -472,7 +472,7 @@ PROCESSING
    +----> RETRY_PENDING
    |
    +----> FAILED
-~~~
+```
 
 An operator can inspect the state of work and understand whether records are progressing.
 
@@ -499,13 +499,13 @@ Useful data signals include:
 
 Consider this situation:
 
-~~~text
+```text
 Application health: OK
 Database health: OK
 Worker health: OK
 
 Data quality: FAILED
-~~~
+```
 
 The system is running.
 
@@ -521,12 +521,12 @@ Lag measures how far processing is behind the source or expected processing poin
 
 For example:
 
-~~~text
+```text
 Latest source event: 12:00
 Latest processed event: 11:45
 
 Lag: approximately 15 minutes
-~~~
+```
 
 Lag is especially important for streaming systems.
 
@@ -558,12 +558,12 @@ A heartbeat is a signal that a component is alive or making progress.
 
 For example:
 
-~~~text
+```text
 Worker started
 Worker still processing
 Worker still processing
 Worker still processing
-~~~
+```
 
 A heartbeat alone does not prove that useful work is happening.
 
@@ -583,11 +583,11 @@ These are different questions.
 
 Consider:
 
-~~~text
+```text
 Worker: alive
 Processed records: unchanged for 30 minutes
 Queue depth: increasing
-~~~
+```
 
 The worker is alive.
 
@@ -629,13 +629,13 @@ A useful alert should answer:
 
 For example:
 
-~~~text
+```text
 BAD:
 Pipeline problem
 
 BETTER:
 Payment event pipeline freshness exceeded the configured threshold.
-~~~
+```
 
 The second message provides a much better starting point.
 
@@ -669,7 +669,7 @@ An alert often identifies a symptom rather than the root cause.
 
 For example:
 
-~~~text
+```text
 Alert:
 Queue depth is increasing
 
@@ -681,7 +681,7 @@ Database connection pool is exhausted
 
 Possible root cause:
 Unexpected query behavior after a deployment
-~~~
+```
 
 Observability should help engineers move from symptom to cause.
 
@@ -693,7 +693,7 @@ It does not automatically determine the root cause.
 
 Consider a pipeline:
 
-~~~text
+```text
 API
  |
  v
@@ -707,11 +707,11 @@ PostgreSQL
  |
  v
 Warehouse
-~~~
+```
 
 Useful signals could be:
 
-~~~text
+```text
 API
   -> request count
   -> error rate
@@ -734,7 +734,7 @@ Warehouse
   -> load count
   -> freshness
   -> quality status
-~~~
+```
 
 This gives engineers several ways to understand what is happening.
 
@@ -773,7 +773,7 @@ This is why repository investigation comes before implementation.
 
 Depending on the repository, inspect:
 
-~~~text
+```text
 src/
   logging/
   metrics/
@@ -790,7 +790,7 @@ config/
 docker-compose.yml
 CI configuration
 monitoring configuration
-~~~
+```
 
 These are investigation examples, not claims about a specific repository.
 
@@ -846,7 +846,7 @@ The strongest systems combine them.
 
 For example:
 
-~~~text
+```text
 Alert
   |
   v
@@ -860,7 +860,7 @@ Logs show connection timeout
   |
   v
 Processing state shows records are retrying
-~~~
+```
 
 This is the kind of investigation path observability should support.
 
@@ -973,9 +973,9 @@ Observability is part of the pipeline design.
 
 Imagine an operator receives this alert:
 
-~~~text
+```text
 Pipeline freshness exceeded threshold
-~~~
+```
 
 The investigation can follow a structured path.
 
@@ -1041,11 +1041,11 @@ Idempotency also improves observability.
 
 If a record is retried, the system should be able to show:
 
-~~~text
+```text
 event_id = 123
 attempt = 3
 status = retrying
-~~~
+```
 
 This helps operators understand whether the same logical work is being repeated safely.
 
@@ -1061,12 +1061,12 @@ Observability gives us a way to expose those problems.
 
 For example:
 
-~~~text
+```text
 Pipeline status: RUNNING
 Records processed: 100,000
 Records invalid: 18,000
 Freshness: 45 minutes behind
-~~~
+```
 
 The application is running.
 
