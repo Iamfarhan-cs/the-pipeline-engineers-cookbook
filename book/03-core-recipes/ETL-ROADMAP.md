@@ -47,7 +47,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | E17 | [API Pagination](E17-api-pagination.md) |
 | E18 | [API Rate Limits](E18-api-rate-limits.md) |
 | E19 | [API Retries](E19-api-retries.md) |
-| E20 | API Timeouts — ETL Application |
+| E20 | [API Timeouts](E20-api-timeouts.md) |
 | E21 | API Backoff and Jitter — ETL Application |
 | E22 | API Checkpointing — ETL Application |
 | E23 | API Incremental Extraction |
