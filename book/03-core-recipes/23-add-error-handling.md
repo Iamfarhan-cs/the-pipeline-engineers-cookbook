@@ -1,4 +1,4 @@
-# Chapter 23 — Add Error Handling
+# Recipe 23 — Add Error Handling
 
 A pipeline will fail.
 
