@@ -115,6 +115,7 @@ PROVE YOU ARE DONE
 | [E57 — XML Extraction — ETL Application](E57-xml-extraction-etl-application.md) | Extract, validate, stream, and stage XML safely |
 | [E58 — Parquet Extraction](E58-parquet-extraction.md) | Efficiently read, filter, project, validate, and stage Parquet datasets |
 | [E59 — Avro Extraction](E59-avro-extraction.md) | Stream schema-governed binary records, handle schema evolution, and stage Avro safely |
+| [E60 — Compressed File Extraction](E60-compressed-file-extraction.md) | Safely decompress, inspect, stream, validate, and stage compressed deliveries |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
