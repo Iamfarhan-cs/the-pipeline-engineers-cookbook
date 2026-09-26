@@ -6,11 +6,11 @@ JSONL, also called newline-delimited JSON or NDJSON, stores one complete JSON va
 
 Example:
 
-@@@
+```
 {"payment_id":"P001","amount":100,"currency":"EUR"}
 {"payment_id":"P002","amount":250,"currency":"USD"}
 {"payment_id":"P003","amount":75,"currency":"GBP"}
-@@@
+```
 
 This format is common in:
 
@@ -28,7 +28,7 @@ You do not normally need to load the entire file into memory.
 
 The production lifecycle is:
 
-@@@
+```
 DISCOVER FILE
      |
      v
@@ -53,7 +53,7 @@ CHECKPOINT
      |
      v
 COMPLETE
-@@@
+```
 
 The important property is that the file is a sequence of independently parseable JSON values.
 
@@ -65,21 +65,21 @@ The important property is that the file is a sequence of independently parseable
 
 This is valid JSON:
 
-@@@
+```
 [
   {"id": 1},
   {"id": 2},
   {"id": 3}
 ]
-@@@
+```
 
 This is JSONL:
 
-@@@
+```
 {"id":1}
 {"id":2}
 {"id":3}
-@@@
+```
 
 The first is one JSON document.
 
@@ -97,11 +97,11 @@ A large JSON document may require a streaming parser to avoid loading the whole 
 
 JSONL has a simpler property:
 
-@@@
+```
 for line in file:
     record = json.loads(line)
     process(record)
-@@@
+```
 
 The operating system and Python can read the file incrementally.
 
@@ -142,7 +142,7 @@ Before implementation, define:
 
 Example:
 
-@@@
+```
 {
   "format": "jsonl",
   "encoding": "utf-8",
@@ -155,7 +155,7 @@ Example:
   ],
   "max_line_bytes": 1048576
 }
-@@@
+```
 
 The contract should be explicit before production deployment.
 
@@ -167,10 +167,10 @@ In JSONL, the newline is part of the transport structure.
 
 Example:
 
-@@@
+```
 {"id":1}
 {"id":2}
-@@@
+```
 
 Line 1 and line 2 are independent records.
 
@@ -191,7 +191,7 @@ The line number is therefore useful technical lineage.
 
 The simplest implementation is:
 
-@@@
+```
 import json
 
 with open(
@@ -205,7 +205,7 @@ with open(
     ):
         record = json.loads(line)
         print(record)
-@@@
+```
 
 This is the foundation.
 
@@ -219,11 +219,11 @@ A blank line is not a JSON value.
 
 Example:
 
-@@@
+```
 {"id":1}
 
 {"id":2}
-@@@
+```
 
 Decide whether blank lines are:
 
@@ -238,10 +238,10 @@ For tolerant feeds, explicitly skip them.
 
 Example:
 
-@@@
+```
 if not line.strip():
     continue
-@@@
+```
 
 Do not silently ignore blank lines when the delivery contract expects exactly one record per line.
 
@@ -251,9 +251,9 @@ Do not silently ignore blank lines when the delivery contract expects exactly on
 
 A line can contain surrounding whitespace:
 
-@@@
+```
   {"id":1}
-@@@
+```
 
 JSON parsers can normally handle this.
 
@@ -261,10 +261,10 @@ Avoid unnecessary transformations that change the payload.
 
 A safe pattern is:
 
-@@@
+```
 raw_line = line.rstrip("\r\n")
 record = json.loads(raw_line)
-@@@
+```
 
 Preserve the original line separately if exact source reconstruction matters.
 
@@ -289,11 +289,11 @@ Do not build record identity from a platform-dependent representation if byte-fo
 
 Example:
 
-@@@
+```
 {"id":1}
 {"id":2,
 {"id":3}
-@@@
+```
 
 Line 2 is malformed.
 
@@ -307,7 +307,7 @@ A production extractor should identify:
 
 Example:
 
-@@@
+```
 import json
 
 try:
@@ -317,7 +317,7 @@ except json.JSONDecodeError as exc:
         f"Malformed JSONL record at line {line_number}: "
         f"line={exc.lineno}, column={exc.colno}"
     ) from exc
-@@@
+```
 
 Whether processing stops or continues depends on the delivery contract.
 
@@ -359,9 +359,9 @@ Valid JSON does not mean valid business data.
 
 Example:
 
-@@@
+```
 {"payment_id": "P001", "amount": "unknown"}
-@@@
+```
 
 The JSON is syntactically valid.
 
@@ -369,7 +369,7 @@ The record may still violate the ETL contract.
 
 Validation should occur after parsing:
 
-@@@
+```
 def validate_record(record):
     if not isinstance(record, dict):
         raise ValueError("Record must be a JSON object")
@@ -386,7 +386,7 @@ def validate_record(record):
         raise ValueError(
             "payment_id must be a string"
         )
-@@@
+```
 
 Keep syntax parsing and business-contract validation as separate stages.
 
@@ -398,30 +398,30 @@ JSONL does not necessarily mean every line is an object.
 
 These are valid JSON values:
 
-@@@
+```
 123
-@@@
+```
 
-@@@
+```
 "hello"
-@@@
+```
 
-@@@
+```
 null
-@@@
+```
 
-@@@
+```
 [1, 2, 3]
-@@@
+```
 
 If your contract requires objects, enforce it:
 
-@@@
+```
 if not isinstance(record, dict):
     raise ValueError(
         "JSONL record must be an object"
     )
-@@@
+```
 
 Do not assume the format guarantees the semantic type.
 
@@ -431,15 +431,15 @@ Do not assume the format guarantees the semantic type.
 
 Consider:
 
-@@@
+```
 {"payment_id":"P001"}
-@@@
+```
 
 and:
 
-@@@
+```
 {"payment_id":"P001","description":null}
-@@@
+```
 
 The first has a missing field.
 
@@ -455,10 +455,10 @@ Use explicit validation rather than relying on get for required fields.
 
 A line number is useful lineage:
 
-@@@
+```
 source_file = "payments_20260926.jsonl"
 line_number = 15342
-@@@
+```
 
 However, line number alone is not a globally stable business identifier.
 
@@ -478,7 +478,7 @@ not automatically as the business key.
 
 Calculate a stable source hash.
 
-@@@
+```
 import hashlib
 
 def sha256_file(path):
@@ -492,7 +492,7 @@ def sha256_file(path):
             digest.update(chunk)
 
     return digest.hexdigest()
-@@@
+```
 
 A source hash allows a pipeline to recognize the same physical file during replay.
 
@@ -504,25 +504,25 @@ For large files, calculate the hash while reading when the architecture permits 
 
 A practical technical identity is:
 
-@@@
+```
 (source_hash, line_number)
-@@@
+```
 
 Example:
 
-@@@
+```
 source_hash = "abc123..."
 line_number = 15342
-@@@
+```
 
 Together they identify a specific record position in a specific source artifact.
 
 If the producer supplies a stable business ID, preserve it separately:
 
-@@@
+```
 technical_identity = (source_hash, line_number)
 business_identity = payment_id
-@@@
+```
 
 Do not confuse the two.
 
@@ -532,7 +532,7 @@ Do not confuse the two.
 
 Example table:
 
-@@@
+```
 CREATE TABLE jsonl_staging (
     source_hash TEXT NOT NULL,
     line_number BIGINT NOT NULL,
@@ -541,11 +541,11 @@ CREATE TABLE jsonl_staging (
     extracted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     PRIMARY KEY (source_hash, line_number)
 );
-@@@
+```
 
 Insert:
 
-@@@
+```
 INSERT INTO jsonl_staging (
     source_hash,
     line_number,
@@ -555,7 +555,7 @@ INSERT INTO jsonl_staging (
 VALUES (%s, %s, %s, %s)
 ON CONFLICT (source_hash, line_number)
 DO NOTHING;
-@@@
+```
 
 Now a replay does not automatically duplicate staged records.
 
@@ -567,10 +567,10 @@ Technical identity and business identity are different.
 
 You may additionally require:
 
-@@@
+```
 CREATE UNIQUE INDEX uq_jsonl_payment
 ON jsonl_staging (record_id);
-@@@
+```
 
 Only add this if the source contract says record_id must be globally unique in the relevant scope.
 
@@ -584,7 +584,7 @@ For event streams, the same business entity may legitimately appear many times.
 
 A common pattern is:
 
-@@@
+```
 BATCH_SIZE = 1000
 batch = []
 
@@ -601,7 +601,7 @@ for line_number, line in enumerate(source, start=1):
 
 if batch:
     stage_batch(batch)
-@@@
+```
 
 Memory remains bounded by the batch size plus the largest record.
 
@@ -635,7 +635,7 @@ Do not accidentally implement batch-level partial success when the business requ
 
 # 22. A Production-Oriented Parser
 
-@@@
+```
 import json
 from typing import Iterator
 
@@ -681,11 +681,11 @@ def parse_jsonl(
                 )
 
         yield line_number, record
-@@@
+```
 
 Usage:
 
-@@@
+```
 with open(
     "payments.jsonl",
     "r",
@@ -699,7 +699,7 @@ with open(
             line_number,
             record,
         )
-@@@
+```
 
 The generator keeps extraction incremental.
 
@@ -709,7 +709,7 @@ The generator keeps extraction incremental.
 
 If the contract permits partial processing:
 
-@@@
+```
 def parse_jsonl_tolerant(
     source,
     required_fields,
@@ -760,7 +760,7 @@ def parse_jsonl_tolerant(
                 "error_message": str(exc),
                 "raw": raw,
             }
-@@@
+```
 
 This makes the partial-processing policy explicit.
 
@@ -770,18 +770,18 @@ This makes the partial-processing policy explicit.
 
 Bad:
 
-@@@
+```
 try:
     record = json.loads(line)
 except Exception:
     continue
-@@@
+```
 
 This silently loses data.
 
 Better:
 
-@@@
+```
 except json.JSONDecodeError as exc:
     quarantine(
         line_number=line_number,
@@ -789,7 +789,7 @@ except json.JSONDecodeError as exc:
         error_message=str(exc),
         raw=line,
     )
-@@@
+```
 
 Every rejected record must be explainable.
 
@@ -801,9 +801,9 @@ JSONL provides line-level streaming, but a single line can still be huge.
 
 Example:
 
-@@@
+```
 {"id":"P001","description":"<many megabytes>"}
-@@@
+```
 
 Define a maximum line size.
 
@@ -811,9 +811,9 @@ For byte-level enforcement, read binary input.
 
 Conceptually:
 
-@@@
+```
 MAX_LINE_BYTES = 1024 * 1024
-@@@
+```
 
 Reject or quarantine lines that exceed the configured limit.
 
@@ -825,7 +825,7 @@ Do not allow one malformed record to consume unlimited memory.
 
 Example:
 
-@@@
+```
 with open(
     "payments.jsonl",
     "rb",
@@ -842,7 +842,7 @@ with open(
 
         line = raw_line.decode("utf-8")
         record = json.loads(line)
-@@@
+```
 
 This makes byte limits explicit.
 
@@ -856,17 +856,17 @@ UTF-8 should normally be the source contract.
 
 Do not use:
 
-@@@
+```
 line.decode("utf-8", errors="ignore")
-@@@
+```
 
 This can silently remove invalid bytes.
 
 Prefer strict decoding:
 
-@@@
+```
 line.decode("utf-8")
-@@@
+```
 
 If decoding fails, classify the record or file according to the contract.
 
@@ -876,13 +876,13 @@ If decoding fails, classify the record or file according to the contract.
 
 JSONL is frequently compressed:
 
-@@@
+```
 payments.jsonl.gz
-@@@
+```
 
 Use streaming decompression:
 
-@@@
+```
 import gzip
 
 with gzip.open(
@@ -896,7 +896,7 @@ with gzip.open(
     ):
         record = json.loads(line)
         process_record(record)
-@@@
+```
 
 Do not create a huge uncompressed temporary copy unless required.
 
@@ -908,7 +908,7 @@ A production JSONL file may live in object storage.
 
 The logical flow remains:
 
-@@@
+```
 object storage
       |
       v
@@ -925,7 +925,7 @@ validate
       |
       v
 stage
-@@@
+```
 
 Keep object retrieval separate from record parsing.
 
@@ -957,20 +957,20 @@ Line-oriented data is naturally checkpointable.
 
 Example:
 
-@@@
+```
 source_hash = "abc123"
 last_committed_line = 500000
-@@@
+```
 
 If the process fails after line 500,000, the next attempt can determine what has already been staged.
 
 A robust checkpoint should include enough source identity:
 
-@@@
+```
 source_hash
 line_number
 extractor_version
-@@@
+```
 
 Never checkpoint only a line number without identifying the source file.
 
@@ -996,10 +996,10 @@ A strong pipeline uses both when appropriate.
 
 For example:
 
-@@@
+```
 checkpoint -> reduce restart cost
 idempotency -> prevent duplicate state
-@@@
+```
 
 Do not rely on checkpoint state alone to guarantee correctness.
 
@@ -1009,7 +1009,7 @@ Do not rely on checkpoint state alone to guarantee correctness.
 
 Conceptually:
 
-@@@
+```
 last_committed_line = get_checkpoint(
     source_hash
 )
@@ -1022,7 +1022,7 @@ for line_number, line in enumerate(
         continue
 
     process(line)
-@@@
+```
 
 This only works safely if:
 
@@ -1039,7 +1039,7 @@ Avoid claiming that the file reader itself provides exactly-once processing.
 
 A practical architecture is:
 
-@@@
+```
 at-least-once reading
         +
 durable checkpoint
@@ -1049,7 +1049,7 @@ idempotent staging
 deterministic identity
         =
 safe replay
-@@@
+```
 
 The extractor may read the same line more than once.
 
@@ -1072,11 +1072,11 @@ Ask:
 
 If order matters, preserve:
 
-@@@
+```
 source_hash
 line_number
 event_sequence
-@@@
+```
 
 Do not infer business ordering from ingestion time.
 
@@ -1086,12 +1086,12 @@ Do not infer business ordering from ingestion time.
 
 A JSONL event may contain:
 
-@@@
+```
 {
   "event_id": "E001",
   "occurred_at": "2026-09-26T08:00:00Z"
 }
-@@@
+```
 
 The line number tells you where the record appeared in the file.
 
@@ -1116,15 +1116,15 @@ Use separate controls for each.
 
 For example:
 
-@@@
+```
 (source_hash, line_number)
-@@@
+```
 
 for technical source identity, and:
 
-@@@
+```
 event_id
-@@@
+```
 
 for event identity if the producer guarantees it.
 
@@ -1138,7 +1138,7 @@ Store the parsed JSON payload in staging when practical.
 
 Example:
 
-@@@
+```
 {
   "source_hash": "abc123",
   "line_number": 42,
@@ -1149,7 +1149,7 @@ Example:
     "currency": "EUR"
   }
 }
-@@@
+```
 
 This makes downstream transformations reproducible.
 
@@ -1161,7 +1161,7 @@ If raw retention is restricted by policy, retain the minimum permitted evidence 
 
 Example PostgreSQL schema:
 
-@@@
+```
 CREATE TABLE jsonl_staging (
     source_hash TEXT NOT NULL,
     source_uri TEXT NOT NULL,
@@ -1172,7 +1172,7 @@ CREATE TABLE jsonl_staging (
     extractor_version TEXT NOT NULL,
     PRIMARY KEY (source_hash, line_number)
 );
-@@@
+```
 
 Technical metadata stays separate from business payload.
 
@@ -1182,7 +1182,7 @@ Technical metadata stays separate from business payload.
 
 Track the file-level operation separately.
 
-@@@
+```
 CREATE TABLE jsonl_extraction_run (
     run_id BIGSERIAL PRIMARY KEY,
     source_uri TEXT NOT NULL,
@@ -1197,7 +1197,7 @@ CREATE TABLE jsonl_extraction_run (
     started_at TIMESTAMPTZ NOT NULL,
     completed_at TIMESTAMPTZ
 );
-@@@
+```
 
 This gives operators a durable processing record.
 
@@ -1207,7 +1207,7 @@ This gives operators a durable processing record.
 
 Using psycopg:
 
-@@@
+```
 from psycopg.types.json import Jsonb
 
 
@@ -1255,7 +1255,7 @@ def insert_batch(
             ],
         )
     connection.commit()
-@@@
+```
 
 For very high volumes, use the database driver's bulk-loading capabilities where the data model permits them.
 
@@ -1263,7 +1263,7 @@ For very high volumes, use the database driver's bulk-loading capabilities where
 
 # 42. End-to-End Extraction Skeleton
 
-@@@
+```
 import json
 from pathlib import Path
 
@@ -1346,7 +1346,7 @@ def extract_jsonl(
         )
 
     return lines_seen
-@@@
+```
 
 This is a foundation, not a universal framework.
 
@@ -1358,11 +1358,11 @@ Keep source-specific rules in the source contract.
 
 Bad:
 
-@@@
+```
 for line in source:
     insert_record(line)
     connection.commit()
-@@@
+```
 
 This creates excessive transaction overhead.
 
@@ -1401,7 +1401,7 @@ Do not advance the checkpoint before the corresponding database transaction is d
 
 The safe order is:
 
-@@@
+```
 READ RECORDS
     |
     v
@@ -1412,11 +1412,11 @@ COMMIT TRANSACTION
     |
     v
 ADVANCE CHECKPOINT
-@@@
+```
 
 Not:
 
-@@@
+```
 READ RECORDS
     |
     v
@@ -1424,7 +1424,7 @@ ADVANCE CHECKPOINT
     |
     v
 WRITE DATA
-@@@
+```
 
 The second sequence can permanently skip data after a crash.
 
@@ -1434,11 +1434,11 @@ The second sequence can permanently skip data after a crash.
 
 Inject:
 
-@@@
+```
 {"payment_id":"P001","amount":100}
 {"payment_id":"P002","amount":
 {"payment_id":"P003","amount":300}
-@@@
+```
 
 Expected strict behavior:
 
@@ -1460,9 +1460,9 @@ Expected tolerant behavior:
 
 Inject:
 
-@@@
+```
 {"payment_id":"P002","amount":250}
-@@@
+```
 
 Expected:
 
@@ -1482,14 +1482,14 @@ Run the same file twice.
 
 Expected:
 
-@@@
+```
 first run:
 1000 staged
 
 second run:
 1000 attempted
 0 duplicate rows created
-@@@
+```
 
 The second run should not silently corrupt counts.
 
@@ -1547,7 +1547,7 @@ This is a source-control problem, not something to hide inside the parser.
 
 Track at least:
 
-@@@
+```
 jsonl_files_discovered_total
 jsonl_files_completed_total
 jsonl_files_failed_total
@@ -1559,7 +1559,7 @@ jsonl_validation_errors_total
 jsonl_duplicate_records_total
 jsonl_bytes_read_total
 jsonl_extraction_duration_seconds
-@@@
+```
 
 Useful dimensions:
 
@@ -1578,7 +1578,7 @@ Avoid putting raw record IDs or arbitrary payload values into metric labels.
 
 Success:
 
-@@@
+```
 {
   "event": "jsonl_extraction_completed",
   "source": "payments",
@@ -1588,11 +1588,11 @@ Success:
   "records_rejected": 0,
   "duration_ms": 62000
 }
-@@@
+```
 
 Failure:
 
-@@@
+```
 {
   "event": "jsonl_extraction_failed",
   "source": "payments",
@@ -1600,7 +1600,7 @@ Failure:
   "line_number": 532901,
   "error_code": "MALFORMED_JSON"
 }
-@@@
+```
 
 Log metadata, not sensitive payloads.
 
@@ -1612,19 +1612,19 @@ At completion, verify relevant invariants.
 
 For strict processing:
 
-@@@
+```
 lines_seen = records_staged
 records_rejected = 0
-@@@
+```
 
 For tolerant processing:
 
-@@@
+```
 lines_seen =
     records_staged
     + records_rejected
     + explicitly_skipped_lines
-@@@
+```
 
 Also verify:
 
@@ -1642,20 +1642,20 @@ Some producers provide expected counts.
 
 Example manifest:
 
-@@@
+```
 {
   "file": "payments.jsonl",
   "expected_records": 1000000
 }
-@@@
+```
 
 After extraction:
 
-@@@
+```
 expected_records = 1000000
 lines_seen = 1000000
 records_staged = 1000000
-@@@
+```
 
 If the counts do not reconcile, the delivery should not be marked complete unless the contract explicitly permits the difference.
 
@@ -1667,10 +1667,10 @@ JSONL parsing alone cannot prove delivery completeness.
 
 JSONL makes additive fields easy:
 
-@@@
+```
 {"id":"P001","amount":100}
 {"id":"P002","amount":200,"channel":"mobile"}
-@@@
+```
 
 Your extractor can preserve unknown fields while enforcing required fields.
 
@@ -1690,13 +1690,13 @@ Do not silently coerce breaking changes just to keep the pipeline green.
 
 For important producers, store:
 
-@@@
+```
 producer
 dataset
 format_version
 extractor_version
 schema_version
-@@@
+```
 
 This allows operators to determine which parser contract processed a record.
 
@@ -1712,7 +1712,7 @@ For object-storage JSONL feeds, prefer immutable object keys or versioned object
 
 A robust sequence is:
 
-@@@
+```
 producer writes object
        |
        v
@@ -1729,7 +1729,7 @@ JSONL extraction
        |
        v
 staging
-@@@
+```
 
 This builds on the earlier file-arrival and file-completeness recipes.
 
@@ -1764,11 +1764,11 @@ Each worker must start and end at valid line boundaries.
 
 Conceptually:
 
-@@@
+```
 worker 1: lines 1 - 1,000,000
 worker 2: lines 1,000,001 - 2,000,000
 worker 3: lines 2,000,001 - 3,000,000
-@@@
+```
 
 The implementation should coordinate actual byte offsets and boundary discovery.
 
@@ -1798,10 +1798,10 @@ Treat every JSONL line as untrusted input.
 
 Do not:
 
-@@@
+```
 eval(record["code"])
 exec(record["code"])
-@@@
+```
 
 Do not log entire payloads when they contain sensitive information.
 
@@ -1845,7 +1845,7 @@ Minimum cases:
 
 # 64. Example Unit Tests
 
-@@@
+```
 import json
 import pytest
 
@@ -1927,7 +1927,7 @@ def test_missing_field_fails(tmp_path):
                     ["payment_id", "currency"],
                 )
             )
-@@@
+```
 
 ---
 
@@ -1939,7 +1939,7 @@ Integration tests validate the pipeline.
 
 A useful integration test is:
 
-@@@
+```
 JSONL file
    |
    v
@@ -1950,7 +1950,7 @@ PostgreSQL
    |
    v
 staging assertions
-@@@
+```
 
 Verify:
 
@@ -2014,9 +2014,9 @@ Use for:
 
 The core operation is:
 
-@@@
+```
 json.loads(line)
-@@@
+```
 
 The key advantage is that parsing is limited to one record at a time.
 
@@ -2028,7 +2028,7 @@ Use for compressed JSONL files.
 
 Example:
 
-@@@
+```
 with gzip.open(
     "payments.jsonl.gz",
     "rt",
@@ -2036,7 +2036,7 @@ with gzip.open(
 ) as source:
     for line in source:
         record = json.loads(line)
-@@@
+```
 
 Use streaming decompression instead of creating unnecessary temporary files.
 
@@ -2048,9 +2048,9 @@ Useful for staging the original parsed record while retaining structured query c
 
 Example:
 
-@@@
+```
 payload JSONB NOT NULL
-@@@
+```
 
 Keep the raw structure available until downstream modeling has safely extracted the required business fields.
 
@@ -2285,7 +2285,7 @@ JSONL changes the extraction unit from a whole document to an individual line.
 
 That gives the pipeline a natural streaming model:
 
-@@@
+```
 SOURCE
   |
   v
@@ -2307,7 +2307,7 @@ COMMIT
   |
   v
 CHECKPOINT
-@@@
+```
 
 The critical production rules are:
 
