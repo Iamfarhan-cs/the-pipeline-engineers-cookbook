@@ -102,6 +102,7 @@ PROVE YOU ARE DONE
 | Recipe | Topic |
 |---:|---|
 | [Recipe 27 — Pipeline Orchestration & Scheduling](27-pipeline-orchestration-and-scheduling.md) | Workflow execution, dependencies and scheduling |
+| [Recipe 28 — Pipeline Run Tracking](28-pipeline-run-tracking.md) | Durable execution identity, state and history |
 
 ## Learning Order
 
@@ -160,7 +161,9 @@ PROVE YOU ARE DONE
    ↓
 27 Pipeline Orchestration & Scheduling
    ↓
-28+
+28 Pipeline Run Tracking
+   ↓
+29+
 Future Core Recipes
 ~~~
 
