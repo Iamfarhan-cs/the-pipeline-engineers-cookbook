@@ -93,6 +93,7 @@ PROVE YOU ARE DONE
 | [Recipe 21 — Transactions & Atomicity](21-transactions-atomicity.md) | Atomic database operations |
 | [Recipe 22 — Bulk Loading](22-bulk-loading.md) | High-volume loading |
 | [Recipe 23 — Batch Size & Chunking](23-batch-size-and-chunking.md) | Workload chunking |
+| [Recipe 24 — Partial Failure](24-partial-failure.md) | Failure isolation |
 
 ## Learning Order
 
@@ -143,7 +144,9 @@ PROVE YOU ARE DONE
    ↓
 23 Batch Size & Chunking
    ↓
-24+
+24 Partial Failure
+   ↓
+25+
 Future Core Recipes
 ```
 
