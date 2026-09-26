@@ -1331,7 +1331,7 @@ Before saying that you understand the repository's tests, check:
 
 ## 37. What You Learned
 
-In this chapter, you learned how to use tests as a repository-investigation tool.
+In this recipe, you learned how to use tests as a repository-investigation tool.
 
 You learned how to:
 
