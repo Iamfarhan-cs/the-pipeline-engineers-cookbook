@@ -21,7 +21,7 @@ Common problems:
 
 The extraction boundary is:
 
-~~~text
+```text
 CLOUD STORAGE
       ↓
 DISCOVER OBJECTS
@@ -37,19 +37,19 @@ VALIDATE
 PERSIST
       ↓
 CHECKPOINT OBJECT
-~~~
+```
 
 ## 2. Object Storage Mental Model
 
 An object is commonly identified by:
 
-~~~text
+```text
 BUCKET / CONTAINER
         +
 OBJECT KEY / BLOB NAME
         +
 VERSION OR GENERATION
-~~~
+```
 
 Useful metadata can include size, content type, checksum, ETag, last-modified time, version ID, generation number, and custom metadata.
 
@@ -59,20 +59,20 @@ Do not assume an object key alone identifies one immutable object. A producer ca
 
 Suppose:
 
-~~~text
+```text
 bucket = payments
 key = daily/2026-09-26.json
-~~~
+```
 
 Version A may exist at one point and version B may later replace it.
 
 Therefore:
 
-~~~text
+```text
 KEY
  ≠
 IMMUTABLE OBJECT IDENTITY
-~~~
+```
 
 Where the provider exposes versions or generations, use them when replacement detection matters. If versioning is unavailable, use a documented combination of key, size, checksum, and modification metadata as appropriate.
 
@@ -80,7 +80,7 @@ Where the provider exposes versions or generations, use them when replacement de
 
 A basic discovery flow is:
 
-~~~text
+```text
 LIST PREFIX
     ↓
 OBJECT METADATA
@@ -90,13 +90,13 @@ FILTER ELIGIBLE OBJECTS
 IDENTIFY OBJECT
     ↓
 PROCESS
-~~~
+```
 
 Use paginated listing for large prefixes. Do not load millions of object records into memory.
 
 Example:
 
-~~~python
+```python
 def discover_objects(client, bucket, prefix):
     continuation_token = None
 
@@ -114,7 +114,7 @@ def discover_objects(client, bucket, prefix):
 
         if not continuation_token:
             break
-~~~
+```
 
 The exact fields differ by provider. The principle is that discovery must be bounded and restartable.
 
@@ -122,14 +122,14 @@ The exact fields differ by provider. The principle is that discovery must be bou
 
 A useful object layout can look like:
 
-~~~text
+```text
 payments/
   year=2026/
     month=09/
       day=26/
         payments-001.json
         payments-002.json
-~~~
+```
 
 Good prefixes help discovery, targeted extraction, backfills, retention, troubleshooting, and parallel processing.
 
@@ -140,24 +140,24 @@ An object being visible does not necessarily mean it is ready.
 Common producer contracts include:
 
 ### Temporary publication
-~~~text
+```text
 upload.part
     ↓
 upload.json
-~~~
+```
 
 ### Completion marker
-~~~text
+```text
 data.json
 done.marker
-~~~
+```
 
 ### Manifest
-~~~text
+```text
 manifest.json
     ↓
 references complete objects
-~~~
+```
 
 ### Immutable publication
 The producer guarantees that once published, the object will not be modified.
@@ -168,13 +168,13 @@ Use the actual producer contract. Do not invent arbitrary sleep periods as a rea
 
 Before downloading a large object, inspect metadata when useful:
 
-~~~python
+```python
 def inspect_object(client, bucket, key):
     return client.head_object(
         bucket=bucket,
         key=key,
     )
-~~~
+```
 
 Useful checks include existence, size, content type, checksum, ETag, version/generation, and modification time.
 
@@ -182,7 +182,7 @@ Useful checks include existence, size, content type, checksum, ETag, version/gen
 
 Define what the source is allowed to publish.
 
-~~~python
+```python
 OBJECT_CONTRACT = {
     "prefix": "payments/",
     "allowed_content_types": {
@@ -191,7 +191,7 @@ OBJECT_CONTRACT = {
     },
     "max_size_bytes": 5_000_000_000,
 }
-~~~
+```
 
 Validate each object against the contract before expensive processing.
 
@@ -201,19 +201,19 @@ Do not assume an object fits in memory.
 
 Unsafe:
 
-~~~python
+```python
 payload = client.download_object(bucket, key)
 data = parse(payload)
-~~~
+```
 
 Prefer streaming:
 
-~~~python
+```python
 response = client.get_object(bucket=bucket, key=key)
 
 for chunk in response.iter_chunks():
     process_chunk(chunk)
-~~~
+```
 
 The exact API depends on the provider.
 
@@ -221,7 +221,7 @@ The exact API depends on the provider.
 
 When a complete local artifact is required, write to a temporary file and publish atomically:
 
-~~~python
+```python
 from pathlib import Path
 
 
@@ -235,7 +235,7 @@ def download_atomically(client, bucket, key, destination):
                 target.write(chunk)
 
     temporary.replace(destination)
-~~~
+```
 
 The .part file prevents downstream code from treating an incomplete download as complete.
 
@@ -243,7 +243,7 @@ The .part file prevents downstream code from treating an incomplete download as 
 
 Where the provider exposes a reliable checksum, verify downloaded content when practical:
 
-~~~text
+```text
 EXPECTED CHECKSUM
         ↓
 DOWNLOAD
@@ -253,7 +253,7 @@ CALCULATE CHECKSUM
 COMPARE
         ↓
 ACCEPT / REJECT
-~~~
+```
 
 Do not assume an ETag is always a cryptographic checksum. Its semantics depend on the provider and upload method.
 
@@ -263,7 +263,7 @@ The same object can be discovered repeatedly because of scheduler reruns, retrie
 
 Persist processing identity:
 
-~~~sql
+```sql
 CREATE TABLE processed_object (
     bucket_name TEXT NOT NULL,
     object_key TEXT NOT NULL,
@@ -276,7 +276,7 @@ CREATE TABLE processed_object (
         object_version
     )
 );
-~~~
+```
 
 The identity columns must match the provider and source contract.
 
@@ -290,7 +290,7 @@ Do not automatically discard version B merely because the key was processed befo
 
 Safe:
 
-~~~text
+```text
 OBJECT ID
    ↓
 EXTRACT
@@ -300,17 +300,17 @@ PERSIST
 VERIFY
    ↓
 CHECKPOINT
-~~~
+```
 
 Unsafe:
 
-~~~text
+```text
 DISCOVER
    ↓
 CHECKPOINT
    ↓
 DOWNLOAD
-~~~
+```
 
 If the worker crashes after an unsafe checkpoint, the object may be skipped permanently.
 
@@ -318,7 +318,7 @@ If the worker crashes after an unsafe checkpoint, the object may be skipped perm
 
 Example state table:
 
-~~~sql
+```sql
 CREATE TABLE object_extraction_run (
     object_id TEXT PRIMARY KEY,
     status TEXT NOT NULL,
@@ -328,11 +328,11 @@ CREATE TABLE object_extraction_run (
     attempt_count INTEGER NOT NULL DEFAULT 0,
     error_message TEXT
 );
-~~~
+```
 
 Typical states:
 
-~~~text
+```text
 DISCOVERED
    ↓
 PROCESSING
@@ -348,7 +348,7 @@ RETRY
 FAILED
    ↓
 QUARANTINED
-~~~
+```
 
 ## 16. Network Failure and Retry
 
@@ -356,7 +356,7 @@ Cloud downloads can fail because of timeouts, connection resets, provider errors
 
 Transient failures should use bounded retries and backoff. Permanent validation failures should not be retried forever.
 
-~~~python
+```python
 import time
 
 
@@ -368,7 +368,7 @@ def retry_download(download, attempts=3):
             if attempt == attempts:
                 raise
             time.sleep(2 ** (attempt - 1))
-~~~
+```
 
 Production implementations should classify provider-specific errors and add jitter where appropriate.
 
@@ -376,7 +376,7 @@ Production implementations should classify provider-specific errors and add jitt
 
 If listing or download requests are throttled:
 
-~~~text
+```text
 THROTTLE
    ↓
 BACKOFF
@@ -384,7 +384,7 @@ BACKOFF
 REDUCE REQUEST RATE
    ↓
 RETRY
-~~~
+```
 
 Do not respond to throttling by immediately increasing concurrency.
 
@@ -392,12 +392,12 @@ Do not respond to throttling by immediately increasing concurrency.
 
 Objects can often be processed concurrently:
 
-~~~text
+```text
 OBJECT A ── Worker 1
 OBJECT B ── Worker 2
 OBJECT C ── Worker 3
 OBJECT D ── Worker 4
-~~~
+```
 
 Bound concurrency according to cloud request limits, bandwidth, CPU, memory, and destination capacity.
 
@@ -413,7 +413,7 @@ Object names and modification times are not automatically equivalent to event or
 
 An expected object that is absent now is not necessarily permanently missing.
 
-~~~text
+```text
 EXPECTED OBJECT
       ↓
 NOT PRESENT
@@ -421,7 +421,7 @@ NOT PRESENT
 MISSING NOW
       ≠
 PERMANENTLY MISSING
-~~~
+```
 
 Use the source's expected-arrival contract and freshness policy.
 
@@ -433,7 +433,7 @@ Common formats include gzip, zip, bzip2, and zstandard.
 
 Prefer streaming decompression for large objects:
 
-~~~text
+```text
 CLOUD OBJECT
      ↓
 DOWNLOAD STREAM
@@ -443,7 +443,7 @@ DECOMPRESS
 PARSE
      ↓
 PERSIST
-~~~
+```
 
 Avoid fully decompressing very large objects into memory.
 
@@ -459,13 +459,13 @@ Format-specific extraction is covered by the dedicated CSV, JSON, XML, Excel, an
 
 The safest contract is:
 
-~~~text
+```text
 OBJECT PUBLISHED
       ↓
 OBJECT IMMUTABLE
       ↓
 CONSUMER READS
-~~~
+```
 
 If objects can be overwritten, use version IDs, generations, checksums, manifests, or another source-defined mechanism.
 
@@ -475,7 +475,7 @@ Version-aware extraction is useful when corrections, auditability, and replay ma
 
 Using an S3-compatible Python client:
 
-~~~python
+```python
 import boto3
 
 
@@ -497,7 +497,7 @@ def extract_object(bucket, key):
             break
 
         yield chunk
-~~~
+```
 
 The important behavior is streaming rather than loading the entire object into memory.
 
@@ -531,7 +531,7 @@ Test at least:
 
 ## 26. Example Unit Tests
 
-~~~python
+```python
 def test_object_identity_includes_version():
     first = ("payments", "daily/data.json", "version-a")
     second = ("payments", "daily/data.json", "version-b")
@@ -552,13 +552,13 @@ def test_replacement_is_new_object_identity():
     }
     replacement = ("payments", "daily/data.json", "version-b")
     assert replacement not in processed
-~~~
+```
 
 ## 27. Observability
 
 Useful metrics:
 
-~~~text
+```text
 cloud_objects_discovered_total
 cloud_objects_processed_total
 cloud_objects_failed_total
@@ -573,11 +573,11 @@ cloud_throttling_errors_total
 cloud_network_errors_total
 cloud_late_objects_total
 cloud_missing_objects_total
-~~~
+```
 
 Useful log fields:
 
-~~~text
+```text
 provider
 bucket
 object_key
@@ -589,7 +589,7 @@ attempt
 processing_status
 processing_duration
 error_type
-~~~
+```
 
 Do not log sensitive object contents by default.
 
@@ -693,7 +693,7 @@ Cloud-storage extraction is fundamentally about **object identity, readiness, du
 
 The core pattern is:
 
-~~~text
+```text
 DISCOVER
    ↓
 IDENTIFY
@@ -711,7 +711,7 @@ VERIFY
 CHECKPOINT
    ↓
 MONITOR
-~~~
+```
 
 The most important rule is:
 
