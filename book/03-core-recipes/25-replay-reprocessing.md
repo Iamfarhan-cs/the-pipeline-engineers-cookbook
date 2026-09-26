@@ -1776,3 +1776,45 @@ These tools solve or provide production implementations of concepts covered in t
 ---
 
 
+
+
+## Implementation Lab — Controlled Replay
+
+### 1. Replay selection
+
+~~~python
+from dataclasses import dataclass
+
+@dataclass
+class ReplayItem:
+    event_id: str
+    status: str
+
+def select_replay(items):
+    return [x for x in items if x.status == "FAILED"]
+~~~
+
+### 2. Freeze the replay set
+
+~~~python
+items = [
+    ReplayItem("evt-1", "FAILED"),
+    ReplayItem("evt-2", "SUCCESS"),
+    ReplayItem("evt-3", "FAILED"),
+]
+replay_set = select_replay(items)
+assert [x.event_id for x in replay_set] == ["evt-1", "evt-3"]
+~~~
+
+Persist the selected IDs in a replay run before execution.
+
+### 3. Intentional failure drill
+
+Replay the same set twice without idempotency. Observe duplicate output. Add the idempotent write boundary and repeat.
+
+### 4. Recovery verification
+
+Confirm the selected set, final outcome of every item, visible failures, reconciled downstream state, and safe repeated execution.
+
+---
+
