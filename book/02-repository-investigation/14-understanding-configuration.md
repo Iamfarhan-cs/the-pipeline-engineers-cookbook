@@ -1,4 +1,4 @@
-# Recipe 14 — Understanding Configuration
+# Chapter 14 — Understanding Configuration
 
 Configuration is one of the easiest parts of a Data Engineering repository to misunderstand.
 
