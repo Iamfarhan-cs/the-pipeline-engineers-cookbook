@@ -42,7 +42,7 @@ The **Cross-Cutting Production** group teaches the reliability, performance, obs
 
 | ID | Recipe |
 |---|---|
-| E01 | Extract Data from REST APIs |
+| E01 | [Extract Data from REST APIs](E01-extract-data-from-rest-apis.md) |
 | E02 | Extract Data from Paginated APIs |
 | E03 | Extract Data from GraphQL APIs |
 | E04 | Extract Data from Relational Databases |
