@@ -1,4 +1,4 @@
-# Chapter 29 — Checkpointing
+# Recipe 29 — Checkpointing
 
 A pipeline needs to know where it stopped.
 
