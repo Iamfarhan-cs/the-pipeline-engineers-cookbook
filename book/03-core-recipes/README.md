@@ -132,7 +132,9 @@ PROVE YOU ARE DONE
    ↓
 19 Dead-Letter / Data-Quality Lifecycle
    ↓
-20+
+20 Boundary Validation
+   ↓
+21+
 Future Core Recipes
 ```
 
