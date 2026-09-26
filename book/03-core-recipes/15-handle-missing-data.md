@@ -397,23 +397,23 @@ Missing:
 
 PostgreSQL example:
 
-~~~sql
+```sql
 SELECT s.event_id
 FROM source_events AS s
 LEFT JOIN target_events AS t
     ON t.event_id = s.event_id
 WHERE t.event_id IS NULL;
-~~~
+```
 
 Count the missing records:
 
-~~~sql
+```sql
 SELECT COUNT(*) AS missing_count
 FROM source_events AS s
 LEFT JOIN target_events AS t
     ON t.event_id = s.event_id
 WHERE t.event_id IS NULL;
-~~~
+```
 
 This turns a difference into a recovery set.
 
@@ -423,13 +423,13 @@ This turns a difference into a recovery set.
 
 Also identify target records that do not exist in the source scope:
 
-~~~sql
+```sql
 SELECT t.event_id
 FROM target_events AS t
 LEFT JOIN source_events AS s
     ON s.event_id = t.event_id
 WHERE s.event_id IS NULL;
-~~~
+```
 
 Possible explanations include:
 
@@ -594,12 +594,12 @@ Important rule:
 
 A cursor API might return:
 
-~~~json
+```json
 {
   "data": [...],
   "next_cursor": "abc123"
 }
-~~~
+```
 
 Conceptual flow:
 
@@ -840,7 +840,7 @@ If missing IDs are known:
 
 Example:
 
-~~~sql
+```sql
 SELECT *
 FROM source_events
 WHERE event_id IN (
@@ -848,7 +848,7 @@ WHERE event_id IN (
     'evt-1007',
     'evt-1020'
 );
-~~~
+```
 
 The recovered records should normally use the same validation and idempotency rules as normal data.
 
@@ -1689,7 +1689,7 @@ The key is to define the semantics before implementing the recovery path.
 
 Suppose staging records contain processing status:
 
-~~~sql
+```sql
 SELECT
     COUNT(*) AS total,
     COUNT(*) FILTER (WHERE status = 'PROCESSED') AS processed,
@@ -1697,7 +1697,7 @@ SELECT
     COUNT(*) FILTER (WHERE status = 'QUARANTINED') AS quarantined
 FROM staging_events
 WHERE batch_id = 'batch-2026-09-26';
-~~~
+```
 
 Then verify that:
 
@@ -1718,7 +1718,7 @@ Use the actual statuses in the repository.
 
 A control table may contain:
 
-~~~text
+```text
 pipeline_run_id
 source
 dataset
@@ -1734,27 +1734,27 @@ completeness_status
 recovery_status
 created_at
 completed_at
-~~~
+```
 
 Before recovery:
 
-~~~text
+```text
 expected = 100000
 observed = 99700
 missing = 300
 completeness = INCOMPLETE
 recovery = PENDING
-~~~
+```
 
 After recovery:
 
-~~~text
+```text
 expected = 100000
 observed = 100000
 missing = 0
 completeness = COMPLETE
 recovery = COMPLETED
-~~~
+```
 
 This provides an auditable history.
 
