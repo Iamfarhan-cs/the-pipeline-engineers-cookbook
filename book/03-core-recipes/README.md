@@ -110,6 +110,7 @@ PROVE YOU ARE DONE
 | [E52 — File Completeness Detection](E52-file-completeness-detection.md) | Prove all required members of a file delivery are present |
 | [E53 — File Validation — ETL Application](E53-file-validation-etl-application.md) | Validate file integrity, structure, format, and extraction readiness |
 | [E54 — CSV Extraction — ETL Application](E54-csv-extraction-etl-application.md) | Stream and extract CSV records safely into staging |
+| [E55 — JSON Extraction — ETL Application](E55-json-extraction-etl-application.md) | Parse, validate, stream, and stage JSON documents safely |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
