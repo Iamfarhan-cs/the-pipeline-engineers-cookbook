@@ -1897,4 +1897,18 @@ We will cover:
 
 The key question will be:
 
-> When data needs to be processed again, how do we do it without creating duplicates or losing history?
+> When data needs to be processed again, how do we do it without creating duplicates or losing history?## Production Tools You Should Know
+
+These tools solve or provide production implementations of concepts covered in this recipe. Learn what the tool provides, but understand the underlying problem first.
+
+| Tool | What to know |
+|---|---|
+| **Tenacity** | Python retry and backoff implementation. |
+| **Apache Airflow** | Task retry configuration and scheduling. |
+| **Apache Kafka** | Producer/consumer retry and delivery behavior. |
+
+> These are reference tools for recognition and vocabulary, not substitutes for understanding the engineering mechanism.
+
+---
+
+
