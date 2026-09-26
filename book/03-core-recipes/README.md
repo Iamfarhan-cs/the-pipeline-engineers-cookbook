@@ -118,6 +118,7 @@ PROVE YOU ARE DONE
 | [E60 — Compressed File Extraction](E60-compressed-file-extraction.md) | Safely decompress, inspect, stream, validate, and stage compressed deliveries |
 | [E61 — Large File Streaming](E61-large-file-streaming.md) | Process files larger than memory using bounded streaming, batching, backpressure, and restart-safe checkpoints |
 | [E62 — Multi-File Extraction](E62-multi-file-extraction.md) | Group, process, reconcile, retry, and recover multi-file deliveries with durable file and delivery state |
+| [E63 — Duplicate File Detection](E63-duplicate-file-detection.md) | Detect duplicate observations, duplicate content, replay, and replacements without losing valid corrections |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
