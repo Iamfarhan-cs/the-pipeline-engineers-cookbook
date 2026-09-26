@@ -18,7 +18,7 @@ A quarantine mechanism gives these records a separate path.
 
 The basic idea is:
 
-~~~text
+```text
 normal pipeline
       |
       v
@@ -30,7 +30,7 @@ normal pipeline
                                   |
                                   v
                               quarantine
-~~~
+```
 
 Quarantine is not simply a place to put bad data.
 
@@ -73,17 +73,17 @@ The central idea is:
 
 Consider a pipeline processing incoming records:
 
-~~~text
+```text
 Record A -> success
 Record B -> success
 Record C -> invalid
 Record D -> success
 Record E -> invalid
-~~~
+```
 
 If the pipeline treats every failure as a retryable error:
 
-~~~text
+```text
 Record C
    |
    v
@@ -97,7 +97,7 @@ retry
    |
    v
 invalid
-~~~
+```
 
 The same record can fail repeatedly.
 
@@ -107,7 +107,7 @@ It also creates noise.
 
 A better approach is:
 
-~~~text
+```text
 Record C
    |
    v
@@ -115,17 +115,17 @@ validation failure
    |
    v
 quarantine
-~~~
+```
 
 The normal pipeline can continue:
 
-~~~text
+```text
 Record A -> completed
 Record B -> completed
 Record C -> quarantined
 Record D -> completed
 Record E -> quarantined
-~~~
+```
 
 The failed records remain available for investigation and recovery.
 
@@ -170,7 +170,7 @@ Retry asks:
 
 Example:
 
-~~~text
+```text
 API timeout
    |
    v
@@ -178,7 +178,7 @@ wait
    |
    v
 retry
-~~~
+```
 
 ### Quarantine
 
@@ -188,16 +188,16 @@ Quarantine asks:
 
 Example:
 
-~~~text
+```text
 invalid currency
    |
    v
 quarantine
-~~~
+```
 
 A useful decision model is:
 
-~~~text
+```text
 failure
    |
    v
@@ -208,7 +208,7 @@ classify
    +---- permanent ----> quarantine
    |
    +---- unknown -------> investigate / controlled failure path
-~~~
+```
 
 The exact classification depends on the system.
 
@@ -224,12 +224,12 @@ A record may be rejected immediately when the system knows it is not acceptable.
 
 For example:
 
-~~~text
+```text
 invalid request
    |
    v
 reject
-~~~
+```
 
 The source may receive an error response.
 
@@ -239,7 +239,7 @@ A record may be accepted into the system but isolated for later investigation or
 
 For example:
 
-~~~text
+```text
 received record
       |
       v
@@ -250,7 +250,7 @@ processing failure
       |
       v
 quarantine
-~~~
+```
 
 This distinction is useful because quarantine usually implies that the record remains available for recovery.
 
@@ -282,21 +282,21 @@ Not every error should become a quarantined record.
 
 For example, a temporary database outage may not require quarantine:
 
-~~~text
+```text
 database unavailable
       |
       v
 retry
-~~~
+```
 
 A worker crash may not require quarantine either:
 
-~~~text
+```text
 worker crash
       |
       v
 recover processing state
-~~~
+```
 
 Quarantine should represent a meaningful processing outcome.
 
@@ -308,7 +308,7 @@ Do not use it as a general-purpose error bucket.
 
 A simple architecture looks like this:
 
-~~~text
+```text
                  Incoming record
                        |
                        v
@@ -340,7 +340,7 @@ A simple architecture looks like this:
                               |
                               v
                            replay
-~~~
+```
 
 The quarantine path should eventually lead to a defined decision.
 
@@ -377,15 +377,15 @@ A quarantine system is only useful if the failed data can be investigated.
 
 Suppose a record fails because:
 
-~~~text
+```text
 currency = "XYZ"
-~~~
+```
 
 If the system stores only:
 
-~~~text
+```text
 error = invalid currency
-~~~
+```
 
 the original input may be lost.
 
@@ -411,7 +411,7 @@ Do not copy sensitive information into additional locations without a clear reas
 
 A generic quarantine record might contain:
 
-~~~text
+```text
 quarantine_id
 source_id
 event_id
@@ -425,7 +425,7 @@ quarantined_at
 resolved_at
 processing_version
 schema_version
-~~~
+```
 
 This is a **generic example**.
 
@@ -441,7 +441,7 @@ The important principle is:
 
 A quarantine record can have states such as:
 
-~~~text
+```text
 quarantined
      |
      v
@@ -458,7 +458,7 @@ under_review
      +------> rejected
      |
      +------> discarded
-~~~
+```
 
 These are generic example states.
 
@@ -472,9 +472,9 @@ Without clear states, teams can lose track of what happened.
 
 For example:
 
-~~~text
+```text
 record is quarantined
-~~~
+```
 
 But nobody knows whether:
 
@@ -495,10 +495,10 @@ The normal processing status and quarantine status can be separate.
 
 For example:
 
-~~~text
+```text
 processing_status = failed
 quarantine_status = quarantined
-~~~
+```
 
 Or the system can use one unified state model.
 
@@ -516,7 +516,7 @@ A record may enter quarantine after retry attempts are exhausted.
 
 For example:
 
-~~~text
+```text
 pending
    |
    v
@@ -536,7 +536,7 @@ maximum attempts reached
    |
    v
 quarantined
-~~~
+```
 
 This is one common pattern.
 
@@ -548,30 +548,30 @@ However, a permanent validation error may go directly to quarantine without retr
 
 Consider an incoming record:
 
-~~~json
+```json
 {
   "id": 1001,
   "currency": "INVALID"
 }
-~~~
+```
 
 Suppose the pipeline only supports:
 
-~~~text
+```text
 EUR
 USD
 GBP
-~~~
+```
 
 The validation layer can identify the problem:
 
-~~~text
+```text
 invalid currency
-~~~
+```
 
 Instead of retrying the same input:
 
-~~~text
+```text
 validate
    |
    X
@@ -579,7 +579,7 @@ invalid
    |
    v
 quarantine
-~~~
+```
 
 The record can later be corrected if the source value was wrong.
 
@@ -591,27 +591,27 @@ Schema mismatch is another common quarantine case.
 
 Suppose the pipeline expects:
 
-~~~text
+```text
 user_id
 amount
 currency
 timestamp
-~~~
+```
 
 But the incoming record contains:
 
-~~~text
+```text
 user
 amount
 currency
 timestamp
-~~~
+```
 
 If the pipeline cannot safely map user to user_id, it should not guess.
 
 Possible flow:
 
-~~~text
+```text
 schema mismatch
       |
       v
@@ -619,7 +619,7 @@ quarantine
       |
       v
 investigate source change
-~~~
+```
 
 This is safer than silently producing incorrect data.
 
@@ -631,9 +631,9 @@ A record can be structurally valid but still violate a business rule.
 
 For example:
 
-~~~text
+```text
 amount = -500
-~~~
+```
 
 If negative values are not allowed for the operation, the record may be quarantined.
 
@@ -643,10 +643,10 @@ The quarantine metadata should preserve the reason clearly.
 
 For example:
 
-~~~text
+```text
 failure_type = business_rule
 failure_message = amount must be positive
-~~~
+```
 
 The exact classification depends on the system.
 
@@ -658,25 +658,25 @@ There are several possible storage approaches.
 
 ### Same database
 
-~~~text
+```text
 main database
    |
    +--> normal tables
    |
    +--> quarantine table
-~~~
+```
 
 This can be convenient for small or moderate workloads.
 
 ### Separate schema
 
-~~~text
+```text
 database
    |
    +--> application schema
    |
    +--> quarantine schema
-~~~
+```
 
 This provides clearer logical separation.
 
@@ -701,7 +701,7 @@ Do not choose storage only because it is technically available.
 
 A generic PostgreSQL table could look like:
 
-~~~sql
+```sql
 CREATE TABLE quarantine_records (
     quarantine_id BIGSERIAL PRIMARY KEY,
     source_id TEXT,
@@ -714,7 +714,7 @@ CREATE TABLE quarantine_records (
     quarantined_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     resolved_at TIMESTAMPTZ
 );
-~~~
+```
 
 This is a **generic example**.
 
@@ -784,20 +784,20 @@ A useful quarantine record should answer:
 
 Avoid vague messages such as:
 
-~~~text
+```text
 processing failed
-~~~
+```
 
 Prefer meaningful categories:
 
-~~~text
+```text
 validation_error
 schema_mismatch
 business_rule_error
 unsupported_value
 retry_exhausted
 manual_review
-~~~
+```
 
 The exact values depend on the system.
 
@@ -811,19 +811,19 @@ The error message should provide enough information for investigation.
 
 For example:
 
-~~~text
+```text
 expected currency in {EUR, USD, GBP}; received XYZ
-~~~
+```
 
 But error messages should not expose secrets or unnecessary sensitive data.
 
 Do not include:
 
-~~~text
+```text
 password=...
 access_token=...
 full_document=...
-~~~
+```
 
 unless there is an explicitly justified and secure reason.
 
@@ -837,7 +837,7 @@ Quarantine should consume that classification.
 
 A simple model is:
 
-~~~text
+```text
 error
  |
  +---- retryable
@@ -848,7 +848,7 @@ error
           |
           v
        investigate
-~~~
+```
 
 Permanent failures can move to quarantine.
 
@@ -868,24 +868,24 @@ The operation may be attempted again.
 
 Without idempotency:
 
-~~~text
+```text
 same record
    |
    +----> quarantine row A
    |
    +----> quarantine row B
-~~~
+```
 
 This creates duplicate quarantine entries.
 
 A stable identifier can help:
 
-~~~text
+```text
 source/event identifier
         |
         v
 unique quarantine identity
-~~~
+```
 
 The exact uniqueness rule depends on whether the same logical record can be quarantined more than once.
 
@@ -897,23 +897,23 @@ Sometimes the same logical record can fail more than once for different reasons.
 
 For example:
 
-~~~text
+```text
 attempt 1 -> schema mismatch
 attempt 2 -> database failure
 attempt 3 -> business rule failure
-~~~
+```
 
 A single quarantine row may not represent this history well.
 
 Another design is:
 
-~~~text
+```text
 record
   |
   +--> quarantine event 1
   +--> quarantine event 2
   +--> quarantine event 3
-~~~
+```
 
 This preserves history.
 
@@ -933,7 +933,7 @@ Quarantine is useful only if recovery is possible.
 
 A common recovery flow is:
 
-~~~text
+```text
 quarantined
      |
      v
@@ -947,7 +947,7 @@ correct source/data
      |
      v
 replay
-~~~
+```
 
 The correction should be traceable.
 
@@ -959,9 +959,9 @@ Avoid silently changing the original data without recording what happened.
 
 Suppose the record contains:
 
-~~~text
+```text
 currency = XYZ
-~~~
+```
 
 There are several possible places to correct it.
 
@@ -989,7 +989,7 @@ Once the problem is corrected, the record can be replayed.
 
 For example:
 
-~~~text
+```text
 quarantined
     |
     v
@@ -1003,7 +1003,7 @@ processing
     |
     v
 completed
-~~~
+```
 
 The replay should still use normal safeguards:
 
@@ -1024,7 +1024,7 @@ Suppose a record is quarantined twice.
 
 The system should be able to show:
 
-~~~text
+```text
 Record 1001
 
 First quarantine:
@@ -1044,7 +1044,7 @@ Second correction:
 
 Second replay:
   result = completed
-~~~
+```
 
 This level of history may not be necessary for every system, but the operational requirement should be considered.
 
@@ -1054,7 +1054,7 @@ This level of history may not be necessary for every system, but the operational
 
 A review workflow can be as simple as:
 
-~~~text
+```text
 quarantined
      |
      v
@@ -1067,7 +1067,7 @@ review
      +---- invalid permanently --------> reject/discard
      |
      +---- unclear --------------------> investigate
-~~~
+```
 
 For larger systems, review may require a dedicated operational interface.
 
@@ -1083,7 +1083,7 @@ Some records cannot be automatically classified.
 
 For example:
 
-~~~text
+```text
 record
    |
    v
@@ -1091,7 +1091,7 @@ unusual transaction
    |
    v
 manual review required
-~~~
+```
 
 The quarantine system can provide a controlled waiting state.
 
@@ -1114,7 +1114,7 @@ Quarantined records should not remain unnoticed forever.
 
 Useful metrics include:
 
-~~~text
+```text
 records quarantined today
 records currently quarantined
 oldest quarantined record
@@ -1123,16 +1123,16 @@ records by failure type
 records awaiting review
 records replayed successfully
 records permanently rejected
-~~~
+```
 
 An aging view can reveal operational problems.
 
 For example:
 
-~~~text
+```text
 10 records quarantined today
 2,000 records older than 30 days
-~~~
+```
 
 The second number may indicate that the recovery process is not working.
 
@@ -1153,7 +1153,7 @@ Questions include:
 
 A possible lifecycle is:
 
-~~~text
+```text
 quarantined
     |
     v
@@ -1164,7 +1164,7 @@ retention period
     |
     v
 archive/delete
-~~~
+```
 
 The exact policy is system-specific.
 
@@ -1178,7 +1178,7 @@ It may be useful to retain metadata longer than the original payload.
 
 For example:
 
-~~~text
+```text
 payload
    |
    v
@@ -1188,7 +1188,7 @@ metadata
    |
    v
 retained for audit
-~~~
+```
 
 This can reduce storage and sensitive-data exposure.
 
@@ -1202,7 +1202,7 @@ Quarantine should be observable.
 
 Useful metrics include:
 
-~~~text
+```text
 quarantine_records_total
 quarantine_records_current
 quarantine_by_failure_type
@@ -1210,19 +1210,19 @@ quarantine_by_source
 quarantine_resolution_time
 quarantine_replay_success_total
 quarantine_replay_failure_total
-~~~
+```
 
 A sudden increase can indicate a production problem.
 
 For example:
 
-~~~text
+```text
 normal:
 20 quarantined records/day
 
 today:
 5,000 quarantined records
-~~~
+```
 
 That should trigger investigation.
 
@@ -1255,7 +1255,7 @@ A quarantine system should connect with normal pipeline observability.
 
 A useful investigation path is:
 
-~~~text
+```text
 alert
   |
   v
@@ -1278,7 +1278,7 @@ code/version
   |
   v
 root cause
-~~~
+```
 
 This makes quarantine part of the operational system rather than an isolated table.
 
@@ -1294,17 +1294,17 @@ At minimum, test:
 
 Expected:
 
-~~~text
+```text
 record enters quarantine
-~~~
+```
 
 ### Test 2 — Temporary failure
 
 Expected:
 
-~~~text
+```text
 record retries
-~~~
+```
 
 It should not be quarantined immediately if retry is appropriate.
 
@@ -1312,49 +1312,49 @@ It should not be quarantined immediately if retry is appropriate.
 
 Expected:
 
-~~~text
+```text
 record eventually enters quarantine
-~~~
+```
 
 ### Test 4 — Quarantine idempotency
 
 Expected:
 
-~~~text
+```text
 same failure does not create unintended duplicates
-~~~
+```
 
 ### Test 5 — Replay from quarantine
 
 Expected:
 
-~~~text
+```text
 corrected record can return to normal processing
-~~~
+```
 
 ### Test 6 — Replay failure
 
 Expected:
 
-~~~text
+```text
 new failure is recorded correctly
-~~~
+```
 
 ### Test 7 — Sensitive-data handling
 
 Expected:
 
-~~~text
+```text
 protected fields are not unnecessarily exposed
-~~~
+```
 
 ### Test 8 — Retention behavior
 
 Expected:
 
-~~~text
+```text
 expired data follows the defined retention policy
-~~~
+```
 
 ---
 
@@ -1366,17 +1366,17 @@ For example:
 
 Valid:
 
-~~~text
+```text
 quarantined -> under_review
 under_review -> replay_pending
 replay_pending -> completed
-~~~
+```
 
 Invalid:
 
-~~~text
+```text
 completed -> quarantined
-~~~
+```
 
 unless the system explicitly supports that transition.
 
@@ -1390,7 +1390,7 @@ Moving a record to quarantine should be designed carefully.
 
 Consider:
 
-~~~text
+```text
 process record
      |
      X
@@ -1401,23 +1401,23 @@ write quarantine
      |
      v
 update processing status
-~~~
+```
 
 What happens if the worker crashes between the two writes?
 
 You could end up with:
 
-~~~text
+```text
 quarantine row exists
 processing status still says processing
-~~~
+```
 
 Or the opposite:
 
-~~~text
+```text
 processing status says quarantined
 quarantine row does not exist
-~~~
+```
 
 The correct transaction boundary depends on the storage model.
 
@@ -1441,12 +1441,12 @@ For a PostgreSQL-based pipeline, quarantine can often be represented with:
 
 For example, useful indexes might support queries for:
 
-~~~text
+```text
 status = quarantined
 failure_type = ...
 created_at = ...
 source_id = ...
-~~~
+```
 
 The exact indexes should be based on real access patterns.
 
@@ -1470,10 +1470,10 @@ Storing every payload directly in PostgreSQL may increase:
 
 A different architecture may store:
 
-~~~text
+```text
 metadata -> database
 payload  -> object storage
-~~~
+```
 
 The correct design depends on the pipeline.
 
@@ -1506,7 +1506,7 @@ Never use quarantine as an excuse to bypass normal data-protection rules.
 
 A practical recovery workflow is:
 
-~~~text
+```text
 1. Detect quarantine growth
         |
         v
@@ -1538,11 +1538,11 @@ A practical recovery workflow is:
         |
         v
 11. Document the incident
-~~~
+```
 
 This is the same engineering cycle used throughout the book:
 
-~~~text
+```text
 Understand
     ->
 Investigate
@@ -1560,7 +1560,7 @@ Observe
 Recover
     ->
 Improve
-~~~
+```
 
 ---
 
@@ -1724,7 +1724,7 @@ It is a controlled failure path.
 
 The basic model is:
 
-~~~text
+```text
 record
    |
    v
@@ -1752,7 +1752,7 @@ classify
                     |
                     v
                 completed
-~~~
+```
 
 The most important lessons are:
 
