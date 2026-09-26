@@ -1194,7 +1194,7 @@ If these questions have clear answers, retry behavior becomes much easier to ope
 
 # What You Learned
 
-In this chapter, you learned:
+In this recipe, you learned:
 
 - Failures are normal in production pipelines.
 - Temporary and permanent failures should be treated differently.
@@ -1214,30 +1214,3 @@ The main lesson is:
 **A retry is not a failure strategy by itself. A reliable pipeline knows what failed, why it failed, whether it should retry, when it should stop, and how the failed work can be recovered.**
 
 ---
-
-# Recipe Preview
-
-Later in the book, these concepts will become implementation recipes.
-
-You will learn how to:
-
-- Classify pipeline failures.
-- Add retry policies.
-- Implement exponential backoff.
-- Add jitter.
-- Handle API rate limits.
-- Retry safe database operations.
-- Handle deadlocks.
-- Track processing state.
-- Build dead-letter handling.
-- Quarantine permanently failed data.
-- Recover partial processing.
-- Test retry exhaustion.
-- Monitor retry behavior.
-- Investigate production failures.
-
-The next chapter moves from failure handling to another core reliability topic:
-
-**Data Quality.**
-
-We will look at how to determine whether the data flowing through a pipeline is complete, valid, unique, consistent, and useful.
