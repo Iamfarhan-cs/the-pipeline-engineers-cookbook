@@ -94,6 +94,7 @@ PROVE YOU ARE DONE
 | [Recipe 22 — Bulk Loading](22-bulk-loading.md) | High-volume loading |
 | [Recipe 23 — Batch Size & Chunking](23-batch-size-and-chunking.md) | Workload chunking |
 | [Recipe 24 — Partial Failure](24-partial-failure.md) | Failure isolation |
+| [Recipe 25 — Rate Limiting](25-rate-limiting.md) | Dependency traffic control |
 
 ## Learning Order
 
@@ -146,7 +147,9 @@ PROVE YOU ARE DONE
    ↓
 24 Partial Failure
    ↓
-25+
+25 Rate Limiting
+   ↓
+26+
 Future Core Recipes
 ```
 
