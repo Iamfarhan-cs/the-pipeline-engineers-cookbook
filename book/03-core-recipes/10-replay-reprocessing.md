@@ -18,12 +18,12 @@ This is called replay or reprocessing.
 
 Replay sounds simple:
 
-~~~text
+```text
 take old data
    |
    v
 process it again
-~~~
+```
 
 But production replay is more complicated.
 
@@ -83,12 +83,12 @@ A transformation bug was discovered after the processing completed.
 
 The pipeline now contains:
 
-~~~text
+```text
 100,000 processed records
        |
        v
 transformation bug discovered
-~~~
+```
 
 The question becomes:
 
@@ -100,7 +100,7 @@ That may be dangerous and unnecessary.
 
 Another option is to identify the affected records:
 
-~~~text
+```text
 100,000 records
        |
        v
@@ -111,7 +111,7 @@ identify affected population
        |
        v
 reprocess only those records
-~~~
+```
 
 This is controlled replay.
 
@@ -158,7 +158,7 @@ Retry means:
 
 Example:
 
-~~~text
+```text
 API request
    |
    X
@@ -166,7 +166,7 @@ timeout
    |
    v
 retry
-~~~
+```
 
 The operation usually remains within the same processing attempt or workflow.
 
@@ -178,7 +178,7 @@ Replay means:
 
 Example:
 
-~~~text
+```text
 stored event
     |
     v
@@ -186,7 +186,7 @@ new processing run
     |
     v
 process event again
-~~~
+```
 
 Replay may happen:
 
@@ -213,17 +213,17 @@ Usually focuses on intentionally processing historical data for a time period or
 
 For example:
 
-~~~text
+```text
 Replay
 failed records from yesterday
-~~~
+```
 
 versus:
 
-~~~text
+```text
 Backfill
 all records from January 1 to January 31
-~~~
+```
 
 The boundary can overlap.
 
@@ -257,7 +257,7 @@ The correct replay strategy depends on the pipeline architecture.
 
 A simple replay architecture looks like this:
 
-~~~text
+```text
                  Stored source data
                         |
                         v
@@ -278,7 +278,7 @@ A simple replay architecture looks like this:
              |
              v
         replay complete
-~~~
+```
 
 The important addition is the replay run.
 
@@ -317,41 +317,41 @@ Possible scopes include:
 
 ### Record IDs
 
-~~~text
+```text
 record 1001
 record 1002
 record 1003
-~~~
+```
 
 ### Time range
 
-~~~text
+```text
 2026-01-01 to 2026-01-31
-~~~
+```
 
 ### Processing status
 
-~~~text
+```text
 status = failed
-~~~
+```
 
 ### Error type
 
-~~~text
+```text
 error_type = TransformationError
-~~~
+```
 
 ### Pipeline version
 
-~~~text
+```text
 processed_with_version = 1.4
-~~~
+```
 
 ### Source
 
-~~~text
+```text
 source = partner_a
-~~~
+```
 
 The scope should be deterministic.
 
@@ -363,9 +363,9 @@ You should be able to explain exactly why a record was selected.
 
 Imagine a bug affected only records processed between:
 
-~~~text
+```text
 10:00 and 10:30
-~~~
+```
 
 If the replay selects every record from the entire day, the pipeline may perform unnecessary work.
 
@@ -373,7 +373,7 @@ Worse, it may modify records that were already correct.
 
 A better selection is:
 
-~~~text
+```text
 affected records
       |
       v
@@ -381,7 +381,7 @@ exact replay scope
       |
       v
 reprocess
-~~~
+```
 
 Narrow replay scope reduces unnecessary risk.
 
@@ -393,13 +393,13 @@ But the scope must not be so narrow that affected records are missed.
 
 A generic selection might look like:
 
-~~~sql
+```sql
 SELECT id
 FROM processing_records
 WHERE status = 'failed'
   AND created_at >= '2026-01-01'
   AND created_at < '2026-01-02';
-~~~
+```
 
 This is a **generic example**.
 
@@ -422,9 +422,9 @@ For important replay operations, the selected population should be stable.
 
 Suppose you run:
 
-~~~text
+```text
 SELECT failed records
-~~~
+```
 
 Then new failures appear while replay is running.
 
@@ -432,7 +432,7 @@ If the selection is evaluated continuously, the replay may keep changing scope.
 
 A safer design can create a replay set:
 
-~~~text
+```text
 source records
       |
       v
@@ -443,7 +443,7 @@ freeze replay set
       |
       v
 process selected records
-~~~
+```
 
 The exact implementation can use:
 
@@ -462,7 +462,7 @@ A replay run can provide a durable record of the operation.
 
 A generic replay-run model might contain:
 
-~~~text
+```text
 replay_run_id
 reason
 scope
@@ -473,7 +473,7 @@ status
 code_version
 schema_version
 requested_by
-~~~
+```
 
 This is a **generic example**.
 
@@ -487,7 +487,7 @@ The purpose is to answer:
 
 A replay run can have states such as:
 
-~~~text
+```text
 created
    |
    v
@@ -500,7 +500,7 @@ running
    +----> failed
    |
    +----> cancelled
-~~~
+```
 
 These are generic example states.
 
@@ -516,28 +516,28 @@ Do not silently overwrite the history of the original processing.
 
 Suppose:
 
-~~~text
+```text
 original run
     |
     v
 record failed
-~~~
+```
 
 Then:
 
-~~~text
+```text
 replay run
     |
     v
 record completed
-~~~
+```
 
 The system should ideally preserve both facts:
 
-~~~text
+```text
 original processing -> failed
 replay processing   -> completed
-~~~
+```
 
 This provides operational history.
 
@@ -556,19 +556,19 @@ A replay must interact carefully with processing status.
 
 Suppose a record is:
 
-~~~text
+```text
 failed
-~~~
+```
 
 A replay may change its state to:
 
-~~~text
+```text
 replay_pending
-~~~
+```
 
 Then:
 
-~~~text
+```text
 replay_pending
       |
       v
@@ -576,7 +576,7 @@ processing
       |
       v
 completed
-~~~
+```
 
 Another design may create a separate processing-run record instead of changing the original status.
 
@@ -590,7 +590,7 @@ The choice depends on whether the system needs to preserve each processing attem
 
 A dangerous replay approach is:
 
-~~~text
+```text
 failed record
    |
    v
@@ -598,7 +598,7 @@ delete record
    |
    v
 insert again
-~~~
+```
 
 This can destroy useful history.
 
@@ -621,34 +621,34 @@ Replay makes idempotency even more important.
 
 Suppose the original processing created:
 
-~~~text
+```text
 result for event 1001
-~~~
+```
 
 Now replay processes event 1001 again.
 
 Without protection:
 
-~~~text
+```text
 event 1001
    |
    +----> result A
    |
    +----> result B
-~~~
+```
 
 Now the system has duplicates.
 
 With idempotency:
 
-~~~text
+```text
 event 1001
    |
    +----> existing result recognized
    |
    v
 safe reprocessing
-~~~
+```
 
 The exact strategy depends on the destination.
 
@@ -693,28 +693,28 @@ Define the desired result before replay begins.
 
 Suppose a transformation originally produced:
 
-~~~text
+```text
 amount = 100
-~~~
+```
 
 A corrected transformation produces:
 
-~~~text
+```text
 amount = 110
-~~~
+```
 
 Should the database contain:
 
-~~~text
+```text
 amount = 110
-~~~
+```
 
 or:
 
-~~~text
+```text
 version 1 -> 100
 version 2 -> 110
-~~~
+```
 
 There is no universal answer.
 
@@ -736,7 +736,7 @@ A common replay scenario is a processing bug.
 
 For example:
 
-~~~text
+```text
 records
    |
    v
@@ -744,17 +744,17 @@ version 1.2
    |
    v
 incorrect transformation
-~~~
+```
 
 The team fixes the code:
 
-~~~text
+```text
 version 1.3
-~~~
+```
 
 Now the affected records can be replayed:
 
-~~~text
+```text
 raw data
    |
    v
@@ -762,7 +762,7 @@ version 1.3
    |
    v
 correct result
-~~~
+```
 
 Before doing this, confirm that the original source data is still available.
 
@@ -776,18 +776,18 @@ Schema changes can also require reprocessing.
 
 For example:
 
-~~~text
+```text
 old schema
     |
     v
 records stored
-~~~
+```
 
 A new schema introduces:
 
-~~~text
+```text
 new field
-~~~
+```
 
 The pipeline may need to process historical records to populate the new field.
 
@@ -810,16 +810,16 @@ Suppose a business rule changes.
 
 For example:
 
-~~~text
+```text
 old rule
 customer classified as type A
-~~~
+```
 
 New rule:
 
-~~~text
+```text
 customer classified as type B
-~~~
+```
 
 Historical records may need reprocessing.
 
@@ -839,23 +839,23 @@ A record can be successfully processed and still need replay.
 
 For example:
 
-~~~text
+```text
 processing status = completed
-~~~
+```
 
 But later:
 
-~~~text
+```text
 business rule changed
-~~~
+```
 
 The record may need to be processed again.
 
 Therefore, replay selection should not be based only on:
 
-~~~text
+```text
 status = failed
-~~~
+```
 
 Possible selection criteria include:
 
@@ -875,7 +875,7 @@ Large datasets should often be replayed in smaller chunks.
 
 For example:
 
-~~~text
+```text
 1,000,000 records
        |
        v
@@ -886,7 +886,7 @@ For example:
        |
        v
 ...
-~~~
+```
 
 This provides control.
 
@@ -907,25 +907,25 @@ Then the next chunk can begin.
 
 A replay can use explicit batches:
 
-~~~text
+```text
 Replay Run 100
    |
    +--> Batch 1
    +--> Batch 2
    +--> Batch 3
    +--> Batch 4
-~~~
+```
 
 Each batch can have its own state.
 
 For example:
 
-~~~text
+```text
 batch 1 -> completed
 batch 2 -> completed
 batch 3 -> failed
 batch 4 -> pending
-~~~
+```
 
 This makes recovery easier.
 
@@ -939,7 +939,7 @@ Replay can compete with normal processing.
 
 For example:
 
-~~~text
+```text
 normal workers
       |
       v
@@ -947,7 +947,7 @@ production database
       ^
       |
 replay workers
-~~~
+```
 
 Both can consume:
 
@@ -979,7 +979,7 @@ Reprocessing data can affect downstream systems.
 
 For example:
 
-~~~text
+```text
 source
   |
   v
@@ -993,7 +993,7 @@ warehouse
   |
   v
 analytics
-~~~
+```
 
 If replay changes database values, downstream systems may also need to update.
 
@@ -1021,7 +1021,7 @@ Replaying the same event could repeat the side effect.
 
 For example:
 
-~~~text
+```text
 original processing
       |
       v
@@ -1032,7 +1032,7 @@ replay
       |
       v
 send email again
-~~~
+```
 
 The replay design must decide whether the side effect should happen again.
 
@@ -1054,7 +1054,7 @@ Some systems use an explicit replay mode.
 
 For example:
 
-~~~text
+```text
 normal mode
     |
     v
@@ -1062,11 +1062,11 @@ process
     |
     v
 external side effects enabled
-~~~
+```
 
 Replay mode:
 
-~~~text
+```text
 replay mode
     |
     v
@@ -1074,7 +1074,7 @@ process
     |
     v
 external side effects controlled
-~~~
+```
 
 This can prevent unintended actions.
 
@@ -1090,7 +1090,7 @@ Replay can fail too.
 
 For example:
 
-~~~text
+```text
 original record
      |
      v
@@ -1098,19 +1098,19 @@ replay
      |
      X
 new failure
-~~~
+```
 
 The new failure should be tracked separately from the original failure.
 
 A useful history might look like:
 
-~~~text
+```text
 Original run
   attempt -> failed: old transformation bug
 
 Replay run
   attempt -> failed: database timeout
-~~~
+```
 
 This distinction matters during investigation.
 
@@ -1122,7 +1122,7 @@ A failed replay batch may itself be retried.
 
 For example:
 
-~~~text
+```text
 replay batch
     |
     X
@@ -1130,19 +1130,19 @@ timeout
     |
     v
 retry
-~~~
+```
 
 This is where retry and replay meet.
 
 The system should distinguish:
 
-~~~text
+```text
 replay run
     |
     +--> processing attempt 1
     +--> processing attempt 2
     +--> processing attempt 3
-~~~
+```
 
 Otherwise replay history can become confusing.
 
@@ -1177,7 +1177,7 @@ A dry run can help verify replay selection before processing.
 
 For example:
 
-~~~text
+```text
 select affected records
         |
         v
@@ -1191,7 +1191,7 @@ verify scope
         |
         v
 start replay
-~~~
+```
 
 A dry run can answer:
 
@@ -1247,34 +1247,34 @@ Verification should be part of the replay process.
 
 Suppose the replay set contains:
 
-~~~text
+```text
 10,000 records
-~~~
+```
 
 After replay:
 
-~~~text
+```text
 completed: 9,950
 failed:       50
-~~~
+```
 
 The replay is not fully complete.
 
 A reconciliation report can make this clear:
 
-~~~text
+```text
 selected:    10,000
 completed:    9,950
 failed:          50
 missing:          0
 duplicates:       0
-~~~
+```
 
 This gives a much clearer result than:
 
-~~~text
+```text
 replay finished
-~~~
+```
 
 ---
 
@@ -1284,7 +1284,7 @@ A production replay should leave an audit trail.
 
 Useful information may include:
 
-~~~text
+```text
 replay_run_id
 reason
 scope
@@ -1297,7 +1297,7 @@ selected_count
 success_count
 failure_count
 status
-~~~
+```
 
 This is a **generic example**.
 
@@ -1313,13 +1313,13 @@ When replaying after a code change, record which version performed the replay.
 
 For example:
 
-~~~text
+```text
 original:
 processing_version = 1.4
 
 replay:
 processing_version = 1.5
-~~~
+```
 
 This makes later investigation easier.
 
@@ -1333,15 +1333,15 @@ The same principle applies to schema.
 
 For example:
 
-~~~text
+```text
 schema version 10
-~~~
+```
 
 versus:
 
-~~~text
+```text
 schema version 11
-~~~
+```
 
 A replay may use a newer schema.
 
@@ -1355,7 +1355,7 @@ This is especially important when historical results must remain explainable.
 
 A controlled replay can follow this sequence:
 
-~~~text
+```text
 1. Identify the reason
         |
         v
@@ -1396,7 +1396,7 @@ A controlled replay can follow this sequence:
         |
         v
 14. Mark replay complete
-~~~
+```
 
 For high-risk replays, stop after the first small batch and verify the output before continuing.
 
@@ -1412,65 +1412,65 @@ At minimum, test:
 
 Expected:
 
-~~~text
+```text
 record can be processed again
-~~~
+```
 
 ### Test 2 — Replay completed record
 
 Expected:
 
-~~~text
+```text
 behavior follows the defined replay policy
-~~~
+```
 
 ### Test 3 — Replay creates no duplicate
 
 Expected:
 
-~~~text
+```text
 one logical result
-~~~
+```
 
 ### Test 4 — Replay after code change
 
 Expected:
 
-~~~text
+```text
 new processing behavior is applied
-~~~
+```
 
 ### Test 5 — Replay failure
 
 Expected:
 
-~~~text
+```text
 new failure is recorded separately
-~~~
+```
 
 ### Test 6 — Partial replay
 
 Expected:
 
-~~~text
+```text
 one failed batch does not corrupt completed batches
-~~~
+```
 
 ### Test 7 — Worker restart
 
 Expected:
 
-~~~text
+```text
 replay can continue safely
-~~~
+```
 
 ### Test 8 — External side effect
 
 Expected:
 
-~~~text
+```text
 side effect is not unintentionally duplicated
-~~~
+```
 
 ---
 
@@ -1567,12 +1567,12 @@ Group the failures.
 
 For example:
 
-~~~text
+```text
 validation failures
 database failures
 API failures
 unknown failures
-~~~
+```
 
 Then determine whether the problem is:
 
@@ -1679,15 +1679,15 @@ Replay/reprocessing is complete when:
 
 Replay is not simply:
 
-~~~text
+```text
 run the pipeline again
-~~~
+```
 
 A production replay is a controlled operation.
 
 The basic model is:
 
-~~~text
+```text
 Why replay?
      |
      v
@@ -1713,7 +1713,7 @@ Reconcile
      |
      v
 Complete or recover
-~~~
+```
 
 The most important lessons are:
 
