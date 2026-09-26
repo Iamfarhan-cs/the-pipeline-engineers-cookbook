@@ -2004,4 +2004,18 @@ We will cover:
 
 The key question will be:
 
-> How do we record pipeline progress so that a worker can stop at any point and resume without losing or duplicating data?
+> How do we record pipeline progress so that a worker can stop at any point and resume without losing or duplicating data?## Production Tools You Should Know
+
+These tools solve or provide production implementations of concepts covered in this recipe. Learn what the tool provides, but understand the underlying problem first.
+
+| Tool | What to know |
+|---|---|
+| **dbt** | Incremental analytical transformations. |
+| **Apache Spark** | Incremental batch processing at scale. |
+| **Apache Kafka** | Offset-based incremental event consumption. |
+
+> These are reference tools for recognition and vocabulary, not substitutes for understanding the engineering mechanism.
+
+---
+
+
