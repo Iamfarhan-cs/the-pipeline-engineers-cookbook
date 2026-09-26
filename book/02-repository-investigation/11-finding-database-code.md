@@ -1,4 +1,4 @@
-# Chapter 11 — Finding Database Code
+# Recipe 11 — Finding Database Code
 
 Most Data Engineering pipelines eventually have to store, read, update, or delete data.
 
