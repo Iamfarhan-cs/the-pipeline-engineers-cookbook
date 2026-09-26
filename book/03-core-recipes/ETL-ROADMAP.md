@@ -66,7 +66,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | ID | Recipe |
 |---|---|
 | E04 | [Extract Data from Relational Databases](E04-extract-data-from-relational-databases.md) |
-| E33 | Full Database Extraction |
+| E33 | [Full Database Extraction](E33-full-database-extraction.md) |
 | E34 | Incremental Database Extraction — ETL Application |
 | E35 | Watermark-Based Extraction |
 | E36 | Timestamp-Based Extraction |
