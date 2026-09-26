@@ -1113,7 +1113,7 @@ That is a production mindset.
 
 # What You Learned
 
-In this chapter, you learned:
+In this recipe, you learned:
 
 - Data layers separate different responsibilities.
 - Raw data preserves source information.
@@ -1158,28 +1158,3 @@ Before implementing a layered pipeline, ask:
 If these questions are clear, the layer design is much easier to implement.
 
 ---
-
-# Recipe Preview
-
-Later in the book, these concepts will become implementation recipes.
-
-You will learn how to:
-
-- Create a raw data layer.
-- Create a staging table.
-- Validate incoming records.
-- Move valid records forward.
-- Quarantine invalid records.
-- Track processing status.
-- Deduplicate data.
-- Build curated tables.
-- Load warehouse tables.
-- Trace data across layers.
-- Replay historical data.
-- Backfill corrected data.
-
-The next chapter introduces one of the most important reliability concepts in Data Engineering:
-
-**Idempotency.**
-
-We will look at what it means, why duplicate processing happens, and how to make a pipeline safe to run more than once.
