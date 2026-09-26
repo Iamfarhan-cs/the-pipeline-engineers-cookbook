@@ -1,4 +1,4 @@
-# Chapter 21 — Add Deduplication
+# Recipe 21 — Add Deduplication
 
 A pipeline can receive the same logical data more than once.
 
