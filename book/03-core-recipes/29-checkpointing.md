@@ -1941,4 +1941,18 @@ We will cover:
 
 The key question will be:
 
-> How do we use PostgreSQL as a reliable part of a Data Engineering pipeline rather than treating it as just a place to store rows?
+> How do we use PostgreSQL as a reliable part of a Data Engineering pipeline rather than treating it as just a place to store rows?## Production Tools You Should Know
+
+These tools solve or provide production implementations of concepts covered in this recipe. Learn what the tool provides, but understand the underlying problem first.
+
+| Tool | What to know |
+|---|---|
+| **Apache Kafka** | Durable offsets and consumer progress. |
+| **Apache Flink** | Checkpointing and state recovery. |
+| **Apache Spark** | Checkpointing for streaming workloads. |
+
+> These are reference tools for recognition and vocabulary, not substitutes for understanding the engineering mechanism.
+
+---
+
+
