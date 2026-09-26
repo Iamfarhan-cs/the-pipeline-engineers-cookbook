@@ -1,4 +1,4 @@
-# Recipe 15 — Understanding Docker
+# Chapter 15 — Understanding Docker
 
 Docker is often part of the development and execution environment of a Data Engineering repository.
 
