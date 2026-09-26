@@ -106,7 +106,7 @@ Each recipe remains numbered by its stable E01–E65 identifier. The category de
 | E61 | [Large File Streaming](E61-large-file-streaming.md) |
 | E62 | [Multi-File Extraction](E62-multi-file-extraction.md) |
 | E63 | [Duplicate File Detection](E63-duplicate-file-detection.md) |
-| E64 | Missing File Detection |
+| E64 | [Missing File Detection](E64-missing-file-detection.md) |
 | E65 | Late File Detection |
 
 ## Category 04 — Object and Cloud Storage Extraction
