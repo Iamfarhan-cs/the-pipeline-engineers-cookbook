@@ -8,9 +8,9 @@ That difference becomes important as data grows.
 
 Suppose a table contains:
 
-~~~text
+```text
 100 million records
-~~~
+```
 
 A daily job does not normally need to process all 100 million records.
 
@@ -18,7 +18,7 @@ If only 50,000 records changed today, processing the entire table is wasteful.
 
 A better approach is:
 
-~~~text
+```text
 existing data
       |
       +----------------------+
@@ -30,7 +30,7 @@ incremental processing       |
       |                      |
       v                      |
 target <---------------------+
-~~~
+```
 
 Incremental processing reduces unnecessary work.
 
@@ -82,13 +82,13 @@ The central principle is:
 
 Imagine a source table with:
 
-~~~text
+```text
 100,000,000 records
-~~~
+```
 
 A daily full load might do:
 
-~~~text
+```text
 read 100,000,000
       |
       v
@@ -96,13 +96,13 @@ transform 100,000,000
       |
       v
 write 100,000,000
-~~~
+```
 
 If only 100,000 records changed, most of that work is unnecessary.
 
 An incremental load tries to do:
 
-~~~text
+```text
 find changed records
       |
       v
@@ -110,7 +110,7 @@ process 100,000
       |
       v
 update target
-~~~
+```
 
 This is much more efficient.
 
@@ -124,7 +124,7 @@ But the difficult part is finding the correct 100,000 records.
 
 A full load processes the complete source population.
 
-~~~text
+```text
 source
   |
   v
@@ -132,7 +132,7 @@ all records
   |
   v
 target
-~~~
+```
 
 It is simple conceptually.
 
@@ -142,7 +142,7 @@ It can also become expensive as data grows.
 
 An incremental load processes only new or changed records.
 
-~~~text
+```text
 source
   |
   v
@@ -150,7 +150,7 @@ new/changed records
   |
   v
 target
-~~~
+```
 
 The challenge is detecting those records correctly.
 
@@ -172,11 +172,11 @@ It can also make frequent processing practical.
 
 For example:
 
-~~~text
+```text
 every 5 minutes
 every hour
 every day
-~~~
+```
 
 Instead of repeatedly rebuilding the entire dataset.
 
@@ -240,19 +240,19 @@ A high-water mark records the furthest point that the pipeline has safely proces
 
 For example:
 
-~~~text
+```text
 last_processed_id = 500000
-~~~
+```
 
 The next run can select:
 
-~~~text
+```text
 id > 500000
-~~~
+```
 
 The model is:
 
-~~~text
+```text
 source
   |
   v
@@ -263,13 +263,13 @@ id = 1 ... 500000
           |
           v
 high-water mark = 500000
-~~~
+```
 
 Next run:
 
-~~~text
+```text
 id > 500000
-~~~
+```
 
 This works well when IDs are stable and monotonically increasing.
 
@@ -281,23 +281,23 @@ Another common approach uses an update timestamp.
 
 For example:
 
-~~~text
+```text
 updated_at
-~~~
+```
 
 The previous run stores:
 
-~~~text
+```text
 last_processed_time = 2026-09-25 10:00:00
-~~~
+```
 
 The next run selects records after that point.
 
 Conceptually:
 
-~~~text
+```text
 updated_at > last_processed_time
-~~~
+```
 
 This can work well.
 
@@ -309,21 +309,21 @@ But timestamps have important edge cases.
 
 Suppose two records have:
 
-~~~text
+```text
 updated_at = 10:00:00
-~~~
+```
 
 If the first run processes one record and stores:
 
-~~~text
+```text
 last_processed_time = 10:00:00
-~~~
+```
 
 Then the next query uses:
 
-~~~text
+```text
 updated_at > 10:00:00
-~~~
+```
 
 The second record may be skipped.
 
@@ -331,18 +331,18 @@ The timestamp alone is not always a sufficient cursor.
 
 A safer ordering can be:
 
-~~~text
+```text
 ORDER BY updated_at, id
-~~~
+```
 
 with a cursor containing both values.
 
 For example:
 
-~~~text
+```text
 last_updated_at = 10:00:00
 last_id = 105
-~~~
+```
 
 The next selection can continue after that exact position.
 
@@ -354,24 +354,24 @@ The exact implementation depends on the database and source behavior.
 
 A composite cursor can look like:
 
-~~~text
+```text
 (updated_at, id)
-~~~
+```
 
 Suppose processed records end at:
 
-~~~text
+```text
 updated_at = 10:00:00
 id = 105
-~~~
+```
 
 The next records are:
 
-~~~text
+```text
 updated_at > 10:00:00
 OR
 (updated_at = 10:00:00 AND id > 105)
-~~~
+```
 
 This creates a deterministic ordering.
 
@@ -414,41 +414,41 @@ These questions determine whether the cursor is safe.
 
 There is an important difference between:
 
-~~~text
+```text
 created_at
-~~~
+```
 
 and:
 
-~~~text
+```text
 updated_at
-~~~
+```
 
 If you only need new records:
 
-~~~text
+```text
 created_at
-~~~
+```
 
 may be enough.
 
 If existing records can change:
 
-~~~text
+```text
 updated_at
-~~~
+```
 
 may be required.
 
 For example:
 
-~~~text
+```text
 Record A created:
 09:00
 
 Record A updated:
 11:00
-~~~
+```
 
 A pipeline using only created_at may never see the update.
 
@@ -458,27 +458,27 @@ A pipeline using only created_at may never see the update.
 
 Incremental processing often needs to handle both:
 
-~~~text
+```text
 new records
 +
 changed records
-~~~
+```
 
 The source may contain:
 
-~~~text
+```text
 record 1 -> new
 record 2 -> unchanged
 record 3 -> updated
-~~~
+```
 
 The target may need:
 
-~~~text
+```text
 insert record 1
 skip record 2
 update record 3
-~~~
+```
 
 This usually requires a stable business or technical key.
 
@@ -488,7 +488,7 @@ This usually requires a stable business or technical key.
 
 A common target strategy is an upsert:
 
-~~~text
+```text
 source record
       |
       v
@@ -497,7 +497,7 @@ find target key
       +---- not found ----> insert
       |
       +---- found --------> update
-~~~
+```
 
 For PostgreSQL, an upsert can be implemented with a unique constraint and conflict handling.
 
@@ -515,7 +515,7 @@ Incremental processing should still be idempotent.
 
 Suppose the same record is selected twice:
 
-~~~text
+```text
 run 1
   |
   v
@@ -525,7 +525,7 @@ run 2
   |
   v
 record A
-~~~
+```
 
 The second processing should not corrupt the target.
 
@@ -547,21 +547,21 @@ A common technique is to intentionally process a small amount of already-seen da
 
 Suppose the previous cursor is:
 
-~~~text
+```text
 10:00:00
-~~~
+```
 
 Instead of starting exactly there, the next run starts slightly earlier:
 
-~~~text
+```text
 09:55:00
-~~~
+```
 
 This creates an overlap.
 
 The flow becomes:
 
-~~~text
+```text
 previous boundary
       |
       v
@@ -572,7 +572,7 @@ read overlap
       |
       v
 deduplicate / upsert
-~~~
+```
 
 Why?
 
@@ -586,15 +586,15 @@ The overlap reduces the chance of missing late-arriving records.
 
 Suppose a record was actually created at:
 
-~~~text
+```text
 09:59:59
-~~~
+```
 
 but the source did not expose it until:
 
-~~~text
+```text
 10:01:00
-~~~
+```
 
 A strict boundary may miss it.
 
@@ -602,13 +602,13 @@ An overlap window gives the pipeline another opportunity to see it.
 
 This creates a tradeoff:
 
-~~~text
+```text
 larger overlap
     |
     +--> fewer missed records
     |
     +--> more repeated processing
-~~~
+```
 
 Therefore overlap must be combined with idempotency.
 
@@ -629,11 +629,11 @@ It depends on:
 
 For example:
 
-~~~text
+```text
 5 minutes
 15 minutes
 1 hour
-~~~
+```
 
 may be reasonable in different systems.
 
@@ -645,21 +645,21 @@ The value should be based on observed behavior rather than guesswork.
 
 Without overlap:
 
-~~~text
+```text
 processed through 10:00
       |
       v
 next starts at 10:00
-~~~
+```
 
 With overlap:
 
-~~~text
+```text
 processed through 10:00
       |
       v
 next starts at 09:55
-~~~
+```
 
 The overlap creates repeated reads.
 
@@ -667,13 +667,13 @@ Idempotency protects the target from repeated writes.
 
 This gives:
 
-~~~text
+```text
 overlap
    +
 idempotency
    =
 safer incremental processing
-~~~
+```
 
 ---
 
@@ -683,19 +683,19 @@ Incremental processing needs persistent progress.
 
 A checkpoint may contain:
 
-~~~text
+```text
 last_processed_id
 last_processed_timestamp
 processed_at
 run_id
-~~~
+```
 
 Or a composite cursor:
 
-~~~text
+```text
 last_updated_at
 last_id
-~~~
+```
 
 The checkpoint should only advance after the corresponding work is safely completed.
 
@@ -705,7 +705,7 @@ The checkpoint should only advance after the corresponding work is safely comple
 
 Consider:
 
-~~~text
+```text
 read records
      |
      v
@@ -713,7 +713,7 @@ update cursor
      |
      X
 write target fails
-~~~
+```
 
 The cursor now says the records were processed even though they were not.
 
@@ -723,7 +723,7 @@ This is a classic data-loss scenario.
 
 Safer:
 
-~~~text
+```text
 read records
      |
      v
@@ -737,7 +737,7 @@ commit
      |
      v
 advance checkpoint
-~~~
+```
 
 The exact transaction boundary depends on the architecture.
 
@@ -749,24 +749,24 @@ Even incremental runs may contain large amounts of data.
 
 Suppose:
 
-~~~text
+```text
 one hour of changes
 =
 500,000 records
-~~~
+```
 
 Do not necessarily process all 500,000 in one transaction.
 
 Use batches:
 
-~~~text
+```text
 500,000
    |
    +--> 10,000
    +--> 10,000
    +--> 10,000
    +--> ...
-~~~
+```
 
 The same batching principles from Recipe 11 apply.
 
@@ -778,19 +778,19 @@ Late data is one of the hardest incremental-processing problems.
 
 Suppose the pipeline processes:
 
-~~~text
+```text
 10:00
 10:05
 10:10
-~~~
+```
 
 Then a record belonging to 10:03 arrives at 10:15.
 
 If the pipeline only processes:
 
-~~~text
+```text
 updated_at > 10:10
-~~~
+```
 
 the 10:03 record may be missed.
 
@@ -808,13 +808,13 @@ This is why incremental systems often need:
 
 Suppose:
 
-~~~text
+```text
 event occurred:
 10:03
 
 event received:
 10:15
-~~~
+```
 
 The two times are different.
 
@@ -837,12 +837,12 @@ Incremental processing is easy to misunderstand when records can be deleted.
 
 Suppose:
 
-~~~text
+```text
 source:
 record A
 record B
 record C
-~~~
+```
 
 Then record B is deleted.
 
@@ -864,9 +864,9 @@ If the source does not expose deletion information, incremental synchronization 
 
 Some systems use:
 
-~~~text
+```text
 deleted = true
-~~~
+```
 
 instead of physically deleting records.
 
@@ -874,11 +874,11 @@ This can make incremental processing easier because the update is visible.
 
 For example:
 
-~~~text
+```text
 record B
 deleted = true
 updated_at = 10:30
-~~~
+```
 
 The incremental pipeline can detect the update and apply the deletion to the target.
 
@@ -890,15 +890,15 @@ The exact target behavior depends on the data model.
 
 Suppose a source record has:
 
-~~~text
+```text
 updated_at = 10:00
-~~~
+```
 
 Then an unexpected correction sets it to:
 
-~~~text
+```text
 updated_at = 09:00
-~~~
+```
 
 A timestamp-based cursor may not detect it.
 
@@ -925,9 +925,9 @@ Prefer a clear timestamp standard.
 
 For example:
 
-~~~text
+```text
 UTC timestamps
-~~~
+```
 
 The exact project standard should be verified.
 
@@ -939,28 +939,28 @@ A transformation may depend on reference data.
 
 For example:
 
-~~~text
+```text
 transaction
     +
 exchange rates
     |
     v
 converted amount
-~~~
+```
 
 If the reference data changes, reprocessing only new transactions may not update historical results.
 
 This creates an important distinction:
 
-~~~text
+```text
 incremental source change
-~~~
+```
 
 versus:
 
-~~~text
+```text
 derived result affected by reference-data change
-~~~
+```
 
 The second case may require a backfill.
 
@@ -972,7 +972,7 @@ Incremental processing and backfills complement each other.
 
 A typical lifecycle is:
 
-~~~text
+```text
 normal incremental processing
           |
           v
@@ -986,7 +986,7 @@ backfill
           |
           v
 return to incremental processing
-~~~
+```
 
 Backfill handles the historical correction.
 
@@ -1000,7 +1000,7 @@ Replay can also be used when the incremental pipeline needs to process an existi
 
 For example:
 
-~~~text
+```text
 event already stored
       |
       v
@@ -1008,7 +1008,7 @@ replay
       |
       v
 incremental processing logic
-~~~
+```
 
 The same idempotency rules should still apply.
 
@@ -1027,13 +1027,13 @@ For a PostgreSQL source, common incremental signals include:
 
 A simple ID-based query might conceptually be:
 
-~~~sql
+```sql
 SELECT *
 FROM source_table
 WHERE id > :last_processed_id
 ORDER BY id
 LIMIT :batch_size;
-~~~
+```
 
 This is a **generic example**.
 
@@ -1045,14 +1045,14 @@ It is safe only if the ID has the required ordering and the source semantics sup
 
 A generic timestamp-based query could be:
 
-~~~sql
+```sql
 SELECT *
 FROM source_table
 WHERE updated_at >= :window_start
   AND updated_at < :window_end
 ORDER BY updated_at, id
 LIMIT :batch_size;
-~~~
+```
 
 This is a **generic example**.
 
@@ -1074,19 +1074,19 @@ Offset pagination can become expensive for large datasets.
 
 For example:
 
-~~~text
+```text
 OFFSET 500000
-~~~
+```
 
 may require the database to scan or skip many rows.
 
 A cursor-based approach can be more efficient:
 
-~~~text
+```text
 WHERE id > last_id
 ORDER BY id
 LIMIT batch_size
-~~~
+```
 
 The correct approach depends on indexes and query patterns.
 
@@ -1098,17 +1098,17 @@ Incremental processing depends heavily on efficient source selection.
 
 If filtering by:
 
-~~~text
+```text
 updated_at
-~~~
+```
 
 the source may need an appropriate index.
 
 If ordering by:
 
-~~~text
+```text
 updated_at, id
-~~~
+```
 
 the index strategy should support the actual query.
 
@@ -1124,13 +1124,13 @@ The checkpoint can be stored in several ways.
 
 For example:
 
-~~~text
+```text
 database table
 configuration store
 workflow metadata
 checkpoint file
 message offset
-~~~
+```
 
 The choice depends on the architecture.
 
@@ -1138,13 +1138,13 @@ For a database-backed pipeline, a database control table may be practical.
 
 A generic record could contain:
 
-~~~text
+```text
 pipeline_name
 last_cursor
 last_run_at
 status
 updated_at
-~~~
+```
 
 This is a **generic example**.
 
@@ -1156,21 +1156,21 @@ Some systems need multiple cursors.
 
 For example:
 
-~~~text
+```text
 pipeline
    |
    +--> tenant A cursor
    +--> tenant B cursor
    +--> tenant C cursor
-~~~
+```
 
 Or:
 
-~~~text
+```text
 partition 1 cursor
 partition 2 cursor
 partition 3 cursor
-~~~
+```
 
 This can improve parallelism.
 
@@ -1184,23 +1184,23 @@ The state model must clearly identify which cursor belongs to which processing u
 
 Suppose a run processes:
 
-~~~text
+```text
 batch 1 -> success
 batch 2 -> success
 batch 3 -> failure
 batch 4 -> not started
-~~~
+```
 
 The checkpoint should represent the last safely completed position.
 
 Recovery:
 
-~~~text
+```text
 checkpoint
     |
     v
 resume batch 3
-~~~
+```
 
 If batch 3 partially completed before failure, idempotency protects against duplicate effects.
 
@@ -1212,7 +1212,7 @@ A temporary error should normally be retried.
 
 For example:
 
-~~~text
+```text
 batch
   |
   X
@@ -1220,11 +1220,11 @@ database timeout
   |
   v
 retry
-~~~
+```
 
 If the retry succeeds:
 
-~~~text
+```text
 batch
   |
   v
@@ -1232,7 +1232,7 @@ commit
   |
   v
 checkpoint
-~~~
+```
 
 If retries are exhausted, the batch may require:
 
@@ -1252,7 +1252,7 @@ Record-level invalid data can be quarantined without stopping the entire increme
 
 For example:
 
-~~~text
+```text
 batch
  |
  +--> record A -> success
@@ -1260,7 +1260,7 @@ batch
  +--> record B -> quarantine
  |
  +--> record C -> success
-~~~
+```
 
 This is useful when failures are isolated.
 
@@ -1274,10 +1274,10 @@ A watermark represents a boundary up to which the system considers data sufficie
 
 For example:
 
-~~~text
+```text
 current time = 10:30
 watermark    = 10:20
-~~~
+```
 
 The system may intentionally process data only up to 10:20 because later data may still arrive.
 
@@ -1295,23 +1295,23 @@ These concepts are related but different.
 
 Usually describes the furthest source position already processed.
 
-~~~text
+```text
 last processed ID = 500000
-~~~
+```
 
 ### Watermark
 
 Often describes a boundary beyond which data is not yet considered complete.
 
-~~~text
+```text
 safe event time = 10:20
-~~~
+```
 
 A pipeline may use both.
 
 For example:
 
-~~~text
+```text
 watermark
    |
    v
@@ -1322,7 +1322,7 @@ high-water mark
    |
    v
 checkpoint progress
-~~~
+```
 
 ---
 
@@ -1332,10 +1332,10 @@ Overlap can be used with a watermark.
 
 For example:
 
-~~~text
+```text
 watermark = 10:20
 overlap   = 5 minutes
-~~~
+```
 
 The next run may reconsider a range around the previous boundary.
 
@@ -1359,11 +1359,11 @@ Possible reconciliation methods include:
 
 For example:
 
-~~~text
+```text
 source count for hour
 vs
 target count for hour
-~~~
+```
 
 Periodic reconciliation can catch problems that normal checkpointing does not.
 
@@ -1373,15 +1373,15 @@ Periodic reconciliation can catch problems that normal checkpointing does not.
 
 Suppose an incremental pipeline failed from:
 
-~~~text
+```text
 10:00 -> 12:00
-~~~
+```
 
 A recovery operation can process that bounded interval:
 
-~~~text
+```text
 10:00 <= timestamp < 12:00
-~~~
+```
 
 This becomes a small backfill.
 
@@ -1397,13 +1397,13 @@ Suppose the checkpoint is accidentally advanced too far.
 
 For example:
 
-~~~text
+```text
 actual processed:
 1 -> 5000
 
 checkpoint:
 10000
-~~~
+```
 
 Records 5001-10000 may be skipped.
 
@@ -1426,7 +1426,7 @@ If deletes are important, include them in the design from the beginning.
 
 A complete incremental synchronization model may be:
 
-~~~text
+```text
 source change
      |
      +---- insert
@@ -1434,7 +1434,7 @@ source change
      +---- update
      |
      +---- delete
-~~~
+```
 
 Ignoring deletes can leave stale records in the target indefinitely.
 
@@ -1444,7 +1444,7 @@ Ignoring deletes can leave stale records in the target indefinitely.
 
 A practical incremental workflow is:
 
-~~~text
+```text
 1. Read checkpoint
         |
         v
@@ -1473,7 +1473,7 @@ A practical incremental workflow is:
         |
         v
 10. Reconcile and monitor
-~~~
+```
 
 The exact transaction and checkpoint boundary depends on the architecture.
 
@@ -1487,84 +1487,84 @@ At minimum, test:
 
 Expected:
 
-~~~text
+```text
 new record is processed
-~~~
+```
 
 ### Test 2 — Unchanged record
 
 Expected:
 
-~~~text
+```text
 unchanged record is not unnecessarily processed
-~~~
+```
 
 ### Test 3 — Updated record
 
 Expected:
 
-~~~text
+```text
 updated record reaches target
-~~~
+```
 
 ### Test 4 — Duplicate selection
 
 Expected:
 
-~~~text
+```text
 target remains correct
-~~~
+```
 
 ### Test 5 — Same timestamp
 
 Expected:
 
-~~~text
+```text
 records sharing a timestamp are not skipped
-~~~
+```
 
 ### Test 6 — Late-arriving record
 
 Expected:
 
-~~~text
+```text
 late record is eventually processed
-~~~
+```
 
 ### Test 7 — Worker failure
 
 Expected:
 
-~~~text
+```text
 processing resumes safely
-~~~
+```
 
 ### Test 8 — Checkpoint failure
 
 Expected:
 
-~~~text
+```text
 repeated processing does not corrupt target
-~~~
+```
 
 ### Test 9 — Delete
 
 Expected:
 
-~~~text
+```text
 deleted source record is handled correctly
-~~~
+```
 
 ### Test 10 — Empty run
 
 Expected:
 
-~~~text
+```text
 no new data
     |
     v
 safe no-op
-~~~
+```
 
 ---
 
@@ -1572,7 +1572,7 @@ safe no-op
 
 If an overlap window is used, test:
 
-~~~text
+```text
 record processed in run 1
       |
       v
@@ -1580,7 +1580,7 @@ same record selected in run 2
       |
       v
 target remains correct
-~~~
+```
 
 This verifies that overlap and idempotency work together.
 
@@ -1594,27 +1594,27 @@ Boundary tests are important.
 
 For a cursor at:
 
-~~~text
+```text
 id = 100
-~~~
+```
 
 Test:
 
-~~~text
+```text
 id = 99
 id = 100
 id = 101
-~~~
+```
 
 The expected selection should be explicit.
 
 For timestamps, test:
 
-~~~text
+```text
 before boundary
 exactly at boundary
 after boundary
-~~~
+```
 
 Many incremental bugs occur at boundaries.
 
@@ -1624,10 +1624,10 @@ Many incremental bugs occur at boundaries.
 
 Create a test where:
 
-~~~text
+```text
 event time = 10:03
 arrival time = 10:15
-~~~
+```
 
 Then verify the pipeline eventually processes the record.
 
@@ -1639,21 +1639,21 @@ This test should match the actual late-data strategy.
 
 Simulate:
 
-~~~text
+```text
 batch 1 -> success
 batch 2 -> success
 batch 3 -> crash
-~~~
+```
 
 Restart the worker.
 
 Verify:
 
-~~~text
+```text
 batch 3 is safely recovered
 batch 1 and 2 are not corrupted
 checkpoint is correct
-~~~
+```
 
 This is one of the most important incremental-processing tests.
 
@@ -1665,9 +1665,9 @@ This is one of the most important incremental-processing tests.
 
 For example:
 
-~~~text
+```text
 updated_at >= today
-~~~
+```
 
 This can miss late records and make reruns difficult.
 
@@ -1809,17 +1809,17 @@ Do not solve a query problem by blindly increasing worker concurrency.
 
 First determine:
 
-~~~text
+```text
 which records were skipped?
-~~~
+```
 
 Then compare:
 
-~~~text
+```text
 source
 vs
 target
-~~~
+```
 
 Use a controlled backfill or replay to repair the gap.
 
@@ -1925,7 +1925,7 @@ Incremental processing is about maintaining a reliable boundary between what has
 
 The basic model is:
 
-~~~text
+```text
 read checkpoint
       |
       v
@@ -1948,7 +1948,7 @@ advance checkpoint
       |
       v
 repeat
-~~~
+```
 
 The most important lessons are:
 
