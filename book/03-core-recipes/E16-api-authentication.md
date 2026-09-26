@@ -26,7 +26,7 @@ Authentication answers: who is making this request?
 
 Authorization answers: what is this identity allowed to access?
 
-~~~text
+```text
 CLIENT
   ↓
 AUTHENTICATE
@@ -36,7 +36,7 @@ IDENTITY
 AUTHORIZE
   ↓
 API RESOURCE
-~~~
+```
 
 A valid credential can still receive HTTP 403 because the identity lacks permission.
 
@@ -77,17 +77,17 @@ Do not assume two endpoints from the same SaaS platform use identical authentica
 
 Unsafe:
 
-~~~python
+```python
 API_KEY = "production-secret"
-~~~
+```
 
 Safer:
 
-~~~python
+```python
 import os
 
 API_KEY = os.environ["API_KEY"]
-~~~
+```
 
 Production deployments commonly retrieve secrets from a dedicated secret manager.
 
@@ -95,13 +95,13 @@ Production deployments commonly retrieve secrets from a dedicated secret manager
 
 Non-sensitive configuration can be ordinary application configuration:
 
-~~~python
+```python
 import os
 
 API_BASE_URL = os.environ["API_BASE_URL"]
 API_TIMEOUT_SECONDS = int(os.environ.get("API_TIMEOUT_SECONDS", "30"))
 API_KEY = os.environ["API_KEY"]
-~~~
+```
 
 The application references the secret. It does not contain the secret.
 
@@ -109,7 +109,7 @@ The application references the secret. It does not contain the secret.
 
 Keep credential retrieval separate from extraction logic.
 
-~~~python
+```python
 from dataclasses import dataclass
 
 
@@ -121,7 +121,7 @@ class ApiCredentials:
 class CredentialProvider:
     def get_credentials(self) -> ApiCredentials:
         raise NotImplementedError
-~~~
+```
 
 An environment implementation can read the credential from environment configuration. A production implementation can instead read from a secret manager.
 
@@ -129,7 +129,7 @@ An environment implementation can read the credential from environment configura
 
 Do not scatter authentication headers throughout extractor functions.
 
-~~~python
+```python
 class ApiClient:
     def __init__(self, base_url, credentials):
         self.base_url = base_url
@@ -140,7 +140,7 @@ class ApiClient:
             "Authorization": f"Bearer {self.credentials.api_key}",
             "Accept": "application/json",
         }
-~~~
+```
 
 The exact header and authentication scheme must match the provider.
 
@@ -148,11 +148,11 @@ The exact header and authentication scheme must match the provider.
 
 An API may use a dedicated header:
 
-~~~python
+```python
 headers = {
     "X-API-Key": api_key,
 }
-~~~
+```
 
 Another API may use a bearer-style header. Never guess the placement.
 
@@ -160,7 +160,7 @@ Another API may use a bearer-style header. Never guess the placement.
 
 Python can use HTTP authentication directly:
 
-~~~python
+```python
 import requests
 
 response = requests.get(
@@ -168,7 +168,7 @@ response = requests.get(
     auth=(username, password),
     timeout=30,
 )
-~~~
+```
 
 Never manually put usernames or passwords into URLs.
 
@@ -176,11 +176,11 @@ Never manually put usernames or passwords into URLs.
 
 Bearer authentication commonly uses:
 
-~~~python
+```python
 headers = {
     "Authorization": f"Bearer {access_token}",
 }
-~~~
+```
 
 Treat the token as a secret and never log the complete header.
 
@@ -188,7 +188,7 @@ Treat the token as a secret and never log the complete header.
 
 OAuth commonly follows:
 
-~~~text
+```text
 AUTHORIZATION SERVER
         ↓
 ACCESS TOKEN
@@ -196,7 +196,7 @@ ACCESS TOKEN
 RESOURCE SERVER
         ↓
 API DATA
-~~~
+```
 
 Important concepts include client identity, authorization grants, access tokens, refresh tokens, scopes, and token expiration.
 
@@ -204,7 +204,7 @@ Important concepts include client identity, authorization grants, access tokens,
 
 For machine-to-machine integrations, the client-credentials flow may be appropriate.
 
-~~~python
+```python
 import requests
 
 
@@ -217,7 +217,7 @@ def get_access_token(token_url, client_id, client_secret):
     )
     response.raise_for_status()
     return response.json()["access_token"]
-~~~
+```
 
 The provider's exact OAuth contract takes precedence.
 
@@ -225,7 +225,7 @@ The provider's exact OAuth contract takes precedence.
 
 Access tokens often have limited lifetimes:
 
-~~~text
+```text
 TOKEN
  ↓
 VALID
@@ -239,7 +239,7 @@ REFRESH
 NEW TOKEN
  ↓
 CONTROLLED RETRY
-~~~
+```
 
 Do not retry a 401 indefinitely without changing authentication state.
 
@@ -247,7 +247,7 @@ Do not retry a 401 indefinitely without changing authentication state.
 
 A refresh token can often obtain a new access token:
 
-~~~python
+```python
 def refresh_access_token(refresh_url, refresh_token):
     response = requests.post(
         refresh_url,
@@ -259,7 +259,7 @@ def refresh_access_token(refresh_url, refresh_token):
     )
     response.raise_for_status()
     return response.json()["access_token"]
-~~~
+```
 
 Some providers rotate refresh tokens. If so, the replacement must be stored safely according to the provider contract.
 
@@ -267,15 +267,15 @@ Some providers rotate refresh tokens. If so, the replacement must be stored safe
 
 Multiple workers can otherwise refresh the same credential simultaneously:
 
-~~~text
+```text
 WORKER A → EXPIRED → REFRESH
 WORKER B → EXPIRED → REFRESH
 WORKER C → EXPIRED → REFRESH
-~~~
+```
 
 Use controlled token management when workers share credentials:
 
-~~~text
+```text
 TOKEN CACHE
      ↓
 CONTROLLED REFRESH
@@ -283,7 +283,7 @@ CONTROLLED REFRESH
 NEW TOKEN
      ↓
 WORKERS
-~~~
+```
 
 The exact locking mechanism depends on whether workers share a process, host, or distributed environment.
 
@@ -291,18 +291,18 @@ The exact locking mechanism depends on whether workers share a process, host, or
 
 OAuth credentials can have scopes such as:
 
-~~~text
+```text
 customers:read
 payments:read
 payments:write
-~~~
+```
 
 Typical diagnostic distinction:
 
-~~~text
+```text
 401 → authentication problem
 403 → authorization / permission problem
-~~~
+```
 
 Individual APIs can differ, so always verify the provider documentation.
 
@@ -310,11 +310,11 @@ Individual APIs can differ, so always verify the provider documentation.
 
 A multi-tenant extractor may use separate credentials:
 
-~~~text
+```text
 TENANT A → CREDENTIAL A → API
 TENANT B → CREDENTIAL B → API
 TENANT C → CREDENTIAL C → API
-~~~
+```
 
 Never reuse one tenant's credential for another tenant accidentally.
 
@@ -324,7 +324,7 @@ Tenant identity should be explicit in synchronization state and operational logs
 
 Store safe metadata, not secrets, in ordinary pipeline tables:
 
-~~~sql
+```sql
 CREATE TABLE api_credential_metadata (
     integration_id TEXT PRIMARY KEY,
     provider TEXT NOT NULL,
@@ -335,7 +335,7 @@ CREATE TABLE api_credential_metadata (
     rotated_at TIMESTAMPTZ,
     updated_at TIMESTAMPTZ NOT NULL
 );
-~~~
+```
 
 Do not put access tokens, client secrets, passwords, or private keys in ordinary run tables.
 
@@ -355,7 +355,7 @@ Status-code meaning remains provider-specific.
 
 Centralize token acquisition in the client:
 
-~~~python
+```python
 class AuthenticatedClient:
     def __init__(self, transport, token_provider):
         self.transport = transport
@@ -366,7 +366,7 @@ class AuthenticatedClient:
         headers = kwargs.pop("headers", {})
         headers["Authorization"] = f"Bearer {token}"
         return self.transport.get(url, headers=headers, **kwargs)
-~~~
+```
 
 This prevents every extraction function from implementing its own token logic.
 
@@ -374,7 +374,7 @@ This prevents every extraction function from implementing its own token logic.
 
 Keep authentication refresh separate from general network retries.
 
-~~~text
+```text
 REQUEST
   ↓
 401?
@@ -386,7 +386,7 @@ REQUEST
    controlled retry
        ↓
    success or clear failure
-~~~
+```
 
 Do not combine every failure into one generic retry loop.
 
@@ -394,13 +394,13 @@ Do not combine every failure into one generic retry loop.
 
 Never log complete request headers:
 
-~~~python
+```python
 logger.info("Request headers: %s", headers)
-~~~
+```
 
 Instead, log safe request metadata:
 
-~~~python
+```python
 logger.info(
     "API request",
     extra={
@@ -408,11 +408,11 @@ logger.info(
         "endpoint": "/customers",
     },
 )
-~~~
+```
 
 Teaching redaction function:
 
-~~~python
+```python
 SENSITIVE_HEADERS = {
     "authorization",
     "x-api-key",
@@ -425,15 +425,15 @@ def redact_headers(headers):
         key: "[REDACTED]" if key.lower() in SENSITIVE_HEADERS else value
         for key, value in headers.items()
     }
-~~~
+```
 
 ## 24. URL Credential Leakage
 
 Unsafe:
 
-~~~text
+```text
 https://api.example.com/data?api_key=secret
-~~~
+```
 
 URLs can appear in access logs, proxy logs, tracing systems, and monitoring tools.
 
@@ -443,7 +443,7 @@ Prefer headers when the provider supports them.
 
 Design credentials to be replaceable without source-code changes:
 
-~~~text
+```text
 NEW SECRET CREATED
        ↓
 SECRET STORE UPDATED
@@ -453,7 +453,7 @@ APPLICATION REFRESH / RESTART
 NEW REQUESTS USE NEW SECRET
        ↓
 OLD SECRET REVOKED
-~~~
+```
 
 Where the provider supports overlapping credentials, validate the replacement before revoking the old credential.
 
@@ -461,7 +461,7 @@ Where the provider supports overlapping credentials, validate the replacement be
 
 Some APIs require mutual TLS:
 
-~~~text
+```text
 CLIENT CERTIFICATE + PRIVATE KEY
             ↓
 TLS HANDSHAKE
@@ -469,7 +469,7 @@ TLS HANDSHAKE
 SERVER AUTHENTICATES CLIENT
             ↓
 HTTPS API
-~~~
+```
 
 Private keys require the same protection as other high-value secrets.
 
@@ -511,7 +511,7 @@ Test at least:
 
 ## 29. Example Unit Tests
 
-~~~python
+```python
 def test_authorization_header_is_redacted():
     headers = {
         "Authorization": "Bearer secret-token",
@@ -532,7 +532,7 @@ def test_non_sensitive_headers_are_preserved():
     headers = {"Accept": "application/json"}
     safe = redact_headers(headers)
     assert safe["Accept"] == "application/json"
-~~~
+```
 
 Add integration tests against a mock or sandbox provider for the complete authentication flow.
 
@@ -540,7 +540,7 @@ Add integration tests against a mock or sandbox provider for the complete authen
 
 Track:
 
-~~~text
+```text
 api_auth_requests_total
 api_auth_failures_total
 api_401_total
@@ -550,11 +550,11 @@ api_token_refresh_failures_total
 api_credentials_expiring_total
 api_credential_rotation_total
 api_authentication_latency_seconds
-~~~
+```
 
 Useful log fields:
 
-~~~text
+```text
 provider
 tenant_id
 integration_id
@@ -563,7 +563,7 @@ endpoint
 http_status
 error_type
 token_refresh_attempt
-~~~
+```
 
 Never log access tokens, refresh tokens, API keys, passwords, private keys, or Authorization headers.
 
@@ -667,7 +667,7 @@ API authentication is a security boundary around extraction, not merely an HTTP 
 
 The core pattern is:
 
-~~~text
+```text
 LOAD CREDENTIAL
       ↓
 AUTHENTICATE
@@ -683,7 +683,7 @@ REFRESH / ROTATE
 CONTINUE EXTRACTION
       ↓
 OBSERVE WITHOUT LEAKING SECRETS
-~~~
+```
 
 The most important rule is:
 
