@@ -1845,4 +1845,18 @@ We will cover:
 
 The key question will be:
 
-> How does the pipeline know what happened to each record?
+> How does the pipeline know what happened to each record?## Production Tools You Should Know
+
+These tools solve or provide production implementations of concepts covered in this recipe. Learn what the tool provides, but understand the underlying problem first.
+
+| Tool | What to know |
+|---|---|
+| **Apache Kafka Streams** | Stateful stream processing and deduplication patterns. |
+| **Apache Flink** | Stateful streaming deduplication. |
+| **Apache Spark** | Batch and streaming deduplication at scale. |
+
+> These are reference tools for recognition and vocabulary, not substitutes for understanding the engineering mechanism.
+
+---
+
+
