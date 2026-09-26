@@ -8,7 +8,7 @@ XML extraction must handle elements, attributes, namespaces, repeated elements, 
 
 Production flow:
 
-@@@
+```
 SOURCE XML
     |
     v
@@ -31,7 +31,7 @@ IDEMPOTENT STAGE
     |
     v
 OBSERVE + RECOVER
-@@@
+```
 
 Do not flatten XML blindly. The extractor should preserve source meaning and deterministic lineage.
 
@@ -39,7 +39,7 @@ Do not flatten XML blindly. The extractor should preserve source meaning and det
 
 Example:
 
-@@@
+```
 <payments>
   <payment>
     <id>P001</id>
@@ -52,7 +52,7 @@ Example:
     <currency>USD</currency>
   </payment>
 </payments>
-@@@
+```
 
 The document has a root, child elements, and repeated record elements. Extraction paths must follow that structure.
 
@@ -60,15 +60,15 @@ The document has a root, child elements, and repeated record elements. Extractio
 
 XML fields can be elements:
 
-@@@
+```
 <payment><id>P001</id></payment>
-@@@
+```
 
 or attributes:
 
-@@@
+```
 <payment id="P001" status="completed" />
-@@@
+```
 
 or both. Define the mapping in the source contract instead of guessing.
 
@@ -76,14 +76,14 @@ or both. Define the mapping in the source contract instead of guessing.
 
 Python ElementTree handles ordinary XML:
 
-@@@
+```
 import xml.etree.ElementTree as ET
 
 tree = ET.parse("payments.xml")
 root = tree.getroot()
 
 print(root.tag)
-@@@
+```
 
 For bounded documents this is straightforward. For very large documents, use incremental parsing.
 
@@ -91,9 +91,9 @@ For bounded documents this is straightforward. For very large documents, use inc
 
 For XML already held as bytes or a small test string:
 
-@@@
+```
 root = ET.fromstring(xml_bytes)
-@@@
+```
 
 Prefer bytes when the XML declaration contains encoding information. Do not decode bytes using an assumed encoding unless the contract requires it.
 
@@ -101,10 +101,10 @@ Prefer bytes when the XML declaration contains encoding information. Do not deco
 
 Well-formed XML is not necessarily the expected document.
 
-@@@
+```
 if root.tag != "payments":
     raise ValueError(f"Unexpected root: {root.tag}")
-@@@
+```
 
 For namespaced XML, validate the namespace URI as well.
 
@@ -112,31 +112,31 @@ For namespaced XML, validate the namespace URI as well.
 
 Simple XML:
 
-@@@
+```
 for payment in root.findall("payment"):
     payment_id = payment.findtext("id")
     print(payment_id)
-@@@
+```
 
 Nested records can use an explicit path:
 
-@@@
+```
 for payment in root.findall("./batch/records/payment"):
     payment_id = payment.findtext("id")
-@@@
+```
 
 ## 8. Element Text
 
 XML text is initially a string.
 
-@@@
+```
 amount_text = payment.findtext("amount")
 
 if amount_text is None:
     raise ValueError("Missing amount")
 
 amount_text = amount_text.strip()
-@@@
+```
 
 Convert it deliberately after validating the field contract.
 
@@ -144,33 +144,33 @@ Convert it deliberately after validating the field contract.
 
 For financial values use Decimal when exact decimal semantics are required:
 
-@@@
+```
 from decimal import Decimal
 
 amount = Decimal(amount_text)
-@@@
+```
 
 XML timestamps are strings. Parse them explicitly and preserve timezone information.
 
-@@@
+```
 from datetime import datetime
 
 occurred_at = datetime.fromisoformat(
     timestamp_text.replace("Z", "+00:00")
 )
-@@@
+```
 
 Do not silently convert malformed values to zero or a local timezone.
 
 ## 10. Attributes
 
-@@@
+```
 payment_id = payment.get("id")
 status = payment.get("status")
 
 if payment_id is None:
     raise ValueError("Missing payment id attribute")
-@@@
+```
 
 Required attributes must be validated explicitly.
 
@@ -178,11 +178,11 @@ Required attributes must be validated explicitly.
 
 These can have different meanings:
 
-@@@
+```
 <description />
 <description></description>
 <payment></payment>
-@@@
+```
 
 Define whether each maps to missing, null, empty string, or empty collection. Do not apply one global rule without checking the source contract.
 
@@ -190,13 +190,13 @@ Define whether each maps to missing, null, empty string, or empty collection. Do
 
 Namespaces are a major source of extraction failures.
 
-@@@
+```
 <p:payments xmlns:p="urn:example:payments">
   <p:payment>
     <p:id>P001</p:id>
   </p:payment>
 </p:payments>
-@@@
+```
 
 ElementTree represents the tag using the namespace URI. The producer prefix is not the identity.
 
@@ -204,21 +204,21 @@ ElementTree represents the tag using the namespace URI. The producer prefix is n
 
 Use the namespace URI explicitly:
 
-@@@
+```
 namespace = "urn:example:payments"
 payment_tag = "{" + namespace + "}payment"
 id_tag = "{" + namespace + "}id"
 
 for payment in root.iter(payment_tag):
     payment_id = payment.findtext(id_tag)
-@@@
+```
 
 The following prefixes are equivalent when they map to the same URI:
 
-@@@
+```
 <p:payment xmlns:p="urn:example:payments" />
 <x:payment xmlns:x="urn:example:payments" />
-@@@
+```
 
 Build selectors from the URI, not the prefix.
 
@@ -226,11 +226,11 @@ Build selectors from the URI, not the prefix.
 
 An XML document can have a default namespace:
 
-@@@
+```
 <payments xmlns="urn:example:payments">
   <payment><id>P001</id></payment>
 </payments>
-@@@
+```
 
 These elements are still namespace-qualified. Treat the URI as part of the contract.
 
@@ -238,13 +238,13 @@ These elements are still namespace-qualified. Treat the URI as part of the contr
 
 Nested records may depend on parent identity:
 
-@@@
+```
 <account id="A001">
   <transactions>
     <transaction id="T001" />
   </transactions>
 </account>
-@@@
+```
 
 When producing the transaction record, preserve account_id. Do not lose parent context during flattening.
 
@@ -252,18 +252,18 @@ When producing the transaction record, preserve account_id. Do not lose parent c
 
 Example:
 
-@@@
+```
 <payment>
   <tag>online</tag>
   <tag>priority</tag>
 </payment>
-@@@
+```
 
 Use findall when multiple values are expected:
 
-@@@
+```
 tags = [tag.text for tag in payment.findall("tag")]
-@@@
+```
 
 Define whether repeated values become an array, child rows, or another explicit model.
 
@@ -271,9 +271,9 @@ Define whether repeated values become an array, child rows, or another explicit 
 
 XML can contain text around child elements. For example:
 
-@@@
+```
 <description>Paid by <customer>Alice</customer> yesterday.</description>
-@@@
+```
 
 Simple text extraction may not preserve all meaning. Define whether the target needs direct text, combined text, child structure, or the original XML.
 
@@ -281,10 +281,10 @@ Simple text extraction may not preserve all meaning. Define whether the target n
 
 ElementTree supports a useful subset of XPath:
 
-@@@
+```
 for payment in root.findall("./batch/records/payment"):
     process(payment)
-@@@
+```
 
 Use the simplest selector that correctly expresses the source contract. More advanced XPath requirements may justify lxml.
 
@@ -292,12 +292,12 @@ Use the simplest selector that correctly expresses the source contract. More adv
 
 Malformed XML is a document-level failure.
 
-@@@
+```
 try:
     tree = ET.parse("payments.xml")
 except ET.ParseError as exc:
     raise ValueError(f"Malformed XML: {exc}") from exc
-@@@
+```
 
 Do not report successful extraction after a parser failure.
 
@@ -343,7 +343,7 @@ ET.parse builds an in-memory tree. That may be inappropriate for multi-gigabyte 
 
 Use iterparse for repeated records:
 
-@@@
+```
 for event, element in ET.iterparse(
     "large-payments.xml",
     events=("end",),
@@ -351,13 +351,13 @@ for event, element in ET.iterparse(
     if element.tag == "payment":
         process_payment(element)
         element.clear()
-@@@
+```
 
 Clearing processed elements prevents the tree from retaining unnecessary content.
 
 ## 24. Namespace-Aware Streaming
 
-@@@
+```
 namespace = "urn:example:payments"
 payment_tag = "{" + namespace + "}payment"
 id_tag = "{" + namespace + "}id"
@@ -372,7 +372,7 @@ for event, element in ET.iterparse(
     payment_id = element.findtext(id_tag)
     yield {"payment_id": payment_id}
     element.clear()
-@@@
+```
 
 This pattern works without building the complete XML tree.
 
@@ -380,7 +380,7 @@ This pattern works without building the complete XML tree.
 
 When records are nested under parents, capture the parent context explicitly before its element is cleared.
 
-@@@
+```
 current_account_id = None
 
 for event, element in ET.iterparse(
@@ -396,7 +396,7 @@ for event, element in ET.iterparse(
             "transaction_id": element.get("id"),
         }
         element.clear()
-@@@
+```
 
 For complex hierarchies, design the parser as an explicit state machine rather than relying on accidental tree retention.
 
@@ -404,7 +404,7 @@ For complex hierarchies, design the parser as an explicit state machine rather t
 
 Calculate a stable source hash:
 
-@@@
+```
 import hashlib
 
 def sha256_file(path):
@@ -416,7 +416,7 @@ def sha256_file(path):
         ):
             digest.update(chunk)
     return digest.hexdigest()
-@@@
+```
 
 Use source identity to make replay deterministic.
 
@@ -426,9 +426,9 @@ Separate technical identity from business identity.
 
 Technical identity can be:
 
-@@@
+```
 (source_hash, record_number)
-@@@
+```
 
 Business identity might be payment_id or transaction_id.
 
@@ -438,7 +438,7 @@ Do not generate a random identifier as the only identity during extraction if re
 
 Example PostgreSQL table:
 
-@@@
+```
 CREATE TABLE xml_staging (
     source_hash TEXT NOT NULL,
     record_number BIGINT NOT NULL,
@@ -447,18 +447,18 @@ CREATE TABLE xml_staging (
     extracted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     PRIMARY KEY (source_hash, record_number)
 );
-@@@
+```
 
 Idempotent insert:
 
-@@@
+```
 INSERT INTO xml_staging (
     source_hash, record_number, record_id, payload
 )
 VALUES (%s, %s, %s, %s)
 ON CONFLICT (source_hash, record_number)
 DO NOTHING;
-@@@
+```
 
 A replay can therefore be safe.
 
@@ -488,7 +488,7 @@ Define the target representation explicitly.
 
 Do not commit every XML record separately.
 
-@@@
+```
 BATCH_SIZE = 1000
 batch = []
 
@@ -501,7 +501,7 @@ for record_number, record in enumerate(stream_records(), start=1):
 
 if batch:
     insert_batch(batch)
-@@@
+```
 
 Choose batch size based on record size, database capacity, transaction duration, and recovery requirements.
 
@@ -521,7 +521,7 @@ Database transaction boundaries must not accidentally define business semantics.
 
 Track file processing separately from data:
 
-@@@
+```
 CREATE TABLE xml_extraction_run (
     run_id BIGSERIAL PRIMARY KEY,
     source_uri TEXT NOT NULL,
@@ -535,7 +535,7 @@ CREATE TABLE xml_extraction_run (
     started_at TIMESTAMPTZ NOT NULL,
     completed_at TIMESTAMPTZ
 );
-@@@
+```
 
 Useful states include DISCOVERED, VALIDATING, EXTRACTING, COMPLETED, FAILED, and QUARANTINED.
 
@@ -543,7 +543,7 @@ Useful states include DISCOVERED, VALIDATING, EXTRACTING, COMPLETED, FAILED, and
 
 Safe ordering:
 
-@@@
+```
 READ
   |
   v
@@ -557,13 +557,13 @@ COMMIT
   |
   v
 CHECKPOINT
-@@@
+```
 
 Never advance a durable checkpoint before its corresponding data is committed.
 
 ## 35. End-to-End Extractor
 
-@@@
+```
 import xml.etree.ElementTree as ET
 from decimal import Decimal
 
@@ -599,7 +599,7 @@ def stream_payments(path):
         }
 
         element.clear()
-@@@
+```
 
 Keep parsing independent from database code.
 
@@ -607,7 +607,7 @@ Keep parsing independent from database code.
 
 Recommended architecture:
 
-@@@
+```
 XML source
    |
    v
@@ -621,7 +621,7 @@ record validator
    |
    v
 staging writer
-@@@
+```
 
 The parser should not contain database-specific behavior.
 
@@ -629,7 +629,7 @@ The parser should not contain database-specific behavior.
 
 Use stable categories such as:
 
-@@@
+```
 MALFORMED_XML
 UNEXPECTED_ROOT
 UNKNOWN_NAMESPACE
@@ -641,7 +641,7 @@ SCHEMA_VALIDATION_FAILED
 RESOURCE_LIMIT
 SOURCE_MUTATED
 DATABASE_FAILURE
-@@@
+```
 
 Stable error codes make metrics and recovery automation easier.
 
@@ -649,7 +649,7 @@ Stable error codes make metrics and recovery automation easier.
 
 For record-level tolerant processing, preserve:
 
-@@@
+```
 source_hash
 record_number
 record_id
@@ -657,7 +657,7 @@ error_code
 error_message
 detected_at
 extractor_version
-@@@
+```
 
 Preserve raw XML fragments only when permitted by retention and privacy rules.
 
@@ -686,7 +686,7 @@ Minimum tests:
 
 ## 40. Example Tests
 
-@@@
+```
 import xml.etree.ElementTree as ET
 import pytest
 
@@ -714,7 +714,7 @@ def test_missing_attribute_fails():
     with pytest.raises(ValueError):
         if payment.get("id") is None:
             raise ValueError("Missing payment id")
-@@@
+```
 
 ## 41. Intentional Failure Drill — Namespace Change
 
@@ -779,7 +779,7 @@ Verify:
 
 Track:
 
-@@@
+```
 xml_files_discovered_total
 xml_files_completed_total
 xml_files_failed_total
@@ -791,7 +791,7 @@ xml_namespace_errors_total
 xml_schema_errors_total
 xml_extraction_duration_seconds
 xml_bytes_read_total
-@@@
+```
 
 Useful dimensions are source, dataset, schema version, extractor version, outcome, and error category.
 
@@ -801,7 +801,7 @@ Do not put arbitrary record IDs or raw payloads into metric labels.
 
 Success example:
 
-@@@
+```
 {
   "event": "xml_extraction_completed",
   "source": "payments",
@@ -811,18 +811,18 @@ Success example:
   "records_rejected": 0,
   "schema_version": "v2"
 }
-@@@
+```
 
 Failure example:
 
-@@@
+```
 {
   "event": "xml_extraction_failed",
   "source": "payments",
   "source_hash": "abc123",
   "error_code": "UNKNOWN_NAMESPACE"
 }
-@@@
+```
 
 Do not log full XML payloads when they can contain sensitive information.
 
@@ -861,14 +861,14 @@ Use for standard XML parsing, simple XPath-style selection, and incremental pars
 
 Core APIs:
 
-@@@
+```
 ET.parse()
 ET.fromstring()
 ET.find()
 ET.findall()
 ET.findtext()
 ET.iterparse()
-@@@
+```
 
 ### 50.2 lxml
 
@@ -878,9 +878,9 @@ Use when advanced XPath or mature XML schema-validation workflows are required. 
 
 Use JSONB for structured staging when downstream transformations benefit from retaining the extracted record shape.
 
-@@@
+```
 payload JSONB NOT NULL
-@@@
+```
 
 Keep the original XML or a durable source reference according to retention requirements.
 
@@ -1038,7 +1038,7 @@ E57 is complete when you can independently:
 
 XML extraction is a tree-processing problem.
 
-@@@
+```
 XML SOURCE
     |
     v
@@ -1064,7 +1064,7 @@ IDEMPOTENT STAGE
     |
     v
 OBSERVE + RECOVER
-@@@
+```
 
 The key rules are: namespace URI matters more than prefix; valid XML is not necessarily valid business data; large documents need incremental parsing; parent context can be essential; and deterministic identity makes replay safe.
 
