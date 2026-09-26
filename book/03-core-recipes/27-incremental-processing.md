@@ -1,4 +1,4 @@
-# Recipe 29 — Incremental Processing
+# Recipe 27 — Incremental Processing
 
 A full load processes everything.
 
