@@ -1,4 +1,4 @@
-# Recipe 2 — How Events Move Through a Pipeline
+# Chapter 2 — How Events Move Through a Pipeline
 
 In the previous chapter, we looked at the basic idea of a data pipeline.
 
