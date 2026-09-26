@@ -1,4 +1,4 @@
-# Recipe 5 — Idempotency
+# Chapter 5 — Idempotency
 
 A reliable pipeline must be safe to run more than once.
 
