@@ -1,12 +1,12 @@
-# Part III — Core Recipes
+# Part III — Core Pipeline Recipes
 
 Part III is the practical implementation section of the book.
 
-The cookbook uses **one continuous recipe sequence**. Recipes 1–16 establish the foundations and repository-investigation skills required to work safely in an existing Data Engineering system. Recipes 17 onward build production pipeline mechanisms.
+> **Important numbering rule:** Part III has its **own independent recipe sequence**. Core recipes start at **Recipe 1** and continue onward. Their numbers are separate from the chapter numbering used by the rest of the book.
 
 ## Recipe Philosophy
 
-These are not theory-only chapters. Each recipe is designed around a real production Data Engineering problem.
+These are not theory-only chapters. Each recipe is built around a real production Data Engineering problem.
 
 By the end of every recipe, you should be able to:
 
@@ -19,11 +19,11 @@ By the end of every recipe, you should be able to:
 - Break the implementation intentionally.
 - Diagnose the failure.
 - Recover the pipeline safely.
-- Understand the production tools commonly used for the same problem.
+- Understand the relevant production tools.
 - Operate the mechanism using a practical runbook.
 - Prove that the implementation is complete.
 
-The core learning loop is:
+The learning loop is:
 
 ```text
 REAL DE PROBLEM
@@ -49,163 +49,95 @@ OPERATE IT
 PROVE YOU ARE DONE
 ```
 
-## Continuous Recipe Sequence
+## Core Recipe Sequence
 
-### Stage 1 — Foundations
-
-| Recipe | Topic |
-|---|---|
-| [Recipe 1 — How Data Pipelines Work](../01-foundations/01-how-data-pipelines-work.md) | Pipeline fundamentals |
-| [Recipe 2 — How Events Move Through a Pipeline](../01-foundations/02-how-events-move-through-a-pipeline.md) | Event flow |
-| [Recipe 3 — Batch vs Streaming](../01-foundations/03-batch-vs-streaming.md) | Processing models |
-| [Recipe 4 — Raw, Staging, Curated and Warehouse Layers](../01-foundations/04-raw-staging-curated-and-warehouse-layers.md) | Data layers |
-| [Recipe 5 — Idempotency](../01-foundations/05-idempotency.md) | Safe repeated execution |
-| [Recipe 6 — Retries and Failures](../01-foundations/06-retries-and-failures.md) | Failure handling |
-| [Recipe 7 — Data Quality](../01-foundations/07-data-quality.md) | Data correctness |
-| [Recipe 8 — Pipeline Observability](../01-foundations/08-pipeline-observability.md) | Operational visibility |
-
-### Stage 2 — Repository Investigation
+### Stage 1 — Build the Pipeline
 
 | Recipe | Topic |
-|---|---|
-| [Recipe 9 — How to Read a Data Engineering Repository](../02-repository-investigation/09-how-to-read-a-data-engineering-repository.md) | Repository structure |
-| [Recipe 10 — Finding the Entry Point](../02-repository-investigation/10-finding-the-entry-point.md) | Execution path |
-| [Recipe 11 — Finding Database Code](../02-repository-investigation/11-finding-database-code.md) | Database path |
-| [Recipe 12 — Finding Migrations](../02-repository-investigation/12-finding-migrations.md) | Schema history |
-| [Recipe 13 — Finding Tests](../02-repository-investigation/13-finding-tests.md) | Test discovery |
-| [Recipe 14 — Understanding Configuration](../02-repository-investigation/14-understanding-configuration.md) | Runtime configuration |
-| [Recipe 15 — Understanding Docker](../02-repository-investigation/15-understanding-docker.md) | Container environment |
-| [Recipe 16 — Understanding CI/CD](../02-repository-investigation/16-understanding-ci-cd.md) | Delivery pipeline |
+|---:|---|
+| [Recipe 1 — Create an Ingestion Pipeline](1-create-an-ingestion-pipeline.md) | Ingestion |
+| [Recipe 2 — Create a Staging Layer](2-create-a-staging-layer.md) | Staging |
+| [Recipe 3 — Validate Incoming Data](3-validate-incoming-data.md) | Boundary validation |
+| [Recipe 4 — Add Error Handling](4-add-error-handling.md) | Error classification |
+| [Recipe 5 — Add Processing Status](5-add-processing-status.md) | Processing state |
 
-### Stage 3 — Build the Pipeline
+### Stage 2 — Make Execution Safe
 
 | Recipe | Topic |
-|---|---|
-| [Recipe 17 — Create an Ingestion Pipeline](17-create-an-ingestion-pipeline.md) | Ingestion |
-| [Recipe 18 — Create a Staging Layer](18-create-a-staging-layer.md) | Staging |
-| [Recipe 19 — Validate Incoming Data](19-validate-incoming-data.md) | Boundary validation at ingestion |
+|---:|---|
+| [Recipe 6 — Add Idempotency](6-add-idempotency.md) | Safe repeated execution |
+| [Recipe 7 — Add Deduplication](7-add-deduplication.md) | Duplicate records |
+| [Recipe 8 — Add Retry Logic](8-add-retry-logic.md) | Bounded retries |
+| [Recipe 9 — Quarantine Failed Data](9-quarantine-failed-data.md) | Failure isolation |
+| [Recipe 10 — Replay / Reprocessing](10-replay-reprocessing.md) | Controlled recovery |
 
-### Stage 4 — Make the Pipeline Correct and Observable
-
-| Recipe | Topic |
-|---|---|
-| [Recipe 20 — Add Error Handling](20-add-error-handling.md) | Error classification |
-| [Recipe 21 — Add Processing Status](21-add-processing-status.md) | Processing state |
-| [Recipe 22 — Add Idempotency](22-add-idempotency.md) | Safe repeated execution |
-| [Recipe 23 — Add Deduplication](23-add-deduplication.md) | Duplicate records |
-
-### Stage 5 — Recover from Failure
+### Stage 3 — Process Data Correctly and Efficiently
 
 | Recipe | Topic |
-|---|---|
-| [Recipe 24 — Add Retry Logic](24-add-retry-logic.md) | Bounded retries |
-| [Recipe 25 — Quarantine Failed Data](25-quarantine-failed-data.md) | Failure isolation |
-| [Recipe 26 — Replay / Reprocessing](26-replay-reprocessing.md) | Controlled recovery |
+|---:|---|
+| [Recipe 11 — Incremental Processing](11-incremental-processing.md) | Incremental state |
+| [Recipe 12 — Checkpointing](12-checkpointing.md) | Durable progress |
+| [Recipe 13 — Backfill Historical Data](13-backfill-historical-data.md) | Historical recovery |
+| [Recipe 14 — Handle Late Data](14-handle-late-data.md) | Event-time correctness |
+| [Recipe 15 — Handle Missing Data](15-handle-missing-data.md) | Completeness |
+| [Recipe 16 — Data Reconciliation](16-data-reconciliation.md) | Source-to-target correctness |
 
-### Stage 6 — Process Data Efficiently
-
-| Recipe | Topic |
-|---|---|
-| [Recipe 27 — Incremental Processing](27-incremental-processing.md) | Incremental state |
-| [Recipe 28 — Checkpointing](28-checkpointing.md) | Durable progress |
-| [Recipe 29 — Backfill Historical Data](29-backfill-historical-data.md) | Historical recovery |
-
-### Stage 7 — Handle Real-World Data Problems
+### Stage 4 — Handle Production-Scale Pipeline Problems
 
 | Recipe | Topic |
-|---|---|
-| [Recipe 30 — Handle Late Data](30-handle-late-data.md) | Event-time correctness |
-| [Recipe 31 — Handle Missing Data](31-handle-missing-data.md) | Completeness |
-| [Recipe 32 — Data Reconciliation](32-data-reconciliation.md) | Source-to-target correctness |
+|---:|---|
+| [Recipe 17 — Handle Schema Changes](17-handle-schema-changes.md) | Schema evolution |
+| [Recipe 18 — Handle Backpressure](18-handle-backpressure.md) | Flow control |
+| [Recipe 19 — Dead-Letter / Data-Quality Lifecycle](19-dead-letter-dq-lifecycle.md) | Failure and DQ lifecycle |
 
-### Stage 8 — Evolve and Operate the Pipeline
-
-| Recipe | Topic |
-|---|---|
-| [Recipe 33 — Handle Schema Changes](33-handle-schema-changes.md) | Schema evolution |
-| [Recipe 34 — Handle Backpressure](34-handle-backpressure.md) | Flow control |
-| [Recipe 35 — Dead-Letter / Data-Quality Lifecycle](35-dead-letter-dq-lifecycle.md) | Failure and DQ lifecycle |
-
-## Complete Recipe Flow
+## Learning Order
 
 ```text
-01 Foundations
+1  Ingestion
    ↓
-02 Events
+2  Staging
    ↓
-03 Batch vs Streaming
+3  Validation
    ↓
-04 Data Layers
+4  Error Handling
    ↓
-05 Idempotency
+5  Processing Status
    ↓
-06 Failures
+6  Idempotency
    ↓
-07 Data Quality
+7  Deduplication
    ↓
-08 Observability
+8  Retry
    ↓
-09 Repository Investigation
+9  Quarantine
    ↓
-10 Entry Point
+10 Replay / Reprocessing
    ↓
-11 Database Code
+11 Incremental Processing
    ↓
-12 Migrations
+12 Checkpointing
    ↓
-13 Tests
+13 Backfill
    ↓
-14 Configuration
+14 Late Data
    ↓
-15 Docker
+15 Missing Data
    ↓
-16 CI/CD
+16 Reconciliation
    ↓
-17 Ingestion
+17 Schema Changes
    ↓
-18 Staging
+18 Backpressure
    ↓
-19 Validation
+19 Dead-Letter / Data-Quality Lifecycle
    ↓
-20 Error Handling
-   ↓
-21 Processing Status
-   ↓
-22 Idempotency
-   ↓
-23 Deduplication
-   ↓
-24 Retry Logic
-   ↓
-25 Quarantine
-   ↓
-26 Replay / Reprocessing
-   ↓
-27 Incremental Processing
-   ↓
-28 Checkpointing
-   ↓
-29 Backfill
-   ↓
-30 Late Data
-   ↓
-31 Missing Data
-   ↓
-32 Reconciliation
-   ↓
-33 Schema Changes
-   ↓
-34 Backpressure
-   ↓
-35 Dead-Letter / Data-Quality Lifecycle
-   ↓
-36+
-Production Data Engineering
+20+
+Future Core Recipes
 ```
 
 ## Standard Recipe Structure
 
-Every recipe should follow the same engineering structure:
+Every core recipe should follow the same engineering structure:
 
 1. **Problem Recognition**
 2. **Concept and Reasoning**
