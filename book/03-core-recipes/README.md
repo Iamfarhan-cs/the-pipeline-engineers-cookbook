@@ -91,6 +91,7 @@ PROVE YOU ARE DONE
 | [Recipe 19 — Dead-Letter / Data-Quality Lifecycle](19-dead-letter-dq-lifecycle.md) | Failure and DQ lifecycle |
 | [Recipe 20 — Boundary Validation](20-boundary-validation.md) | Validate at trust boundaries |
 | [Recipe 21 — Transactions & Atomicity](21-transactions-atomicity.md) | Atomic database operations |
+| [Recipe 22 — Bulk Loading](22-bulk-loading.md) | High-volume loading |
 
 ## Learning Order
 
@@ -137,7 +138,9 @@ PROVE YOU ARE DONE
    ↓
 21 Transactions & Atomicity
    ↓
-22+
+22 Bulk Loading
+   ↓
+23+
 Future Core Recipes
 ```
 
