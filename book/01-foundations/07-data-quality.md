@@ -1361,7 +1361,7 @@ Before calling a pipeline production-ready, ask:
 
 # What You Learned
 
-In this chapter, you learned:
+In this recipe, you learned:
 
 - A pipeline can succeed technically while producing bad data.
 - Data quality measures whether data is trustworthy for its intended use.
@@ -1384,29 +1384,3 @@ The main lesson is:
 **A pipeline is not healthy just because it finishes. A reliable pipeline also checks whether the data it produced is complete, valid, consistent, fresh, and fit for its intended use.**
 
 ---
-
-# Recipe Preview
-
-Later in the book, these ideas will become implementation recipes.
-
-You will learn how to:
-
-- Add required-field validation.
-- Validate schemas and data types.
-- Detect duplicate records.
-- Add database constraints.
-- Validate relationships.
-- Measure data freshness.
-- Add volume checks.
-- Build data quality gates.
-- Quarantine invalid data.
-- Reconcile pipeline outputs.
-- Test data quality failures.
-- Monitor quality metrics.
-- Investigate quality incidents.
-
-The next chapter completes the Foundations section with another essential production topic:
-
-**Pipeline Observability.**
-
-We will look at how logs, metrics, traces, and pipeline-level signals help us understand what a running data pipeline is actually doing.
