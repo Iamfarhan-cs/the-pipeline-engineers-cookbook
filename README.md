@@ -128,7 +128,6 @@ The rest of the book retains its own chapter numbering.
 
 ### Part IX — Real Project Recipes
 
-71. Payment Telemetry Pipeline
 72. Sanctions Intelligence Pipeline
 73. API → PostgreSQL
 74. PostgreSQL → Warehouse
