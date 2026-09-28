@@ -190,6 +190,7 @@ Each transformation recipe belongs to a specific transformation category. Genera
 | T38 | [Uniqueness Validation](T38-uniqueness-validation.md) |
 | T39 | [Completeness Checks](T39-completeness-checks.md) |
 | T40 | [Consistency Checks](T40-consistency-checks.md) |
+| T41 | [Statistical Anomaly Detection](T41-statistical-anomaly-detection.md) |
 | T39 | Completeness Checks |
 | T40 | Consistency Checks |
 | T41 | Statistical Anomaly Detection |
