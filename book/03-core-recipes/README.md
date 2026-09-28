@@ -135,6 +135,7 @@ PROVE YOU ARE DONE
 | [T07 — Time Zone Conversion](T07-time-zone-conversion.md) | Convert local times and instants safely across named time zones, including DST edge cases and explicit ambiguity policies |
 | [T08 — Numeric Transformation](T08-numeric-transformation.md) | Convert, validate, round, and persist numeric values without silently changing precision, scale, units, or business meaning |
 | [T09 — Boolean Normalization](T09-boolean-normalization.md) | Normalize source boolean representations into explicit TRUE, FALSE, and NULL semantics without hiding invalid or unknown values |
+| [T10 — Code/Status Mapping](T10-code-status-mapping.md) | Translate source codes and statuses into governed canonical values with explicit unknown, effective-date, and versioning policies |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
