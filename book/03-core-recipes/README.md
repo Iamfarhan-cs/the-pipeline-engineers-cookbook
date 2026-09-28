@@ -149,6 +149,7 @@ PROVE YOU ARE DONE
 | [T21 — INNER JOIN](T21-inner-join.md) | Retain only valid matches while explicitly accounting for exclusions, cardinality, NULLs, duplicate references, and population loss |
 | [T22 — LEFT JOIN](T22-left-join.md) | Preserve the left population while controlling unmatched semantics, right-side cardinality, NULLs, filter placement, and fan-out |
 | [T23 — FULL OUTER JOIN](T23-full-outer-join.md) | Reconcile two populations by preserving matched, left-only, and right-only records with explicit grain, identity, comparison, and difference accounting |
+| [T24 — Anti-Joins](T24-anti-joins.md) | Find left records with no qualifying relationship using explicit existence semantics, NULL-safe predicates, composite keys, temporal rules, and reconciliation |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
