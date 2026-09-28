@@ -170,7 +170,7 @@ Each transformation recipe belongs to a specific transformation category. Genera
 | T23 | [FULL OUTER JOIN](T23-full-outer-join.md) |
 | T24 | [Anti-Joins](T24-anti-joins.md) |
 | T25 | [Semi-Joins](T25-semi-joins.md) |
-| T26 | Window Functions |
+| T26 | [Window Functions](T26-window-functions.md) |
 | T27 | Ranking |
 | T28 | Running Totals |
 | T29 | Moving Windows |
