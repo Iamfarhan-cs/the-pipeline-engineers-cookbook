@@ -166,7 +166,7 @@ Each transformation recipe belongs to a specific transformation category. Genera
 | T19 | [GROUP BY Aggregation](T19-group-by-aggregation.md) |
 | T20 | [JOIN Transformations](T20-join-transformations.md) |
 | T21 | [INNER JOIN](T21-inner-join.md) |
-| T22 | LEFT JOIN |
+| T22 | [LEFT JOIN](T22-left-join.md) |
 | T23 | FULL OUTER JOIN |
 | T24 | Anti-Joins |
 | T25 | Semi-Joins |
