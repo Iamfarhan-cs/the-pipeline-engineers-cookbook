@@ -193,6 +193,7 @@ Each transformation recipe belongs to a specific transformation category. Genera
 | T41 | [Statistical Anomaly Detection](T41-statistical-anomaly-detection.md) |
 | T42 | [Data Quality Scoring](T42-data-quality-scoring.md) |
 | T43 | [Invalid Record Handling](T43-invalid-record-handling.md) |
+| T44 | [Quarantine During Transformation](T44-quarantine-during-transformation.md) |
 | T39 | Completeness Checks |
 | T40 | Consistency Checks |
 | T41 | Statistical Anomaly Detection |
