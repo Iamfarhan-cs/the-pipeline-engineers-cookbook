@@ -162,6 +162,7 @@ PROVE YOU ARE DONE
 | [T34 — Type Validation](T34-type-validation.md) | Validate source representations against typed contracts with safe parsing, precision and range controls, timezone rules, schema-drift detection, and quarantine |
 | [T35 — Range Validation](T35-range-validation.md) | Validate typed values against explicit numeric, temporal, cross-field, and reference-driven bounds with boundary testing, quarantine, and rule monitoring |
 | [T36 — Domain Validation](T36-domain-validation.md) | Validate typed values against governed business domains, canonical mappings, effective-dated codes, scoped combinations, unknown values, and domain evolution |
+| [T37 — Referential Integrity](T37-referential-integrity.md) | Verify child-to-parent relationships across keys, tenant scope, parent state, effective time, late arrivals, mappings, and recovery workflows |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
