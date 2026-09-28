@@ -150,6 +150,7 @@ Each transformation recipe belongs to a specific transformation category. Genera
 | T08 | [Numeric Transformation](T08-numeric-transformation.md) |
 | T09 | [Boolean Normalization](T09-boolean-normalization.md) |
 | T10 | [Code/Status Mapping](T10-code-status-mapping.md) |
+| T11 | [Data Standardization](T11-data-standardization.md) |
 | T11 | Data Standardization |
 | T12 | Data Cleansing |
 | T13 | Record Filtering |
