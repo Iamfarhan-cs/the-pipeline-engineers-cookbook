@@ -165,6 +165,7 @@ PROVE YOU ARE DONE
 | [T37 — Referential Integrity](T37-referential-integrity.md) | Verify child-to-parent relationships across keys, tenant scope, parent state, effective time, late arrivals, mappings, and recovery workflows |
 | [T38 — Uniqueness Validation](T38-uniqueness-validation.md) | Validate business-key uniqueness at the correct grain, detect exact and conflicting duplicates, enforce deterministic survivor rules, and protect against replay and fan-out |
 | [T39 — Completeness Checks](T39-completeness-checks.md) | Prove expected populations, partitions, keys, files, and time coverage are present at the correct grain with explicit deadlines, tolerances, evidence, and recovery |
+| [T40 — Consistency Checks](T40-consistency-checks.md) | Validate relationships among fields, records, aggregates, states, units, currencies, and independent sources using explicit invariants and tolerances |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
