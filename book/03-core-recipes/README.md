@@ -146,6 +146,7 @@ PROVE YOU ARE DONE
 | [T18 — WHERE Filtering](T18-where-filtering.md) | Select rows using explicit predicates, NULL semantics, time boundaries, security scope, population accounting, and safe replay |
 | [T19 — GROUP BY Aggregation](T19-group-by-aggregation.md) | Reduce detailed records into reconciled summary grains with explicit grouping keys, aggregate semantics, NULL handling, and double-counting protection |
 | [T20 — JOIN Transformations](T20-join-transformations.md) | Combine relational datasets safely with explicit grain, keys, cardinality, matching semantics, multiplication detection, temporal correctness, and reconciliation |
+| [T21 — INNER JOIN](T21-inner-join.md) | Retain only valid matches while explicitly accounting for exclusions, cardinality, NULLs, duplicate references, and population loss |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
