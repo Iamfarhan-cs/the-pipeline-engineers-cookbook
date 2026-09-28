@@ -134,6 +134,7 @@ PROVE YOU ARE DONE
 | [T06 — Date and Time Transformation](T06-date-and-time-transformation.md) | Parse, normalize, validate, observe, and safely recover date/time values without changing their meaning |
 | [T07 — Time Zone Conversion](T07-time-zone-conversion.md) | Convert local times and instants safely across named time zones, including DST edge cases and explicit ambiguity policies |
 | [T08 — Numeric Transformation](T08-numeric-transformation.md) | Convert, validate, round, and persist numeric values without silently changing precision, scale, units, or business meaning |
+| [T09 — Boolean Normalization](T09-boolean-normalization.md) | Normalize source boolean representations into explicit TRUE, FALSE, and NULL semantics without hiding invalid or unknown values |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
