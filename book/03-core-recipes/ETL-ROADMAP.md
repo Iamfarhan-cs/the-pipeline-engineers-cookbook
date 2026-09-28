@@ -168,7 +168,7 @@ Each transformation recipe belongs to a specific transformation category. Genera
 | T21 | [INNER JOIN](T21-inner-join.md) |
 | T22 | [LEFT JOIN](T22-left-join.md) |
 | T23 | [FULL OUTER JOIN](T23-full-outer-join.md) |
-| T24 | Anti-Joins |
+| T24 | [Anti-Joins](T24-anti-joins.md) |
 | T25 | Semi-Joins |
 | T26 | Window Functions |
 | T27 | Ranking |
