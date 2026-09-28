@@ -156,6 +156,7 @@ PROVE YOU ARE DONE
 | [T28 — Running Totals](T28-running-totals.md) | Calculate cumulative state over deterministic event sequences with partitioning, opening balances, resets, late-data handling, and independent reconciliation |
 | [T29 — Moving Windows](T29-moving-windows.md) | Calculate bounded rolling metrics with explicit row/time semantics, boundaries, sparse-data handling, timezone policy, late-data replay, and coverage monitoring |
 | [T30 — Deduplication with Window Functions](T30-deduplication-with-window-functions.md) | Deduplicate logical records with deterministic survivor selection, composite identities, conflict classification, auditability, and target-grain enforcement |
+| [T31 — Pivoting](T31-pivoting.md) | Transform categorical row values into stable analytical columns with explicit grain, aggregation, NULL semantics, category contracts, and reconciliation |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
