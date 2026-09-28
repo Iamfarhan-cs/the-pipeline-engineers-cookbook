@@ -146,7 +146,7 @@ Each transformation recipe belongs to a specific transformation category. Genera
 | T04 | [Default Values](T04-default-values.md) |
 | T05 | [String Normalization](T05-string-normalization.md) |
 | T06 | [Date and Time Transformation](T06-date-and-time-transformation.md) |
-| T07 | Time Zone Conversion |
+| T07 | [Time Zone Conversion](T07-time-zone-conversion.md) |
 | T08 | Numeric Transformation |
 | T09 | Boolean Normalization |
 | T10 | Code/Status Mapping |
