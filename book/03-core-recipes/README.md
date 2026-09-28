@@ -145,6 +145,7 @@ PROVE YOU ARE DONE
 | [T17 — SQL SELECT Transformations](T17-sql-select-transformations.md) | Build controlled SQL projections with explicit columns, derived expressions, types, NULL semantics, units, and preserved grain |
 | [T18 — WHERE Filtering](T18-where-filtering.md) | Select rows using explicit predicates, NULL semantics, time boundaries, security scope, population accounting, and safe replay |
 | [T19 — GROUP BY Aggregation](T19-group-by-aggregation.md) | Reduce detailed records into reconciled summary grains with explicit grouping keys, aggregate semantics, NULL handling, and double-counting protection |
+| [T20 — JOIN Transformations](T20-join-transformations.md) | Combine relational datasets safely with explicit grain, keys, cardinality, matching semantics, multiplication detection, temporal correctness, and reconciliation |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
