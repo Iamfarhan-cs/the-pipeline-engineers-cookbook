@@ -187,7 +187,7 @@ Each transformation recipe belongs to a specific transformation category. Genera
 | T35 | [Range Validation](T35-range-validation.md) |
 | T36 | [Domain Validation](T36-domain-validation.md) |
 | T37 | [Referential Integrity](T37-referential-integrity.md) |
-| T38 | Uniqueness Validation |
+| T38 | [Uniqueness Validation](T38-uniqueness-validation.md) |
 | T39 | Completeness Checks |
 | T40 | Consistency Checks |
 | T41 | Statistical Anomaly Detection |
