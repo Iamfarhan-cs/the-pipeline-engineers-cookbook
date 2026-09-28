@@ -152,6 +152,7 @@ PROVE YOU ARE DONE
 | [T24 — Anti-Joins](T24-anti-joins.md) | Find left records with no qualifying relationship using explicit existence semantics, NULL-safe predicates, composite keys, temporal rules, and reconciliation |
 | [T25 — Semi-Joins](T25-semi-joins.md) | Keep left records with at least one qualifying relationship using EXISTS, duplicate-safe membership logic, complete keys, temporal rules, and population reconciliation |
 | [T26 — Window Functions](T26-window-functions.md) | Calculate row-aware analytics without collapsing grain using partitions, deterministic ordering, frames, ranking, running metrics, and late-data handling |
+| [T27 — Ranking](T27-ranking.md) | Rank records globally or within partitions with explicit metrics, tie policies, deterministic ordering, NULL handling, top-N semantics, and snapshot-aware recomputation |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
