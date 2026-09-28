@@ -138,6 +138,7 @@ PROVE YOU ARE DONE
 | [T10 — Code/Status Mapping](T10-code-status-mapping.md) | Translate source codes and statuses into governed canonical values with explicit unknown, effective-date, and versioning policies |
 | [T11 — Data Standardization](T11-data-standardization.md) | Align cross-source representations, units, categories, and reference data to governed canonical standards without losing provenance |
 | [T12 — Data Cleansing](T12-data-cleansing.md) | Detect, correct, quarantine, or reject data-quality defects using explicit rules, evidence, accounting, and safe recovery |
+| [T13 — Record Filtering](T13-record-filtering.md) | Select records for downstream purposes using explicit predicates, explainable dispositions, population accounting, and safe replay |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
