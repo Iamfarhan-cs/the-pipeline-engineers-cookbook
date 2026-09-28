@@ -153,6 +153,7 @@ PROVE YOU ARE DONE
 | [T25 — Semi-Joins](T25-semi-joins.md) | Keep left records with at least one qualifying relationship using EXISTS, duplicate-safe membership logic, complete keys, temporal rules, and population reconciliation |
 | [T26 — Window Functions](T26-window-functions.md) | Calculate row-aware analytics without collapsing grain using partitions, deterministic ordering, frames, ranking, running metrics, and late-data handling |
 | [T27 — Ranking](T27-ranking.md) | Rank records globally or within partitions with explicit metrics, tie policies, deterministic ordering, NULL handling, top-N semantics, and snapshot-aware recomputation |
+| [T28 — Running Totals](T28-running-totals.md) | Calculate cumulative state over deterministic event sequences with partitioning, opening balances, resets, late-data handling, and independent reconciliation |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
