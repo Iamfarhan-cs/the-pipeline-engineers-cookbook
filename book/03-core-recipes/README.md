@@ -131,6 +131,7 @@ PROVE YOU ARE DONE
 | [T03 — Null Handling](T03-null-handling.md) | Define, normalize, validate, observe, and safely recover NULL and missing-value semantics |
 | [T04 — Default Values](T04-default-values.md) | Apply explicit, validated, observable defaults without corrupting missing-value semantics |
 | [T05 — String Normalization](T05-string-normalization.md) | Canonicalize text representations safely while preserving field semantics and Unicode |
+| [T06 — Date and Time Transformation](T06-date-and-time-transformation.md) | Parse, normalize, validate, observe, and safely recover date/time values without changing their meaning |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
