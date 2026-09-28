@@ -147,6 +147,7 @@ PROVE YOU ARE DONE
 | [T19 — GROUP BY Aggregation](T19-group-by-aggregation.md) | Reduce detailed records into reconciled summary grains with explicit grouping keys, aggregate semantics, NULL handling, and double-counting protection |
 | [T20 — JOIN Transformations](T20-join-transformations.md) | Combine relational datasets safely with explicit grain, keys, cardinality, matching semantics, multiplication detection, temporal correctness, and reconciliation |
 | [T21 — INNER JOIN](T21-inner-join.md) | Retain only valid matches while explicitly accounting for exclusions, cardinality, NULLs, duplicate references, and population loss |
+| [T22 — LEFT JOIN](T22-left-join.md) | Preserve the left population while controlling unmatched semantics, right-side cardinality, NULLs, filter placement, and fan-out |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
