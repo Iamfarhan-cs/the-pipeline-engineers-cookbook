@@ -155,6 +155,7 @@ PROVE YOU ARE DONE
 | [T27 — Ranking](T27-ranking.md) | Rank records globally or within partitions with explicit metrics, tie policies, deterministic ordering, NULL handling, top-N semantics, and snapshot-aware recomputation |
 | [T28 — Running Totals](T28-running-totals.md) | Calculate cumulative state over deterministic event sequences with partitioning, opening balances, resets, late-data handling, and independent reconciliation |
 | [T29 — Moving Windows](T29-moving-windows.md) | Calculate bounded rolling metrics with explicit row/time semantics, boundaries, sparse-data handling, timezone policy, late-data replay, and coverage monitoring |
+| [T30 — Deduplication with Window Functions](T30-deduplication-with-window-functions.md) | Deduplicate logical records with deterministic survivor selection, composite identities, conflict classification, auditability, and target-grain enforcement |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
