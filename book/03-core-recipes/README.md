@@ -139,6 +139,7 @@ PROVE YOU ARE DONE
 | [T11 — Data Standardization](T11-data-standardization.md) | Align cross-source representations, units, categories, and reference data to governed canonical standards without losing provenance |
 | [T12 — Data Cleansing](T12-data-cleansing.md) | Detect, correct, quarantine, or reject data-quality defects using explicit rules, evidence, accounting, and safe recovery |
 | [T13 — Record Filtering](T13-record-filtering.md) | Select records for downstream purposes using explicit predicates, explainable dispositions, population accounting, and safe replay |
+| [T14 — Record Enrichment](T14-record-enrichment.md) | Add trusted context using controlled joins, cardinality checks, temporal correctness, freshness, provenance, and safe recovery |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
