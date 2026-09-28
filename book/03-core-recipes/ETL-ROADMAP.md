@@ -155,12 +155,7 @@ Each transformation recipe belongs to a specific transformation category. Genera
 | T13 | [Record Filtering](T13-record-filtering.md) |
 | T14 | [Record Enrichment](T14-record-enrichment.md) |
 | T15 | [Record Splitting](T15-record-splitting.md) |
-| T11 | Data Standardization |
-| T12 | Data Cleansing |
-| T13 | Record Filtering |
-| T14 | Record Enrichment |
-| T15 | Record Splitting |
-| T16 | Record Merging |
+| T16 | [Record Merging](T16-record-merging.md) |
 
 ## Category 02 — SQL and Relational Transformations
 
