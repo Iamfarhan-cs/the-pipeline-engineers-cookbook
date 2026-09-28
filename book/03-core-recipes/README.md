@@ -137,6 +137,7 @@ PROVE YOU ARE DONE
 | [T09 — Boolean Normalization](T09-boolean-normalization.md) | Normalize source boolean representations into explicit TRUE, FALSE, and NULL semantics without hiding invalid or unknown values |
 | [T10 — Code/Status Mapping](T10-code-status-mapping.md) | Translate source codes and statuses into governed canonical values with explicit unknown, effective-date, and versioning policies |
 | [T11 — Data Standardization](T11-data-standardization.md) | Align cross-source representations, units, categories, and reference data to governed canonical standards without losing provenance |
+| [T12 — Data Cleansing](T12-data-cleansing.md) | Detect, correct, quarantine, or reject data-quality defects using explicit rules, evidence, accounting, and safe recovery |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
