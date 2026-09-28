@@ -175,7 +175,7 @@ Each transformation recipe belongs to a specific transformation category. Genera
 | T28 | [Running Totals](T28-running-totals.md) |
 | T29 | [Moving Windows](T29-moving-windows.md) |
 | T30 | [Deduplication with Window Functions](T30-deduplication-with-window-functions.md) — Transform Application |
-| T31 | Pivoting |
+| T31 | [Pivoting](T31-pivoting.md) |
 | T32 | Unpivoting |
 
 ## Category 03 — Data Quality Transformations
