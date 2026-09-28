@@ -129,6 +129,7 @@ PROVE YOU ARE DONE
 | [T01 — Raw Data to Staging](T01-raw-data-to-staging.md) | Establish a traceable, idempotent staging boundary between raw evidence and downstream transformation |
 | [T02 — Data Type Conversion](T02-data-type-conversion.md) | Convert source representations into explicit, validated, precision-safe target types |
 | [T03 — Null Handling](T03-null-handling.md) | Define, normalize, validate, observe, and safely recover NULL and missing-value semantics |
+| [T04 — Default Values](T04-default-values.md) | Apply explicit, validated, observable defaults without corrupting missing-value semantics |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
