@@ -142,6 +142,7 @@ PROVE YOU ARE DONE
 | [T14 — Record Enrichment](T14-record-enrichment.md) | Add trusted context using controlled joins, cardinality checks, temporal correctness, freshness, provenance, and safe recovery |
 | [T15 — Record Splitting](T15-record-splitting.md) | Expand one record into accountable child records with deterministic identity, lineage, cardinality, reconciliation, and replay safety |
 | [T16 — Record Merging](T16-record-merging.md) | Consolidate records into one logical output using deterministic identity, field-level survivorship, conflict handling, provenance, and replay safety |
+| [T17 — SQL SELECT Transformations](T17-sql-select-transformations.md) | Build controlled SQL projections with explicit columns, derived expressions, types, NULL semantics, units, and preserved grain |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
