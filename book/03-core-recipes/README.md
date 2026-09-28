@@ -171,6 +171,7 @@ PROVE YOU ARE DONE
 | [T43 — Invalid Record Handling](T43-invalid-record-handling.md) | Classify, quarantine, retry, correct, replay, and reconcile invalid records without silently dropping data |
 | [T44 — Quarantine During Transformation](T44-quarantine-during-transformation.md) | Apply quarantine during transformation with explicit side outputs, reconciliation, atomic publication, and replay |
 | [T45 — Slowly Changing Dimensions](T45-slowly-changing-dimensions.md) | Preserve governed dimension history with change detection, effective dating, current-row semantics, temporal correctness, and safe recovery |
+| [T46 — SCD Type 1](T46-scd-type-1.md) | Apply current-state overwrite semantics with deterministic upserts, source authority, idempotency, and safe recovery |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
