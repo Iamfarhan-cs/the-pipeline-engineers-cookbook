@@ -172,7 +172,7 @@ Each transformation recipe belongs to a specific transformation category. Genera
 | T25 | [Semi-Joins](T25-semi-joins.md) |
 | T26 | [Window Functions](T26-window-functions.md) |
 | T27 | [Ranking](T27-ranking.md) |
-| T28 | Running Totals |
+| T28 | [Running Totals](T28-running-totals.md) |
 | T29 | Moving Windows |
 | T30 | Deduplication with Window Functions — Transform Application |
 | T31 | Pivoting |
