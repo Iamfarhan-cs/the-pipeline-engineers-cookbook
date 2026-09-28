@@ -163,7 +163,7 @@ Each transformation recipe belongs to a specific transformation category. Genera
 |---|---|
 | T17 | [SQL SELECT Transformations](T17-sql-select-transformations.md) |
 | T18 | [WHERE Filtering](T18-where-filtering.md) |
-| T19 | GROUP BY Aggregation |
+| T19 | [GROUP BY Aggregation](T19-group-by-aggregation.md) |
 | T20 | JOIN Transformations |
 | T21 | INNER JOIN |
 | T22 | LEFT JOIN |
