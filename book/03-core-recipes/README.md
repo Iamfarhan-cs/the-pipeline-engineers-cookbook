@@ -166,6 +166,7 @@ PROVE YOU ARE DONE
 | [T38 — Uniqueness Validation](T38-uniqueness-validation.md) | Validate business-key uniqueness at the correct grain, detect exact and conflicting duplicates, enforce deterministic survivor rules, and protect against replay and fan-out |
 | [T39 — Completeness Checks](T39-completeness-checks.md) | Prove expected populations, partitions, keys, files, and time coverage are present at the correct grain with explicit deadlines, tolerances, evidence, and recovery |
 | [T40 — Consistency Checks](T40-consistency-checks.md) | Validate relationships among fields, records, aggregates, states, units, currencies, and independent sources using explicit invariants and tolerances |
+| [T41 — Statistical Anomaly Detection](T41-statistical-anomaly-detection.md) | Detect statistically unusual volume, distributions, NULL rates, cardinality, category shares, and time-series behavior using contextual baselines |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
