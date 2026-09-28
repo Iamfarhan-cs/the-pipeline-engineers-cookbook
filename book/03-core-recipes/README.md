@@ -160,6 +160,7 @@ PROVE YOU ARE DONE
 | [T32 — Unpivoting](T32-unpivoting.md) | Transform wide columns into governed long-form records with explicit mappings, target grain, NULL semantics, expansion controls, lineage, and reconciliation |
 | [T33 — Required-Field Validation](T33-required-field-validation.md) | Enforce required-field contracts with explicit presence semantics, conditional rules, field-level diagnostics, quarantine, replay, and quality monitoring |
 | [T34 — Type Validation](T34-type-validation.md) | Validate source representations against typed contracts with safe parsing, precision and range controls, timezone rules, schema-drift detection, and quarantine |
+| [T35 — Range Validation](T35-range-validation.md) | Validate typed values against explicit numeric, temporal, cross-field, and reference-driven bounds with boundary testing, quarantine, and rule monitoring |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
