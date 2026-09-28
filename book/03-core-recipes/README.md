@@ -163,6 +163,7 @@ PROVE YOU ARE DONE
 | [T35 — Range Validation](T35-range-validation.md) | Validate typed values against explicit numeric, temporal, cross-field, and reference-driven bounds with boundary testing, quarantine, and rule monitoring |
 | [T36 — Domain Validation](T36-domain-validation.md) | Validate typed values against governed business domains, canonical mappings, effective-dated codes, scoped combinations, unknown values, and domain evolution |
 | [T37 — Referential Integrity](T37-referential-integrity.md) | Verify child-to-parent relationships across keys, tenant scope, parent state, effective time, late arrivals, mappings, and recovery workflows |
+| [T38 — Uniqueness Validation](T38-uniqueness-validation.md) | Validate business-key uniqueness at the correct grain, detect exact and conflicting duplicates, enforce deterministic survivor rules, and protect against replay and fan-out |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
