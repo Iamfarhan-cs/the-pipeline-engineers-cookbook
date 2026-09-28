@@ -154,6 +154,7 @@ PROVE YOU ARE DONE
 | [T26 — Window Functions](T26-window-functions.md) | Calculate row-aware analytics without collapsing grain using partitions, deterministic ordering, frames, ranking, running metrics, and late-data handling |
 | [T27 — Ranking](T27-ranking.md) | Rank records globally or within partitions with explicit metrics, tie policies, deterministic ordering, NULL handling, top-N semantics, and snapshot-aware recomputation |
 | [T28 — Running Totals](T28-running-totals.md) | Calculate cumulative state over deterministic event sequences with partitioning, opening balances, resets, late-data handling, and independent reconciliation |
+| [T29 — Moving Windows](T29-moving-windows.md) | Calculate bounded rolling metrics with explicit row/time semantics, boundaries, sparse-data handling, timezone policy, late-data replay, and coverage monitoring |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
