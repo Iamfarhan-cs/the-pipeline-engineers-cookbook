@@ -143,7 +143,7 @@ Each transformation recipe belongs to a specific transformation category. Genera
 | T01 | [Raw Data to Staging](T01-raw-data-to-staging.md) |
 | T02 | [Data Type Conversion](T02-data-type-conversion.md) |
 | T03 | [Null Handling](T03-null-handling.md) |
-| T04 | Default Values |
+| T04 | [Default Values](T04-default-values.md) |
 | T05 | String Normalization |
 | T06 | Date and Time Transformation |
 | T07 | Time Zone Conversion |
