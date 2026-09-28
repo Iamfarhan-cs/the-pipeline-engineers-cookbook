@@ -140,6 +140,7 @@ PROVE YOU ARE DONE
 | [T12 — Data Cleansing](T12-data-cleansing.md) | Detect, correct, quarantine, or reject data-quality defects using explicit rules, evidence, accounting, and safe recovery |
 | [T13 — Record Filtering](T13-record-filtering.md) | Select records for downstream purposes using explicit predicates, explainable dispositions, population accounting, and safe replay |
 | [T14 — Record Enrichment](T14-record-enrichment.md) | Add trusted context using controlled joins, cardinality checks, temporal correctness, freshness, provenance, and safe recovery |
+| [T15 — Record Splitting](T15-record-splitting.md) | Expand one record into accountable child records with deterministic identity, lineage, cardinality, reconciliation, and replay safety |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
