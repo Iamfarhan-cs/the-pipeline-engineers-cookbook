@@ -207,7 +207,7 @@ Each transformation recipe belongs to a specific transformation category. Genera
 |---|---|
 | T45 | [Slowly Changing Dimensions](T45-slowly-changing-dimensions.md) |
 | T46 | [SCD Type 1](T46-scd-type-1.md) |
-| T47 | SCD Type 2 |
+| T47 | [SCD Type 2](T47-scd-type-2.md) |
 | T48 | Fact Table Transformation |
 | T49 | Dimension Table Transformation |
 | T50 | Surrogate Keys |
