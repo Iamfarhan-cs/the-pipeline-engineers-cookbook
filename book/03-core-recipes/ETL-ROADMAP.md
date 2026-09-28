@@ -174,7 +174,7 @@ Each transformation recipe belongs to a specific transformation category. Genera
 | T27 | [Ranking](T27-ranking.md) |
 | T28 | [Running Totals](T28-running-totals.md) |
 | T29 | [Moving Windows](T29-moving-windows.md) |
-| T30 | Deduplication with Window Functions — Transform Application |
+| T30 | [Deduplication with Window Functions](T30-deduplication-with-window-functions.md) — Transform Application |
 | T31 | Pivoting |
 | T32 | Unpivoting |
 
