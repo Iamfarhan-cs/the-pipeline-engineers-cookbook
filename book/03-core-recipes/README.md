@@ -170,6 +170,7 @@ PROVE YOU ARE DONE
 | [T42 — Data Quality Scoring](T42-data-quality-scoring.md) | Combine normalized quality dimensions into an auditable score with coverage, critical gates, policy versions, and component-level explanations |
 | [T43 — Invalid Record Handling](T43-invalid-record-handling.md) | Classify, quarantine, retry, correct, replay, and reconcile invalid records without silently dropping data |
 | [T44 — Quarantine During Transformation](T44-quarantine-during-transformation.md) | Apply quarantine during transformation with explicit side outputs, reconciliation, atomic publication, and replay |
+| [T45 — Slowly Changing Dimensions](T45-slowly-changing-dimensions.md) | Preserve governed dimension history with change detection, effective dating, current-row semantics, temporal correctness, and safe recovery |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
