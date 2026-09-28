@@ -205,7 +205,7 @@ Each transformation recipe belongs to a specific transformation category. Genera
 
 | ID | Recipe |
 |---|---|
-| T45 | Slowly Changing Dimensions |
+| T45 | [Slowly Changing Dimensions](T45-slowly-changing-dimensions.md) |
 | T46 | SCD Type 1 |
 | T47 | SCD Type 2 |
 | T48 | Fact Table Transformation |
