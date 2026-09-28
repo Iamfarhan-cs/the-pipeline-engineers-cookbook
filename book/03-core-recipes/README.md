@@ -158,6 +158,7 @@ PROVE YOU ARE DONE
 | [T30 — Deduplication with Window Functions](T30-deduplication-with-window-functions.md) | Deduplicate logical records with deterministic survivor selection, composite identities, conflict classification, auditability, and target-grain enforcement |
 | [T31 — Pivoting](T31-pivoting.md) | Transform categorical row values into stable analytical columns with explicit grain, aggregation, NULL semantics, category contracts, and reconciliation |
 | [T32 — Unpivoting](T32-unpivoting.md) | Transform wide columns into governed long-form records with explicit mappings, target grain, NULL semantics, expansion controls, lineage, and reconciliation |
+| [T33 — Required-Field Validation](T33-required-field-validation.md) | Enforce required-field contracts with explicit presence semantics, conditional rules, field-level diagnostics, quarantine, replay, and quality monitoring |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
