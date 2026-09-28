@@ -143,6 +143,7 @@ PROVE YOU ARE DONE
 | [T15 — Record Splitting](T15-record-splitting.md) | Expand one record into accountable child records with deterministic identity, lineage, cardinality, reconciliation, and replay safety |
 | [T16 — Record Merging](T16-record-merging.md) | Consolidate records into one logical output using deterministic identity, field-level survivorship, conflict handling, provenance, and replay safety |
 | [T17 — SQL SELECT Transformations](T17-sql-select-transformations.md) | Build controlled SQL projections with explicit columns, derived expressions, types, NULL semantics, units, and preserved grain |
+| [T18 — WHERE Filtering](T18-where-filtering.md) | Select rows using explicit predicates, NULL semantics, time boundaries, security scope, population accounting, and safe replay |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
