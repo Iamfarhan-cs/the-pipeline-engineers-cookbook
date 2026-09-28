@@ -153,6 +153,7 @@ Each transformation recipe belongs to a specific transformation category. Genera
 | T11 | [Data Standardization](T11-data-standardization.md) |
 | T12 | [Data Cleansing](T12-data-cleansing.md) |
 | T13 | [Record Filtering](T13-record-filtering.md) |
+| T14 | [Record Enrichment](T14-record-enrichment.md) |
 | T11 | Data Standardization |
 | T12 | Data Cleansing |
 | T13 | Record Filtering |
