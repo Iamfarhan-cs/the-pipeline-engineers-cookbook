@@ -168,6 +168,7 @@ PROVE YOU ARE DONE
 | [T40 — Consistency Checks](T40-consistency-checks.md) | Validate relationships among fields, records, aggregates, states, units, currencies, and independent sources using explicit invariants and tolerances |
 | [T41 — Statistical Anomaly Detection](T41-statistical-anomaly-detection.md) | Detect statistically unusual volume, distributions, NULL rates, cardinality, category shares, and time-series behavior using contextual baselines |
 | [T42 — Data Quality Scoring](T42-data-quality-scoring.md) | Combine normalized quality dimensions into an auditable score with coverage, critical gates, policy versions, and component-level explanations |
+| [T43 — Invalid Record Handling](T43-invalid-record-handling.md) | Classify, quarantine, retry, correct, replay, and reconcile invalid records without silently dropping data |
 
 ### Stage 5 — Orchestration & Pipeline Operations
 
